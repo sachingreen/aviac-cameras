@@ -1,6 +1,7 @@
 """Studio renders of the Aviac camera (Blender 4.x, Cycles CPU, headless).
 
 usage: blender -b -P render.py -- <model.js> <board.glb> <outdir> <samples> <shot,shot,...> [width height]
+The lens the close-up focuses on is the part named by $FOCUS (default rgb_lens_glass).
 The carrier board is the real KiCad 3D export (board.glb); the simplified stand-in
 parts in model.js that are flagged 'proxy' are hidden.
 Run denoise.py on the output folder afterwards.
@@ -395,7 +396,7 @@ for s in shots:
         shoot("05_inside_electronics_side", c, size, az=-118, el=34, lens=85, fill=0.78)
     elif s == "optics_macro":
         c, size = pose(0, hide=(TOPU, "Mount"), rot=FLIP)
-        f = world_of("rgb_lens_glass")
+        f = world_of(os.environ.get("FOCUS", "rgb_lens_glass"))
         shoot("06_optics_macro", f + Vector((0.004, 0.0, -0.012)), Vector((0.11, 0.09, 0.05)), az=-108, el=33, lens=100, fill=0.80, fstop=22.0, focus=f, dark=True)
     elif s == "board":
         c, size = pose(0, show_only=("Carrier board",), rot=(0, 0, 0), lift=0.035)

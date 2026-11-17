@@ -34,14 +34,14 @@ open(os.path.join(OUT, "assets", "model.bin"), "wb").write(b"".join(chunks))
 # the page host serves text and images, not raw binaries: the same floats again as base64 text
 open(os.path.join(OUT, "assets", "model.txt"), "w").write(base64.b64encode(b"".join(chunks)).decode())
 bo = frame["board_origin"]
-pl = json.load(open(os.path.join(ROOT, "hardware", "carrier", "placement.json")))
+pl = json.load(open(os.path.join(ROOT, "..", "..", "boards", "orin-carrier", "kicad", "placement.json")))
 json.dump(dict(parts=parts, verts=off, board=dict(x0=bo[0] * 1e-3, z0=-bo[1] * 1e-3, y=(bo[2] + 1.0) * 1e-3, l=pl["board"][0] * 1e-3, w=pl["board"][1] * 1e-3),
                size=[v * 1e-3 for v in frame["size"]]),
           open(os.path.join(OUT, "src", "parts.json"), "w"), separators=(",", ":"))
 print("parts", len(parts), "verts", off, "model.bin MB", round(off * 12 / 1e6, 2))
 
 # ---- board texture from the KiCad layers
-pcb = os.path.join(ROOT, "hardware", "carrier", "aviac_carrier.kicad_pcb")
+pcb = os.path.join(ROOT, "..", "..", "boards", "orin-carrier", "kicad", "aviac_carrier.kicad_pcb")
 tmp = os.path.join(OUT, "assets", "_tmp")
 os.makedirs(tmp, exist_ok=True)
 Wpx = 2400

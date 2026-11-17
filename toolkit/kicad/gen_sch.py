@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Generate the KiCad 8 schematic from design.py.
+"""Generate a KiCad 8 schematic from a board's design.py.
+
+usage: gen_sch.py <board folder>    (reads <board>/design.py, writes <board>/kicad/, <board>/lib/)
 
 Style: one large sheet, one framed block per function. Every pin gets a short stub
 and a net label, so connectivity is explicit and identical to the netlist that
@@ -9,10 +11,15 @@ import math, os, sys, uuid, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sexp import Sym, dumps, find, first
 import kilib
-from design import D, PROJECT, TITLE, REV
-from jetson_pins import PINS as JPINS
+import importlib.util
+BOARD = os.path.abspath(sys.argv[1])
+_spec = importlib.util.spec_from_file_location("design", os.path.join(BOARD, "design.py"))
+_design = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_design)
+D, PROJECT, TITLE, REV = _design.D, _design.PROJECT, _design.TITLE, _design.REV
+BW = getattr(_design, "BLOCK_WIDTH", {"SOM": 520, "CAM": 420, "MCU": 300})
+DATE = getattr(_design, "DATE", "2026-11-17")
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "carrier")
+OUT = os.path.join(BOARD, "kicad")
 os.makedirs(OUT, exist_ok=True)
 NS = uuid.UUID("6f1d2c1e-7c0a-4b62-9d3e-aa5a0c0ffee0")
 ROOT = str(uuid.uuid5(NS, "root"))
@@ -68,6 +75,7 @@ def box_units(name, ref, units):
 
 
 def jetson_symbol(pins):
+    from jetson_pins import PINS as JPINS
     used = {int(n): net for n, net in pins.items()}
     g = {"CSI": [], "HS": [], "IO": [], "PWR": [], "GNDS": [], "NC": []}
     for n in sorted(JPINS):
@@ -137,7 +145,6 @@ def units_of(sym):
 symbols = {}       # lib id -> s-expr
 cells = []         # placed units
 blocks_geo = []
-BW = {"SOM": 520, "CAM": 420, "MCU": 300}
 for bkey, btitle in D.blocks.items():
     bw = BW.get(bkey, 250)
     x, y, rowh, maxx = 6.0, 14.0, 0.0, 0.0
@@ -158,24 +165,29 @@ for bkey, btitle in D.blocks.items():
             x += w + 3; rowh = max(rowh, h); maxx = max(maxx, x)
     blocks_geo.append((bkey, btitle, placed, maxx + 4, y + rowh + 6))
 
-# pack blocks into columns on the sheet
-PAGE_W, PAGE_H, M0 = 1189.0, 841.0, 15.0
-colx, coly, colw = M0, M0, 0.0
-origin = {}
-for bkey, btitle, placed, w, h in sorted(blocks_geo, key=lambda b: -b[4]):
-    if coly + h > PAGE_H - 28 and coly > M0:
-        colx, coly, colw = colx + colw + 8, M0, 0.0
-    origin[bkey] = (snap(colx), snap(coly))
-    coly += h + 8; colw = max(colw, w)
-need_w = colx + colw + M0
+# pack blocks into columns on the smallest standard sheet that holds them (A3 .. A0)
+def pack(pw, ph, m0=15.0):
+    colx, coly, colw, org = m0, m0, 0.0, {}
+    for bkey, btitle, placed, w, h in sorted(blocks_geo, key=lambda b: -b[4]):
+        if coly + h > ph - 28 and coly > m0:
+            colx, coly, colw = colx + colw + 8, m0, 0.0
+        org[bkey] = (snap(colx), snap(coly))
+        coly += h + 8; colw = max(colw, w)
+    return org, colx + colw + m0, max(coly for coly in [0] + [org[k][1] + [b for b in blocks_geo if b[0] == k][0][4] for k in org])
+
+
+for PAGE_W, PAGE_H in ((420.0, 297.0), (594.0, 420.0), (841.0, 594.0), (1189.0, 841.0)):
+    origin, need_w, need_h = pack(PAGE_W, PAGE_H)
+    if need_w <= PAGE_W and need_h <= PAGE_H - 28:
+        break
 if need_w > PAGE_W:
     PAGE_W = math.ceil(need_w / 10) * 10
 
 # ---------------------------------------------------------------- emit
 sch = [S("kicad_sch"), [S("version"), 20231120], [S("generator"), "aviac_gen"], [S("generator_version"), "8.0"],
        [S("uuid"), ROOT], [S("paper"), "User", PAGE_W, PAGE_H],
-       [S("title_block"), [S("title"), TITLE], [S("date"), "2026-11-16"], [S("rev"), REV], [S("company"), "Aviac Technologies"],
-        [S("comment"), 1, "Generated from hardware/tools/design.py - edit the source, not this file"],
+       [S("title_block"), [S("title"), TITLE], [S("date"), DATE], [S("rev"), REV], [S("company"), "Aviac Technologies"],
+        [S("comment"), 1, "Generated from design.py by toolkit/kicad/gen_sch.py - edit the source, not this file"],
         [S("comment"), 2, "Net labels carry all connectivity; every unused pin has a no-connect flag"]]]
 libsyms = [S("lib_symbols")]
 body = []
@@ -263,10 +275,11 @@ for bkey, btitle, placed, w, h in blocks_geo:
 # power flags for rails that have power-input pins but no power-output pin driving them
 flag = kilib.get("power:PWR_FLAG")
 symbols[flag[1]] = flag
-fx0, fy0 = origin["PWR_IN"]
+FLAG_BLOCK = "PWR_IN" if "PWR_IN" in origin else next(iter(D.blocks))
+fx0, fy0 = origin[FLAG_BLOCK]
 flags = [n for n, st in power_pins.items() if st["pin"] and not st["pout"]]
 for i, net in enumerate(flags):
-    X, Y = snap(fx0 + 12 + i * 22), snap(fy0 + [b for b in blocks_geo if b[0] == "PWR_IN"][0][4] - 8)
+    X, Y = snap(fx0 + 12 + i * 22), snap(fy0 + [b for b in blocks_geo if b[0] == FLAG_BLOCK][0][4] - 8)
     place_symbol(None, flag, 1, X, Y, f"#FLG{i+1:02d}", "PWR_FLAG")
     wire(X, Y, X, Y + 2.54)
     label(net, X, Y + 2.54, 0, 1)
@@ -277,7 +290,8 @@ sch.append(libsyms)
 sch += body
 sch.append([S("sheet_instances"), [S("path"), "/", [S("page"), "1"]]])
 # project library with the custom symbols, plus project-local library tables
-LIB = os.path.join(OUT, "..", "lib")
+LIB = os.path.join(BOARD, "lib")
+os.makedirs(LIB, exist_ok=True)
 custom = [S("kicad_symbol_lib"), [S("version"), 20231120], [S("generator"), "aviac_gen"], [S("generator_version"), "8.0"]]
 import copy
 for lid, s in symbols.items():

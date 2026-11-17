@@ -1,68 +1,21 @@
-"""Aviac 6-band camera carrier board - single source of truth for the netlist.
+"""Aviac Jetson Orin Nano carrier - single source of truth for the netlist.
+
+Shared by every Aviac camera that runs on an Orin Nano: the 6-band camera fits all four
+camera ports, the Duo fits two (CAM2/CAM3 parts are a do-not-fit variant, see variants.py).
 
 Every part is declared once here with its symbol, footprint, value, manufacturer
 part number and pin-to-net map. gen_sch.py turns this into the KiCad schematic,
 gen_pcb.py into the board. Pin numbers for library parts come from the KiCad 8
 symbol libraries; Jetson pins from jetson_pins.py.
 """
-from collections import OrderedDict
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "toolkit", "kicad"))
+from netlist import Part, Design
 from jetson_pins import PINS as JPINS
 
 PROJECT = "aviac_carrier"
-TITLE = "Aviac 6-band camera - Jetson Orin Nano carrier"
-REV = "A0 (pre-release, not yet reviewed for manufacture)"
-
-
-class Part:
-    def __init__(self, ref, sym, value, fp, pins, block, mpn="", mfr="", desc="", mass=0.0, dnp=False, custom=None):
-        self.ref, self.sym, self.value, self.fp = ref, sym, value, fp
-        self.pins = {str(k): v for k, v in pins.items()}
-        self.block, self.mpn, self.mfr, self.desc, self.mass, self.dnp = block, mpn, mfr, desc, mass, dnp
-        self.custom = custom          # custom symbol definition (see gen_sch.custom_symbol)
-
-
-class Design:
-    def __init__(self):
-        self.parts = OrderedDict()
-        self.count = {}
-        self.blocks = OrderedDict()
-
-    def block(self, key, title):
-        self.blocks[key] = title
-
-    def add(self, prefix_or_ref, *a, **k):
-        ref = prefix_or_ref
-        if not any(ch.isdigit() for ch in ref):
-            self.count[ref] = self.count.get(ref, 0) + 1
-            ref = f"{ref}{self.count[ref]}"
-        assert ref not in self.parts, ref
-        p = Part(ref, *a, **k)
-        self.parts[ref] = p
-        return p
-
-    # ---- passives
-    RFP = {"0402": "Resistor_SMD:R_0402_1005Metric", "0603": "Resistor_SMD:R_0603_1608Metric"}
-    CFP = {"0402": "Capacitor_SMD:C_0402_1005Metric", "0603": "Capacitor_SMD:C_0603_1608Metric",
-           "0805": "Capacitor_SMD:C_0805_2012Metric", "1210": "Capacitor_SMD:C_1210_3225Metric"}
-    CM = {"0402": 0.002, "0603": 0.006, "0805": 0.016, "1210": 0.09}
-
-    def R(self, a, b, value, block, pkg="0402", tol="1%", dnp=False):
-        return self.add("R", "Device:R", value, self.RFP[pkg], {1: a, 2: b}, block,
-                        mpn=f"RES {value} {tol} {pkg}", mfr="generic (Yageo RC / Vishay CRCW)", desc=f"Resistor {value} {tol} {pkg}",
-                        mass=0.001, dnp=dnp)
-
-    def C(self, a, b, value, block, pkg="0402", volt="16V", diel="X7R"):
-        return self.add("C", "Device:C", value, self.CFP[pkg], {1: a, 2: b}, block,
-                        mpn=f"CAP {value} {volt} {diel} {pkg}", mfr="generic (Murata GRM / Samsung CL)",
-                        desc=f"Capacitor {value} {volt} {diel} {pkg}", mass=self.CM[pkg])
-
-    def nets(self):
-        n = OrderedDict()
-        for p in self.parts.values():
-            for pin, net in p.pins.items():
-                if net and net != "NC":
-                    n.setdefault(net, []).append((p.ref, pin))
-        return n
+TITLE = "Aviac Jetson Orin Nano carrier (6-band and Duo cameras)"
+REV = "A1 (pre-release: camera I2C moved to 1.8 V; not yet reviewed for manufacture)"
 
 
 D = Design()
@@ -243,20 +196,22 @@ for i in range(4):
     D.C(f"{c}_3V3", GND, "10u", B, "0603", "10V", "X5R")
     D.C(f"{c}_3V3", GND, "100n", B)
     D.R(f"{c}_EN", GND, "100k", B)
-    D.R("+3V3", f"{c}_SCL", "2k2", B)
-    D.R("+3V3", f"{c}_SDA", "2k2", B)
+    # Mira220 I2C and trigger inputs are 1.8 V parts (datasheet: VIH max = VDD18), so the camera side of the
+    # I2C switch is pulled up to 1.8 V (rev A0 pulled it to 3.3 V, which overdrove the sensor pins)
+    D.R("+1V8", f"{c}_SCL", "2k2", B)
+    D.R("+1V8", f"{c}_SDA", "2k2", B)
     D.R(f"TRIG{i}", f"{c}_TRIG", "33R", B)
 
 B = "I2C"
 D.add("U5", "Interface_Expansion:TCA9548APWR", "TCA9548A", "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
       {1: GND, 2: GND, 3: "I2C_MUX_RST_N", 4: "CAM0_SDA", 5: "CAM0_SCL", 6: "CAM1_SDA", 7: "CAM1_SCL", 8: "CAM2_SDA", 9: "CAM2_SCL",
        10: "CAM3_SDA", 11: "CAM3_SCL", 12: GND, 13: "NC", 14: "NC", 15: "NC", 16: "NC", 17: "NC", 18: "NC", 19: "NC", 20: "NC",
-       21: GND, 22: "I2C_CAM_SCL", 23: "I2C_CAM_SDA", 24: "+3V3"}, B,
-      mpn="TCA9548APWR", mfr="Texas Instruments", desc="8-channel I2C switch (address 0x70): all Mira220 modules answer at 0x54", mass=0.09)
-D.C("+3V3", GND, "100n", B)
-D.R("+3V3", "I2C_MUX_RST_N", "10k", B)
-D.R("+3V3", "I2C_CAM_SCL", "2k2", B, dnp=True)   # module has its own pull-ups; fit only if measured rise time needs it
-D.R("+3V3", "I2C_CAM_SDA", "2k2", B, dnp=True)
+       21: GND, 22: "I2C_CAM_SCL", 23: "I2C_CAM_SDA", 24: "+1V8"}, B,
+      mpn="TCA9548APWR", mfr="Texas Instruments", desc="8-channel I2C switch (address 0x70), powered at 1.8 V so its pass gates translate to the 1.8 V cameras; all Mira220 modules answer at 0x54", mass=0.09)
+D.C("+1V8", GND, "100n", B)
+D.R("+1V8", "I2C_MUX_RST_N", "10k", B)
+D.R("+1V8", "I2C_CAM_SCL", "2k2", B, dnp=True)   # the Jetson module pulls CAM_I2C up itself; fit only if the measured rise time needs it
+D.R("+1V8", "I2C_CAM_SDA", "2k2", B, dnp=True)
 
 # ================================================================= SYNC MCU
 B = "MCU"

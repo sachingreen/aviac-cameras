@@ -5,3 +5,7 @@ route.dsn
 mechanical/out/test/
 mechanical/out/renders/
 *.zip
+boards/orin-carrier/kicad/variants/
+boards/orin-carrier/kicad/route.log
+**/out/test/
+route.ses

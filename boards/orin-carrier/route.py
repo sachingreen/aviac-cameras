@@ -2,11 +2,12 @@
 """Stage 2: planes, net classes, export to the autorouter, import the result, fill zones."""
 import json, os, subprocess, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "toolkit", "kicad"))
 import pcbnew
 from pcbnew import VECTOR2I, FromMM, ToMM
 from design import D, PROJECT
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "..", "carrier")
+OUT = os.path.join(HERE, "kicad")
 PCB = os.path.join(OUT, PROJECT + ".kicad_pcb")
 OX, OY, BL, BW = 100.0, 60.0, 100.0, 82.0
 FR = os.environ.get("FREEROUTING_JAR", "/tmp/claude-0/-home-user/98c65444-5e63-542e-8aef-e4be22683d99/scratchpad/ref/freerouting.jar")

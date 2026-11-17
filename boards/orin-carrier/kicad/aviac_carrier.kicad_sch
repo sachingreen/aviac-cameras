@@ -5,11 +5,11 @@
 	(uuid "6e95c52e-66eb-53cc-b407-3b1af455450f")
 	(paper "User" 1189 841)
 	(title_block
-		(title "Aviac 6-band camera - Jetson Orin Nano carrier")
-		(date "2026-11-16")
-		(rev "A0 (pre-release, not yet reviewed for manufacture)")
+		(title "Aviac Jetson Orin Nano carrier (6-band and Duo cameras)")
+		(date "2026-11-17")
+		(rev "A1 (pre-release: camera I2C moved to 1.8 V; not yet reviewed for manufacture)")
 		(company "Aviac Technologies")
-		(comment 1 "Generated from hardware/tools/design.py - edit the source, not this file")
+		(comment 1 "Generated from design.py by toolkit/kicad/gen_sch.py - edit the source, not this file")
 		(comment 2 "Net labels carry all connectivity; every unused pin has a no-connect flag")
 	)
 	(lib_symbols
@@ -33289,7 +33289,7 @@
 		)
 		(uuid "50449bf0-8cf3-5782-a94e-e2a9a88badd5")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 702.31 40.64 90)
 		(fields_autoplaced yes)
 		(effects
@@ -33298,7 +33298,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "c0392933-87d7-5498-81b4-e801cde927df")
+		(uuid "8aac4110-894b-5cb1-9e63-af5d898d3ea0")
 	)
 	(wire
 		(pts
@@ -33420,7 +33420,7 @@
 		)
 		(uuid "9ddcd0e6-8d31-5005-bf24-94c489ec63b5")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 711.2 40.64 90)
 		(fields_autoplaced yes)
 		(effects
@@ -33429,7 +33429,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "3303f0a8-f6f7-51d1-86c0-a849de06ff0f")
+		(uuid "edf3481c-65dd-5a32-93b3-2a595c71c904")
 	)
 	(wire
 		(pts
@@ -34206,7 +34206,7 @@
 		)
 		(uuid "17f7b4ec-315d-5092-b876-008f4656ab9b")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 772.16 40.64 90)
 		(fields_autoplaced yes)
 		(effects
@@ -34215,7 +34215,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "b10f10ae-6908-5a6c-9505-b0bfc9c68ae6")
+		(uuid "9e1764ea-a0a6-5739-9352-6af0e375f01e")
 	)
 	(wire
 		(pts
@@ -34337,7 +34337,7 @@
 		)
 		(uuid "36fd8eb4-ba3f-53aa-9c73-e4d65864b218")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 782.32 40.64 90)
 		(fields_autoplaced yes)
 		(effects
@@ -34346,7 +34346,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "f0362e6f-ba47-5a5c-8a4b-dbc9d84e66c8")
+		(uuid "0773c712-6737-5f72-b259-4f275c3e47d0")
 	)
 	(wire
 		(pts
@@ -35123,7 +35123,7 @@
 		)
 		(uuid "f6c888ca-a587-559e-9c7f-1bf637d65844")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 842.01 40.64 90)
 		(fields_autoplaced yes)
 		(effects
@@ -35132,7 +35132,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "a2cec736-f28d-53db-83f2-9a3a41c720e9")
+		(uuid "53e6654f-903c-5cd5-a5be-214b9f6c5de5")
 	)
 	(wire
 		(pts
@@ -35254,7 +35254,7 @@
 		)
 		(uuid "14e94366-cf21-5294-be10-5e948dd42b69")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 852.17 40.64 90)
 		(fields_autoplaced yes)
 		(effects
@@ -35263,7 +35263,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "c390732b-12fd-5bb9-a4f3-4eacc086b9f0")
+		(uuid "c6265df3-a6ba-549c-9880-b364b8d9be8e")
 	)
 	(wire
 		(pts
@@ -36040,7 +36040,7 @@
 		)
 		(uuid "0f5acb62-bb2b-5530-ba65-c9ae5217f80f")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 911.86 40.64 90)
 		(fields_autoplaced yes)
 		(effects
@@ -36049,7 +36049,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "3faaa902-d043-5659-a118-2969256eae27")
+		(uuid "08e6c825-42af-5da0-b9e4-fac064135370")
 	)
 	(wire
 		(pts
@@ -36171,7 +36171,7 @@
 		)
 		(uuid "11ac60dd-305b-541f-90ff-c03a2669781a")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 922.02 40.64 90)
 		(fields_autoplaced yes)
 		(effects
@@ -36180,7 +36180,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "0075186f-73a4-5b2f-adb4-aea346f02d24")
+		(uuid "0280fefb-8a89-5a9d-88bb-5767479b44c3")
 	)
 	(wire
 		(pts
@@ -36422,7 +36422,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "8-channel I2C switch (address 0x70): all Mira220 modules answer at 0x54"
+		(property "Description" "8-channel I2C switch (address 0x70), powered at 1.8 V so its pass gates translate to the 1.8 V cameras; all Mira220 modules answer at 0x54"
 			(at 576.58 168.91 0)
 			(effects
 				(font
@@ -36731,7 +36731,7 @@
 		)
 		(uuid "ded099e8-f32a-5603-abea-96972106657d")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 576.58 143.51 90)
 		(fields_autoplaced yes)
 		(effects
@@ -36740,7 +36740,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "29e31166-f0ee-5451-a5c4-260653804837")
+		(uuid "029701a8-c9c7-5f63-87c4-8101ddfc16f2")
 	)
 	(wire
 		(pts
@@ -36994,7 +36994,7 @@
 		)
 		(uuid "3eac7ed0-8712-52f5-8e4c-bba928704a36")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 607.06 143.51 90)
 		(fields_autoplaced yes)
 		(effects
@@ -37003,7 +37003,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "fa7e6f2e-14e1-58b2-b4b9-db36639b4920")
+		(uuid "1860a143-866a-540b-bdfd-5737341fb6c5")
 	)
 	(wire
 		(pts
@@ -37125,7 +37125,7 @@
 		)
 		(uuid "a8a2fa5f-665f-5b6f-9009-c8d33c5a9ac3")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 617.22 143.51 90)
 		(fields_autoplaced yes)
 		(effects
@@ -37134,7 +37134,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "b5269cb8-25a3-56d7-93ad-943acdc4d399")
+		(uuid "0cbd529b-f875-5583-8477-02dbed0adec4")
 	)
 	(wire
 		(pts
@@ -37256,7 +37256,7 @@
 		)
 		(uuid "1293e884-2ab0-53a0-8333-f958d7797512")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 627.38 143.51 90)
 		(fields_autoplaced yes)
 		(effects
@@ -37265,7 +37265,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "e62d9c77-817f-56d7-87af-c9c77c269b74")
+		(uuid "ed9fae59-a143-5247-87e4-3bacef5e5bee")
 	)
 	(wire
 		(pts
@@ -37387,7 +37387,7 @@
 		)
 		(uuid "97b74d0e-8fbb-5a93-9429-262ca87ce520")
 	)
-	(label "+3V3"
+	(label "+1V8"
 		(at 637.54 143.51 90)
 		(fields_autoplaced yes)
 		(effects
@@ -37396,7 +37396,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "1a82b80d-456f-5e0c-8162-47884b5931a9")
+		(uuid "2e4d1c6d-067b-5e0c-a33d-0c297f27bf89")
 	)
 	(wire
 		(pts

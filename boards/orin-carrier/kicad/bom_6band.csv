@@ -1,0 +1,68 @@
+References,Qty,Value,Manufacturer part,Manufacturer,Description,Footprint
+C1 C2 C5 C7 C10 C15 C16 C19 C29 C61,10,100n,CAP 100n 50V X7R 0603,generic (Murata GRM / Samsung CL),Capacitor 100n 50V X7R 0603,C_0603_1608Metric
+C3 C4,2,22u,CAP 22u 50V X7R 1210,generic (Murata GRM / Samsung CL),Capacitor 22u 50V X7R 1210,C_1210_3225Metric
+C6 C23 C31 C33 C35 C37 C38 C39 C40 C41 C43 C46 C47 C48 C51 C52 C54 C60 C62,19,100n,CAP 100n 16V X7R 0402,generic (Murata GRM / Samsung CL),Capacitor 100n 16V X7R 0402,C_0402_1005Metric
+C8 C17,2,1u,CAP 1u 16V X7R 0603,generic (Murata GRM / Samsung CL),Capacitor 1u 16V X7R 0603,C_0603_1608Metric
+C9 C18,2,10u,CAP 10u 50V X7R 1210,generic (Murata GRM / Samsung CL),Capacitor 10u 50V X7R 1210,C_1210_3225Metric
+C11 C20,2,22p,CAP 22p 50V C0G 0402,generic (Murata GRM / Samsung CL),Capacitor 22p 50V C0G 0402,C_0402_1005Metric
+C12 C13 C14 C27 C28,5,22u,CAP 22u 25V X7R 1210,generic (Murata GRM / Samsung CL),Capacitor 22u 25V X7R 1210,C_1210_3225Metric
+C21 C22 C58 C59,4,22u,CAP 22u 10V X5R 0805,generic (Murata GRM / Samsung CL),Capacitor 22u 10V X5R 0805,C_0805_2012Metric
+C24,1,1u,CAP 1u 25V X7R 0603,generic (Murata GRM / Samsung CL),Capacitor 1u 25V X7R 0603,C_0603_1608Metric
+C25 C53,2,10n,CAP 10n 16V X7R 0402,generic (Murata GRM / Samsung CL),Capacitor 10n 16V X7R 0402,C_0402_1005Metric
+C26 C55,2,2u2,CAP 2u2 10V X7R 0603,generic (Murata GRM / Samsung CL),Capacitor 2u2 10V X7R 0603,C_0603_1608Metric
+C30 C32 C34 C36 C50,5,10u,CAP 10u 10V X5R 0603,generic (Murata GRM / Samsung CL),Capacitor 10u 10V X5R 0603,C_0603_1608Metric
+C42,1,4u7,CAP 4u7 10V X5R 0603,generic (Murata GRM / Samsung CL),Capacitor 4u7 10V X5R 0603,C_0603_1608Metric
+C44 C45,2,12p,CAP 12p 50V C0G 0402,generic (Murata GRM / Samsung CL),Capacitor 12p 50V C0G 0402,C_0402_1005Metric
+C49,1,100p,CAP 100p 50V C0G 0402,generic (Murata GRM / Samsung CL),Capacitor 100p 50V C0G 0402,C_0402_1005Metric
+C56 C57,2,220n,CAP 220n 10V X5R 0402,generic (Murata GRM / Samsung CL),Capacitor 220n 10V X5R 0402,C_0402_1005Metric
+D1,1,SMBJ26CA,SMBJ26CA,Littelfuse,"TVS 26 V stand-off, bidirectional, 600 W",D_SMB
+D2,1,green,LTST-C281KGKT,Lite-On,"LED green 0402, peripherals powered",LED_0402_1005Metric
+D3,1,amber,LTST-C281KFKT,Lite-On,"LED amber 0402, sync status",LED_0402_1005Metric
+D4,1,PESD3V3L4UG,"PESD3V3L4UG,115",Nexperia,4-line ESD protection for the autopilot connectors,SOT-353_SC-70-5
+FB1 FB2 FB3 FB4 FB5,5,600R 1A,BLM18KG601SN1D,Murata,"Ferrite bead 600 ohm at 100 MHz, 1.3 A, 0603",L_0603_1608Metric
+J1,1,XT30PW-M,XT30PW-M,AMASS,"Battery input 3S-6S (9-25.2 V), 15 A connector",AMASS_XT30PW-M_1x02_P2.50mm_Horizontal
+J2,1,Jetson Orin Nano 8GB,2309413-1,TE Connectivity,"260-pin SO-DIMM socket, 9.2 mm, for Jetson Orin Nano module",TE_2309413
+J3,1,"CAM0: RGB, IMX565 (via adapter) (mirrored)",FH12-22S-0.5SH(55),Hirose,"FPC connector 22-pin 0.5 mm, bottom contact",Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal
+J4,1,"CAM1: red edge, Mira220",FH12-22S-0.5SH(55),Hirose,"FPC connector 22-pin 0.5 mm, bottom contact",Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal
+J5,1,"CAM2: NIR, Mira220 (mirrored)",FH12-22S-0.5SH(55),Hirose,"FPC connector 22-pin 0.5 mm, bottom contact",Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal
+J6,1,"CAM3: extended NIR, Mira220",FH12-22S-0.5SH(55),Hirose,"FPC connector 22-pin 0.5 mm, bottom contact",Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal
+J8,1,TELEM (MAVLink),SM06B-GHS-TB,JST,"Autopilot TELEM port, Pixhawk pinout (pin 1 = 5 V not used)",JST_GH_SM06B-GHS-TB_1x06-1MP_P1.25mm_Horizontal
+J9,1,CAM TRIGGER,SM04B-GHS-TB,JST,"Camera trigger in, exposure feedback out, PPS out",JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal
+J10,1,GNSS ANT,U.FL-R-SMT-1(10),Hirose,"U.FL antenna connector, active antenna on the top unit",U.FL_Hirose_U.FL-R-SMT-1_Vertical
+J11,1,M.2 Key M,1-2199230-6,TE Connectivity,"M.2 Key-M socket, PCIe x1 (lane 0) to NVMe 2230",Bus_M.2_Socket_Key_M_TE_1-2199230-6
+J12,1,USB-C,USB4105-GF-A,GCT,"USB-C receptacle, USB 2.0, device mode for flashing and data",USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal
+J13,1,DLS,SM05B-GHS-TB,JST,"Downwelling light sensor port (I2C at 1.8 V, read by the sync MCU)",JST_GH_SM05B-GHS-TB_1x05-1MP_P1.25mm_Horizontal
+L1,1,6u8 8A,SRP6060FA-6R8M,Bourns,"Power inductor 6.8 uH, Isat 8 A, 6.6 x 6.4 x 5.8 mm",L_Bourns_SRP6060FA
+L2,1,6u8 3.9A,XAL4030-682ME,Coilcraft,"Power inductor 6.8 uH, Isat 3.9 A, 4 x 4 x 3.1 mm",L_Coilcraft_XAL4030-XXX
+L3,1,27n,LQG15HS27NJ02D,Murata,"RF inductor 27 nH, antenna bias feed",L_0402_1005Metric
+Q1,1,BSC028N06LS3,BSC028N06LS3GATMA1,Infineon,"N-MOSFET 60 V 2.8 mOhm, ideal-diode pass element",TDSON-8-1
+Q2,1,2N7002,2N7002NXAKR,Nexperia,"N-MOSFET, open-drain exposure feedback to autopilot",SOT-23
+R1 R3 R5 R7 R8 R10 R12 R14 R16 R18 R22 R26 R30 R42 R44 R51 R55,17,100k,RES 100k 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 100k 1% 0402,R_0402_1005Metric
+R2,1,6k8,RES 6k8 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 6k8 1% 0402,R_0402_1005Metric
+R4,1,16k2,RES 16k2 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 16k2 1% 0402,R_0402_1005Metric
+R6,1,15k4,RES 15k4 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 15k4 1% 0402,R_0402_1005Metric
+R9,1,43k2,RES 43k2 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 43k2 1% 0402,R_0402_1005Metric
+R11 R17 R34 R40 R45,5,10k,RES 10k 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 10k 1% 0402,R_0402_1005Metric
+R13 R37 R38 R39 R41,5,1k,RES 1k 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 1k 1% 0402,R_0402_1005Metric
+R15 R47 R48,3,47k,RES 47k 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 47k 1% 0402,R_0402_1005Metric
+R19 R20 R23 R24 R27 R28 R31 R32 R53 R54,10,2k2,RES 2k2 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 2k2 1% 0402,R_0402_1005Metric
+R21 R25 R29 R33,4,33R,RES 33R 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 33R 1% 0402,R_0402_1005Metric
+R43,1,100R,RES 100R 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 100R 1% 0402,R_0402_1005Metric
+R46,1,10R,RES 10R 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 10R 1% 0402,R_0402_1005Metric
+R49 R50,2,5k1,RES 5k1 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 5k1 1% 0402,R_0402_1005Metric
+R52,1,56k,RES 56k 1% 0402,generic (Yageo RC / Vishay CRCW),Resistor 56k 1% 0402,R_0402_1005Metric
+SW1,1,RECOVERY,B3U-1000P-B,Omron,"Tactile switch, force-recovery (hold while powering on to flash)",SW_SPST_B3U-1000P-B
+SW2,1,RESET,B3U-1000P-B,Omron,"Tactile switch, system reset",SW_SPST_B3U-1000P-B
+U1,1,LM74700-Q1,LM74700QDBVRQ1,Texas Instruments,"Ideal-diode controller, reverse-polarity protection, 3.2-65 V",SOT-23-6
+U2,1,LMR33640ADDA,LMR33640ADDAR,Texas Instruments,"Synchronous buck 3.8-36 V in, 4 A, 400 kHz",Texas_HSOP-8-1EP_3.9x4.9mm_P1.27mm_ThermalVias
+U3,1,LMR33630ADDA,LMR33630ADDAR,Texas Instruments,"Synchronous buck 3.8-36 V in, 3 A, 400 kHz",Texas_HSOP-8-1EP_3.9x4.9mm_P1.27mm_ThermalVias
+U4,1,LP2985-18,LP2985-18DBVR,Texas Instruments,"LDO 1.8 V 150 mA, 16 V in, always-on rail for the sync MCU",SOT-23-5
+U5,1,TCA9548A,TCA9548APWR,Texas Instruments,"8-channel I2C switch (address 0x70), powered at 1.8 V so its pass gates translate to the 1.8 V cameras; all Mira220 modules answer at 0x54",TSSOP-24_4.4x7.8mm_P0.65mm
+U6,1,STM32G0B1CBT6,STM32G0B1CBT6,STMicroelectronics,"Sync MCU, runs at 1.8 V; one timer drives all four camera triggers",LQFP-48_7x7mm_P0.5mm
+U7,1,TXS0102,TXS0102DCUR,Texas Instruments,2-bit level translator 1.8 V <-> 3.3 V for the MAVLink UART,VSSOP-8_2.3x2mm_P0.5mm
+U8,1,74LVC2G17,SN74LVC2G17DCKR,Texas Instruments,"Dual Schmitt buffer at 1.8 V, 5 V-tolerant inputs",SOT-363_SC-70-6
+U9,1,MAX-M10S,MAX-M10S-00B,u-blox,GNSS receiver with time pulse (PPS); VIO_SEL to GND for 1.8 V I/O,ublox_MAX
+U10,1,ICM-42688-P,ICM-42688-P,TDK InvenSense,"6-axis IMU, SPI, time-stamped by the sync MCU",LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y
+U11,1,USBLC6-2SC6,USBLC6-2SC6,STMicroelectronics,USB ESD protection,SOT-23-6
+U12,1,M24C02-F,M24C02-FMN6TP,STMicroelectronics,Carrier ID EEPROM at 0x57 on I2C2,SOIC-8_3.9x4.9mm_P1.27mm
+Y1,1,8MHz,ABM8-8.000MHZ-10-D1G-T,Abracon,"Crystal 8 MHz, 10 pF, 3.2 x 2.5 mm",Crystal_SMD_3225-4Pin_3.2x2.5mm

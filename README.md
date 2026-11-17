@@ -7,6 +7,16 @@ a new camera starts from an existing folder and changes the parts list, layout a
 | Camera | Folder | State |
 | --- | --- | --- |
 | 6-band crop-mapping camera (IMX565 + 3 x Mira220, Jetson Orin Nano) | `cameras/6band/` | Concept model, schematic passes ERC, board is a first routing pass. Not ready for manufacture. |
+| Duo stereo camera (2 x Mira220, Jetson Orin Nano) | `cameras/duo/` | Concept model and stereo design. Uses the shared carrier with two camera ports fitted. |
+
+Shared between cameras:
+
+| Path | What it is |
+| --- | --- |
+| `boards/orin-carrier/` | Jetson Orin Nano carrier: netlist (`design.py`), placement, routing, KiCad project, BOM per camera (`variants.py`) |
+| `boards/mira220-module/` | Mira220 camera module extracted from the SincereFirst schematic, with the hardware trigger added |
+| `toolkit/kicad/` | Schematic generator and KiCad library helpers used by every board |
+| `toolkit/render/` | Blender studio renderer and denoiser used by every camera |
 
 ## What each camera folder holds
 
@@ -14,9 +24,7 @@ a new camera starts from an existing folder and changes the parts list, layout a
 | --- | --- |
 | `docs/` | Interface findings and design notes |
 | `refs/` | Supplied schematics, datasheets |
-| `hardware/tools/` | `design.py` (parts and nets), `gen_sch.py`, `gen_pcb.py`, `route.py` |
-| `hardware/carrier/` | Generated KiCad 8 project, schematic PDF, check reports |
-| `mechanical/` | `build_model.py` (CadQuery), `render.py` (Blender), `denoise.py`, outputs in `out/` |
+| `mechanical/` | `build_model.py` (CadQuery), outputs in `out/` |
 | `renders/` | Finished studio renders |
 | `teardown/` | Interactive teardown page: `src/`, `build.mjs`, built page in `dist/` |
 
@@ -25,18 +33,18 @@ a new camera starts from an existing folder and changes the parts list, layout a
 Tools: KiCad 8, Python 3 with CadQuery, Blender 4, Node 20, Java (for the Freerouting autorouter), Intel Open Image Denoise.
 
 ```bash
-cd cameras/6band/hardware/tools && python3 gen_sch.py && /usr/bin/python3 gen_pcb.py && /usr/bin/python3 route.py --export
+python3 toolkit/kicad/gen_sch.py boards/orin-carrier
 ```
 
 ```bash
-cd cameras/6band/mechanical && python3 build_model.py
+cd boards/orin-carrier && /usr/bin/python3 gen_pcb.py && /usr/bin/python3 route.py --export
 ```
 
 ```bash
-cd cameras/6band/teardown && npm install && python3 tools/pack_assets.py && node build.mjs
+python3 toolkit/kicad/gen_sch.py boards/mira220-module
 ```
 
-The 3D board file (`board.glb`) is not stored; export it with `kicad-cli pcb export glb --subst-models --include-tracks`.
+Each camera's README has its model, render and page steps. The 3D board file (`*.glb`) is not stored; export it with `kicad-cli pcb export glb --subst-models --include-tracks`.
 
 ## Credits
 

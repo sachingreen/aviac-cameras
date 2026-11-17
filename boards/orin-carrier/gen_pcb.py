@@ -6,12 +6,13 @@ Routing is done by route_pairs.py (differential pairs) and the autorouter afterw
 """
 import math, os, sys, uuid
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "toolkit", "kicad"))
 import pcbnew
 from pcbnew import VECTOR2I, FromMM, ToMM
 from design import D, PROJECT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "..", "carrier")
+OUT = os.path.join(HERE, "kicad")
 FPDIR = "/usr/share/kicad/footprints"
 NS = uuid.UUID("6f1d2c1e-7c0a-4b62-9d3e-aa5a0c0ffee0")
 OX, OY = 100.0, 60.0            # board origin on the page
@@ -61,7 +62,7 @@ for name in D.nets():
 # ---------------------------------------------------------------- footprints
 def load(fpid):
     lib, name = fpid.split(":")
-    path = os.path.join(HERE, "..", "lib", "aviac.pretty") if lib == "aviac" else os.path.join(FPDIR, lib + ".pretty")
+    path = os.path.join(HERE, "lib", "aviac.pretty") if lib == "aviac" else os.path.join(FPDIR, lib + ".pretty")
     fp = pcbnew.FootprintLoad(path, name)
     if fp is None:
         raise SystemExit("footprint not found: " + fpid)

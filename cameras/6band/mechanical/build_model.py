@@ -5,7 +5,7 @@ Frame: X forward (flight direction), Y right, Z up. Z=0 is the mounting face
 against the aircraft belly; everything hangs below (negative Z). Units: mm.
 
 The carrier board geometry (size, connector positions, part outlines) is read from
-hardware/carrier/placement.json, which the PCB generator writes, so the enclosure
+boards/orin-carrier/kicad/placement.json, which the PCB generator writes, so the enclosure
 cut-outs always follow the real board.
 
 Optics: IMX565 on a C-mount lens, three Mira220 modules on CS-mount lenses, all
@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "out")
 os.makedirs(OUT, exist_ok=True)
 random.seed(7)
-PL = json.load(open(os.path.join(HERE, "..", "hardware", "carrier", "placement.json")))
+PL = json.load(open(os.path.join(HERE, "..", "..", "..", "boards", "orin-carrier", "kicad", "placement.json")))
 BL, BW = PL["board"]
 BX0 = 2.0                      # board x=0 sits at model X=2
 
