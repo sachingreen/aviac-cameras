@@ -35,7 +35,9 @@ open(os.path.join(OUT, "assets", "model.bin"), "wb").write(b"".join(chunks))
 open(os.path.join(OUT, "assets", "model.txt"), "w").write(base64.b64encode(b"".join(chunks)).decode())
 bo = frame["board_origin"]
 pl = json.load(open(os.path.join(ROOT, "..", "..", "boards", "orin-carrier", "kicad", "placement.json")))
-json.dump(dict(parts=parts, verts=off, board=dict(x0=bo[0] * 1e-3, z0=-bo[1] * 1e-3, y=(bo[2] + 1.0) * 1e-3, l=pl["board"][0] * 1e-3, w=pl["board"][1] * 1e-3),
+flip = bool(frame.get("flip"))       # board mounted socket-side up: the routed face looks down
+json.dump(dict(parts=parts, verts=off, board=dict(x0=bo[0] * 1e-3, z0=-bo[1] * 1e-3, y=((bo[2] - 1.0) if flip else (bo[2] + 1.0)) * 1e-3,
+                                                  l=pl["board"][0] * 1e-3, w=pl["board"][1] * 1e-3, flip=flip),
                size=[v * 1e-3 for v in frame["size"]]),
           open(os.path.join(OUT, "src", "parts.json"), "w"), separators=(",", ":"))
 print("parts", len(parts), "verts", off, "model.bin MB", round(off * 12 / 1e6, 2))

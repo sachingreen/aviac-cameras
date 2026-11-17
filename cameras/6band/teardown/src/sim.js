@@ -48,20 +48,21 @@ export function flight(h, v) {
 
 // Cooling: a finned heatsink in a duct fed by ram air. Fully developed laminar flow between parallel fins
 // (Nu = 7.54), heat-exchanger effectiveness for a constant-temperature wall. Calculated, not yet measured.
-export const SINK = {fins: 22, gap: 2.5e-3, height: 8e-3, length: 47e-3, baseArea: 47e-3 * 69.6e-3, ductFraction: 0.35};
-export function thermal(v, power = POWER, ambient = AMBIENT) {
-  const u = v * SINK.ductFraction;                               // air speed between the fins
-  const Dh = 2 * SINK.gap;
-  const hc = (7.54 * 0.027) / Dh;
-  const A = 2 * SINK.fins * SINK.height * SINK.length + SINK.baseArea;
-  const mdot = 1.13 * u * SINK.fins * SINK.gap * SINK.height;   // air at 40 degC
-  const C = mdot * 1007;
-  const eps = 1 - Math.exp(-(hc * A) / C);
-  const sink = ambient + power / (eps * C);
-  return {u, hc, A, eps, sink, plate: sink + power * 0.2, exhaust: ambient + power / C, re: (u * Dh) / 1.7e-5};
+// Passive finned lid, no fan, no duct. Fins run fore and aft, so the flight air runs straight along them.
+// Area from the CAD model: 22 fins x 9 mm x 102 mm both sides plus the base. The heat-transfer coefficient rises
+// from about 12 W/m2K in still air with the airspeed; the slope is a rough forced-convection figure, not a test.
+export const LID = {area: 0.052, hStill: 12, perMs: 1.6};
+export function thermal(v, flying = true, power = POWER, ambient = AMBIENT) {
+  const air = flying ? v : 0;
+  const h = LID.hStill + LID.perMs * air;
+  const rise = power / (h * LID.area);
+  const lid = ambient + rise;
+  return {air, h, rise, lid, plate: lid + power * 0.9, groundPlate: ambient + power / (LID.hStill * LID.area) + power * 0.9};
 }
 
-// A made-up field for the live map: smooth vigour patches plus crop rows. Returns NDVI in 0..1.
+/** Crop vigour for the ground texture, 0..1. */
+export const vigour = (xm, ym) => ndvi(xm, ym);
+
 const h2 = (x, y) => {
   const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
   return s - Math.floor(s);

@@ -102,6 +102,12 @@ def make_material(kind, color, name):
         setp(b, color=(0.05, 0.05, 0.055), metal=1.0, rough=0.36)
     elif kind == "alu":
         setp(b, color=(0.80, 0.81, 0.83), metal=1.0, rough=0.33)
+    elif kind == "hardcoat":        # Type III hard anodise, bead-blasted: dark metallic grey, fine satin grain
+        setp(b, color=(c[0] * 0.55, c[1] * 0.55, c[2] * 0.58), metal=1.0, rough=0.44)
+        bump(nt, b, 7000.0, 0.10, 0.00003, detail=2.0)
+    elif kind == "steel_brushed":
+        setp(b, color=(0.70, 0.71, 0.72), metal=1.0, rough=0.30)
+        bump(nt, b, 900.0, 0.06, 0.00002, detail=1.0)
     elif kind == "anodised":
         setp(b, color=(max(c[0], 0.012), max(c[1], 0.012), max(c[2], 0.014)), metal=0.92, rough=0.40)
     elif kind == "rubberised":
@@ -174,7 +180,7 @@ for m in meta:
     ob.data.materials.append(matcache[key])
     # CAD meshes have long thin triangles across flat faces; weighting normals by face area keeps flat faces flat
     wn = ob.modifiers.new("wnormal", "WEIGHTED_NORMAL"); wn.mode = "FACE_AREA"; wn.keep_sharp = True
-    if m["mat"] in ("shell", "anodised", "pcb", "plastic_gloss", "ic", "steel", "accent", "cfrp"):
+    if m["mat"] in ("shell", "hardcoat", "steel_brushed", "anodised", "pcb", "plastic_gloss", "ic", "steel", "accent", "cfrp"):
         bv = ob.modifiers.new("bevel", "BEVEL"); bv.width = 0.00022 if m["mat"] == "shell" else 0.00010
         bv.segments = 2; bv.limit_method = "ANGLE"; bv.angle_limit = math.radians(40)
     ob["explode"] = m["explode"]; ob["group"] = m["group"]; ob["proxy"] = bool(m.get("proxy"))
@@ -412,27 +418,27 @@ for s in shots:
         c, size = pose(0, show_only=("Carrier board",), rot=(0, 0, 0), lift=0.035)
         b = board_root.matrix_world @ Vector((0.136, -0.090, 0.002))
         shoot("08_carrier_board_macro", b, Vector((0.07, 0.05, 0.02)), az=-125, el=32, lens=100, fill=0.8, fstop=16.0, focus=b)
-    # ---- compact box (Duo): shot in its flying orientation, mount on top
+    # ---- compact boxes (Duo, 6B): shot in its flying orientation, mount on top
     elif s == "box_hero":
-        c, size = pose(0, hide=("Drone",), rot=(0, 0, 0), lift=0.004)
+        c, size = pose(0, hide=("Drone", TOPU), rot=(0, 0, 0), lift=0.004)
         shoot("01_box_hero", c, size, az=-38, el=16, lens=85, fill=0.72, dark=True)
     elif s == "box_hero_light":
-        c, size = pose(0, hide=("Drone",), rot=(0, 0, 0), lift=0.004)
+        c, size = pose(0, hide=("Drone", TOPU), rot=(0, 0, 0), lift=0.004)
         shoot("02_box_hero_light", c, size, az=-142, el=20, lens=85, fill=0.72)
     elif s == "box_under":
-        c, size = pose(0, hide=("Drone",), rot=(0, 0, 0), lift=0.16)
+        c, size = pose(0, hide=("Drone", TOPU), rot=(0, 0, 0), lift=0.16)
         shoot("03_box_underside", c, size, az=-62, el=-14, lens=85, fill=0.70)
     elif s == "box_mounted":
         c, size = pose(0, rot=(0, 0, 0), lift=0.12)
         shoot("04_box_on_drone_tube", c, size, az=-28, el=8, lens=70, fill=0.70)
     elif s == "box_exploded":
-        c, size = pose(1.0, hide=("Drone",), rot=(0, 0, 0), lift=0.02)
+        c, size = pose(1.0, hide=("Drone", TOPU), rot=(0, 0, 0), lift=0.02)
         shoot("05_box_exploded", c, size, az=-50, el=14, lens=70, fill=0.60)
     elif s == "box_inside":
-        c, size = pose(0, hide=("Drone", "Mount", "Enclosure", "lid", "gasket") + tuple(f"lid_screw_{i}" for i in range(6)), rot=(0, 0, 0), lift=0.02)
+        c, size = pose(0, hide=("Drone", TOPU, "Mount", "Enclosure", "lid", "gasket") + tuple(f"lid_screw_{i}" for i in range(6)), rot=(0, 0, 0), lift=0.02)
         shoot("06_box_inside", c, size, az=-128, el=36, lens=85, fill=0.78)
     elif s == "box_filter":
-        c, size = pose(0, hide=("Drone",), rot=(0, 0, 0), lift=0.16)
+        c, size = pose(0, hide=("Drone", TOPU), rot=(0, 0, 0), lift=0.16)
         f = world_of(os.environ.get("FOCUS", "mira1_bezel"))
         shoot("07_box_filter_closeup", f, Vector((0.07, 0.07, 0.03)), az=-70, el=-24, lens=100, fill=0.75, fstop=16.0, focus=f, dark=True)
     elif s == "top_unit":

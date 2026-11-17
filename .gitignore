@@ -10,3 +10,4 @@ boards/orin-carrier/kicad/route.log
 **/out/test/
 route.ses
 **/out/render.log
+**/teardown/assets/model.bin

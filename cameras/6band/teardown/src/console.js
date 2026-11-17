@@ -1,14 +1,14 @@
 // The overlay: a fixed 1600 x 900 layout of panels around the camera. update(s) redraws every live part from the
 // frame's state; nothing here computes a number of its own. Layout pattern after the teardown kit's examples.
-import {BANDS, MIRA_QE, OVERLAP, SSD_GB, POWER, AMBIENT, ndvi, ndviColor} from './sim.js';
+import {BANDS, LID, MIRA_QE, OVERLAP, SSD_GB, POWER, AMBIENT, ndvi, ndviColor} from './sim.js';
 import {ACCENT} from './machine.js';
 
 export const C = {ink: '#16181b', mute: '#8b8f95', faint: '#c9ccd0', line: '#e1e3e6', panel: 'rgba(249,249,247,.94)', acc: ACCENT, blue: '#3d8fe0'};
-export const CAMS = ['hero', 'optics', 'board', 'duct'];
-export const OPENS = ['closed', 'shell off', 'exploded'];
-export const SHOWS = ['labels', 'footprints', 'signals', 'airflow'];
+export const CAMS = ['hero', 'underside', 'inside', 'lid'];
+export const OPENS = ['closed', 'lid off', 'exploded'];
+export const SHOWS = ['labels', 'footprints', 'signals', 'heat'];
 export const MODULES = [['RGB', 'RGB camera (IMX565)'], ['RED EDGE', 'Red edge camera (Mira220)'], ['NIR', 'NIR camera (Mira220)'], ['EXT NIR', 'Extended NIR camera (Mira220)'],
-  ['LENS PLATE', 'Optics bench'], ['CARRIER', 'Carrier board'], ['JETSON', 'Jetson Orin Nano'], ['COOLING', 'Thermal'], ['LIGHT SENSOR', 'DLS + GNSS top unit']];
+  ['LENS PLATE', 'Optics bench'], ['CARRIER', 'Carrier board'], ['JETSON', 'Jetson Orin Nano'], ['FINNED LID', 'Thermal'], ['MOUNT', 'Mount'], ['SUN SENSOR', 'DLS + GNSS top unit']];
 export const H_RANGE = [30, 150];
 export const V_RANGE = [12, 28];
 
@@ -53,7 +53,7 @@ export function createConsole(app) {
   // ------------------------------------------------------------ title and the key readout
   add(`<div style="position:absolute;left:35px;top:33px;width:43px;height:3px;background:${C.acc}"></div>`);
   add(`<div style="position:absolute;left:35px;top:47px;font-size:24px;font-weight:700;letter-spacing:-.2px">Aviac 6B <span style="color:${C.acc}">·</span> Six-Band Crop Camera</div>`);
-  add(`<div class="cp" style="position:absolute;left:35px;top:81px;font-weight:500;letter-spacing:1.7px;font-size:9.4px">IMX565 ON C-MOUNT &nbsp;•&nbsp; 3 × MIRA220 ON CS-MOUNT &nbsp;•&nbsp; JETSON ORIN NANO</div>`);
+  add(`<div class="cp" style="position:absolute;left:35px;top:81px;font-weight:500;letter-spacing:1.7px;font-size:9.4px">IMX565 + 3 × MIRA220 &nbsp;•&nbsp; 2 × 2 GRID &nbsp;•&nbsp; HARD-ANODISED ALUMINIUM &nbsp;•&nbsp; NO FAN</div>`);
   const gsdBig = add(`<div style="position:absolute;left:33px;top:103px;font-size:56px;font-weight:800;letter-spacing:-3.2px;color:${C.acc};line-height:1"></div>`);
   add(`<div style="position:absolute;left:178px;top:128px;font-size:11px;font-weight:500;line-height:1.35">CM / PIXEL<br><span class="mu" style="letter-spacing:1px;font-size:9.4px">GROUND DETAIL, RGB</span></div>`);
   add(`<div style="position:absolute;left:35px;top:174px;width:247px;height:9px;background:#e6e7e9"></div>`);
@@ -142,13 +142,13 @@ export function createConsole(app) {
   add(`<div class="cp" style="position:absolute;left:1329px;top:411px;font-weight:700">COOLING, NO FAN</div>`);
   add(`<div class="cp mu" style="position:absolute;right:${1600 - 1552}px;top:411px;font-weight:500">CALCULATED</div>`);
   const tBig = add(`<div style="position:absolute;left:1328px;top:428px;font-size:36px;font-weight:800;letter-spacing:-1.6px;line-height:1"></div>`);
-  add(`<div style="position:absolute;left:1418px;top:438px;font-size:10.5px;font-weight:500;letter-spacing:1px;line-height:1.35">°C HEATSINK<br><span style="color:${C.mute};letter-spacing:1.5px">${POWER} W AT ${AMBIENT} °C AIR</span></div>`);
+  add(`<div style="position:absolute;left:1418px;top:438px;font-size:10.5px;font-weight:500;letter-spacing:1px;line-height:1.35">°C FINNED LID<br><span style="color:${C.mute};letter-spacing:1.5px">${POWER} W AT ${AMBIENT} °C AIR</span></div>`);
   add(`<div style="position:absolute;left:1329px;top:476px;width:224px;height:5px;background:#e6e7e9"></div>`);
   const tFill = add(`<div style="position:absolute;left:1329px;top:476px;height:5px;background:${C.acc}"></div>`);
   add(`<div style="position:absolute;left:${1329 + 224 * ((99 - 40) / 70)}px;top:472px;width:1px;height:13px;background:${C.ink}"></div>`);
   add(`<div class="cp mu" style="position:absolute;left:1329px;top:488px;font-size:8.4px;font-weight:500">40</div>`);
   add(`<div class="cp" style="position:absolute;left:${1329 + 224 * ((99 - 40) / 70) - 46}px;top:488px;font-size:8.4px;font-weight:500">THROTTLES AT 99</div>`);
-  const tr = rows(1329, 510, ['Air speed between the fins', 'Air leaves the duct at', 'Heat-exchanger effectiveness', 'Module plate (estimate)']);
+  const tr = rows(1329, 510, ['Air along the fins', 'Heat transfer', 'Finned area', 'Module plate (estimate)']);
 
   // ------------------------------------------------------------ camera, open, show
   add(`<div class="pn" style="left:1296px;top:720px;width:268px;height:165px"></div>`);
@@ -231,13 +231,13 @@ export function createConsole(app) {
       cr[2].textContent = `${f.minutes.toFixed(0)} min`;
       cr[3].textContent = `${(f.readRgb * 1000).toFixed(0)} ms`;
       cr[4].textContent = `${(f.readMira * 1000).toFixed(0)} ms`;
-      const hot = th.sink > 89;
-      tBig.textContent = th.sink.toFixed(0);
+      const hot = th.plate > 89;
+      tBig.textContent = th.lid.toFixed(0);
       tBig.style.color = hot ? C.acc : C.ink;
-      tFill.style.width = `${Math.min(1, Math.max(0, (th.sink - 40) / 70)) * 224}px`;
-      tr[0].textContent = `${th.u.toFixed(1)} m / s`;
-      tr[1].textContent = `${th.exhaust.toFixed(0)} °C`;
-      tr[2].textContent = `${Math.round(th.eps * 100)} %`;
+      tFill.style.width = `${Math.min(1, Math.max(0, (th.plate - 40) / 70)) * 224}px`;
+      tr[0].textContent = th.air > 0 ? `${th.air.toFixed(0)} m / s` : 'still';
+      tr[1].textContent = `${th.h.toFixed(0)} W / m²K`;
+      tr[2].textContent = `${(LID.area * 1e4).toFixed(0)} cm²`;
       tr[3].textContent = `${th.plate.toFixed(0)} °C`;
       hVal.textContent = `${Math.round(f.h)} M`;
       vVal.textContent = `${f.v.toFixed(0)} M / S`;

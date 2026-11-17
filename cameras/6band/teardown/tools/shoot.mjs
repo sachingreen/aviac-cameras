@@ -23,6 +23,7 @@ p.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
 p.on('pageerror', (e) => errs.push(String(e)));
 await p.goto(`http://127.0.0.1:${port}/?lite`);
 await p.waitForSelector('.tourchip', {timeout: 120000}).catch(() => errs.push('never loaded'));
+if (process.env.TAKEOVER) await p.mouse.click(800, 4);
 const steps = (process.argv[3] || 'tour0:3').split(',');
 for (const s of steps) {
   const [name, wait, click] = s.split(':');
