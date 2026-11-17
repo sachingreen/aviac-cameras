@@ -1,9 +1,12 @@
 # Aviac Technologies website (demo)
 
-A static site: the landing page plus the two interactive 3D showcases.
+A static site on the structure of aviac.in (Home, Analytics, Sensors, Contact; the Terrain platform),
+with the Aviac MS and Aviac Duo built in: 3D product viewers and the two flying showcases.
 
     website/
-      src/index.html     landing page (edit this)
+      src/               page templates: index.html, analytics/, sensors/, contact/, assets/site.css + site.js
+                         ({{HEAD}}, {{NAV}}, {{FOOT}}, {{CARD}}, {{VIEWER}} are filled in by build.py)
+      viewer/            source of the 3D product viewer (node build.mjs writes src/viewer.js)
       build.py           assembles public/ from the repo: brand files, renders, the two showcases
       vercel.json        trailing slashes on, caching for the models and images
       public/            the deployable site (generated; committed so Vercel needs no build)
@@ -34,4 +37,4 @@ Or from a terminal:
 cd website/public && npx vercel --prod
 ```
 
-The contact button uses a placeholder address (hello@example.com): change it in `src/index.html`.
+The contact form opens the visitor's mail app addressed to aviactech@gmail.com (a static site has no server to receive forms).
