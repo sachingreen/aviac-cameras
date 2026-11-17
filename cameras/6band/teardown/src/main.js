@@ -1,4 +1,4 @@
-// Aviac 6B as a page you drive. The box flies over a field: the crop slides under it, all four shutters fire
+// Aviac MS as a page you drive. The box flies over a field: the crop slides under it, all four shutters fire
 // together at the interval the overlap needs, the frames run down the flat cables to the Jetson, the heat leaves
 // through the finned lid with no fan, and a vigour map builds as it goes. Left alone the page tours itself with a cursor; any click, drag, wheel or key hands control to the
 // visitor and 25 s of quiet hands it back. Structure after the teardown kit (elvarofficial/teardown, MIT).

@@ -52,7 +52,7 @@ export function createConsole(app) {
 
   // ------------------------------------------------------------ title and the key readout
   add(`<div style="position:absolute;left:35px;top:33px;width:43px;height:3px;background:${C.acc}"></div>`);
-  add(`<div style="position:absolute;left:35px;top:47px;font-size:24px;font-weight:700;letter-spacing:-.2px">Aviac 6B <span style="color:${C.acc}">·</span> Six-Band Crop Camera</div>`);
+  add(`<div style="position:absolute;left:35px;top:47px;font-size:24px;font-weight:700;letter-spacing:-.2px">Aviac MS <span style="color:${C.acc}">·</span> Multispectral Crop Camera</div>`);
   add(`<div class="cp" style="position:absolute;left:35px;top:81px;font-weight:500;letter-spacing:1.7px;font-size:9.4px">IMX565 + 3 × MIRA220 &nbsp;•&nbsp; 2 × 2 GRID &nbsp;•&nbsp; HARD-ANODISED ALUMINIUM &nbsp;•&nbsp; NO FAN</div>`);
   const gsdBig = add(`<div style="position:absolute;left:33px;top:103px;font-size:56px;font-weight:800;letter-spacing:-3.2px;color:${C.acc};line-height:1"></div>`);
   add(`<div style="position:absolute;left:178px;top:128px;font-size:11px;font-weight:500;line-height:1.35">CM / PIXEL<br><span class="mu" style="letter-spacing:1px;font-size:9.4px">GROUND DETAIL, RGB</span></div>`);

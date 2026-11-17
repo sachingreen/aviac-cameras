@@ -20,7 +20,7 @@ const res = await esbuild.build({
   legalComments: 'none', loader: {'.json': 'json'}, logLevel: 'warning',
 });
 const js = res.outputFiles[0].text.replace(/<\/script/g, '<\\/script');
-const body = `<title>Aviac 6B Teardown</title>
+const body = `<title>Aviac MS Teardown</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 ${FONTS}

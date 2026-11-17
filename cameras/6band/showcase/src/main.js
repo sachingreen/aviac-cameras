@@ -1,9 +1,10 @@
-// Aviac 6B as a page you drive. The box flies over a field: the crop slides under it, all four shutters fire
+// Aviac MS as a page you drive. The box flies over a field: the crop slides under it, all four shutters fire
 // together at the interval the overlap needs, the frames run down the flat cables to the Jetson, the heat leaves
 // through the finned lid with no fan, and a vigour map builds as it goes. Left alone the page tours itself with a cursor; any click, drag, wheel or key hands control to the
 // visitor and 25 s of quiet hands it back. Structure after the teardown kit (elvarofficial/teardown, MIT).
 import * as THREE from 'three';
 import {warmComposer} from '../kit/warm.js';
+import {MARK} from './logo.js';
 import {CAMS, createConsole, H_RANGE, MODULES, OPENS, SHOWS, V_RANGE} from './console.js';
 import {buildMachine} from './machine.js';
 import data from './parts.json';
@@ -22,7 +23,7 @@ const VIEWS = {
   open: {tx: 0.05, ty: 0.035, tz: 0, az: -1.0, el: 0.16, d: 1.75},
 };
 const CALLS = {
-  hero: [['body', 'Aviac 6B, 112 mm box', 'six bands · belly bay · quick-release', [1075, 330]],
+  hero: [['body', 'Aviac MS, 112 mm box', 'six bands · belly bay · quick-release', [1075, 330]],
     ['mira2_bezel', 'Four lenses, one face', 'RGB + red edge + NIR + ext. NIR', [1075, 520]],
     ['nose', 'Fixed-wing survey drone', '1.6 m span · 100 – 1000 acres a day', [540, 230], 'wing']],
   underside: [['rgb_bezel', 'RGB', 'blue · green · red', [540, 300]], ['mira0_bezel', 'Red edge', '717 – 730 nm', [540, 620]],
@@ -70,6 +71,9 @@ body::after{content:'';position:fixed;left:0;right:0;height:140px;top:-140px;poi
 @media (orientation:portrait) and (max-width:820px){.turn{display:block}}
 .intro{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(80% 70% at 50% 45%,#0b1a2c,#03060b 70%);transition:opacity 1.1s ease,filter 1.1s ease}
 .intro.out{opacity:0;filter:blur(8px);pointer-events:none}
+.intro .logo{width:150px;margin-bottom:22px;filter:drop-shadow(0 0 24px rgba(56,225,255,.5));animation:rise 1.6s ease both}
+.intro .logo svg{width:100%;height:auto;display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.94)}}
 .intro .mark{font:700 64px 'Space Grotesk',Inter,sans-serif;letter-spacing:22px;margin-right:-22px;color:transparent;background:linear-gradient(180deg,#fff,#38e1ff);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 22px rgba(56,225,255,.45))}
 .intro .sub{margin-top:14px;font:500 12px 'Space Grotesk',Inter,sans-serif;letter-spacing:6px;color:#7f95aa;text-transform:uppercase}
 .intro .bar{margin-top:46px;width:340px;height:2px;background:rgba(120,200,255,.15);position:relative;overflow:hidden}
@@ -91,7 +95,7 @@ async function run() {
   const intro = document.createElement('div');
   intro.className = 'intro';
   const BANDC = ['#2f6fe0', '#2fa14b', '#d8382c', '#c2261f', '#7a1d4a', '#5b2a9a'];
-  intro.innerHTML = `<div class="mark">AVIAC</div><div class="sub">6B &nbsp;·&nbsp; Six-band crop camera</div>
+  intro.innerHTML = `<div class="logo">${MARK('url(#lg)').replace('<g fill', '<defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#38e1ff"/></linearGradient></defs><g fill')}</div><div class="mark">AVIAC</div><div class="sub">MS &nbsp;·&nbsp; Multispectral crop camera</div>
     <div class="bands">${BANDC.map((c) => `<i style="background:${c};color:${c}"></i>`).join('')}</div>
     <div class="bar"><b></b></div><div class="msg">Initialising sensor array</div>`;
   app.appendChild(intro);

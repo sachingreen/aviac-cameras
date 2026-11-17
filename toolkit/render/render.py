@@ -105,6 +105,8 @@ def make_material(kind, color, name):
     elif kind == "hardcoat":        # Type III hard anodise, bead-blasted: dark metallic grey, fine satin grain
         setp(b, color=(c[0] * 0.55, c[1] * 0.55, c[2] * 0.58), metal=1.0, rough=0.44)
         bump(nt, b, 7000.0, 0.10, 0.00003, detail=2.0)
+    elif kind == "etch":            # laser-etched through the anodise: matte light grey
+        setp(b, color=(0.74, 0.75, 0.77), metal=0.55, rough=0.6)
     elif kind == "steel_brushed":
         setp(b, color=(0.70, 0.71, 0.72), metal=1.0, rough=0.30)
         bump(nt, b, 900.0, 0.06, 0.00002, detail=1.0)

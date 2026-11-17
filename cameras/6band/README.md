@@ -1,4 +1,7 @@
-# Aviac 6-band crop-mapping camera
+# Aviac MS: multispectral crop camera (six bands)
+
+Product name **Aviac MS** (MS = multispectral), model MS-6. The folder keeps its old name `6band`.
+Built for large-area survey work, 100 to 1000 acres a day, on a fixed-wing drone.
 
 Design work in progress. Nothing here is released for manufacture yet.
 
@@ -13,8 +16,17 @@ air, flying at 18 m/s: lid about 52 °C, module plate about 74 °C (it throttles
 the ground the module would pass 99 °C, so the module runs in 15 W mode until it is flying.
 About 1.27 kg with the mount (calculated).
 
+Power: the target drones run on 6S packs (several in parallel). The carrier's 3S-6S input
+(25.2 V max on a full 6S pack) takes the drone's 6S rail directly; no new carrier revision is needed.
+
+Markings, laser-etched through the anodise: the Aviac mark with "AVIAC MS" and "MULTISPECTRAL · 6 BAND"
+on the nose, a serial plate on the rear (MS-6, rev B, S/N, 3S-6S 25 W max), the name and a FWD arrow
+on both flanks, port labels (PWR 3-6S, TELEM, TRIG, USB-C, DLS) and band labels beside each window
+(RGB, RE 723, NIR 840, NIR+ 890). The mark is vectorised in `toolkit/brand/logo.py`.
+
 - `mechanical/build_model.py`: the box (CadQuery). `build_model_pod.py` is the earlier pod, kept for reference.
 - `mechanical/out/renders/`: studio renders
+- `showcase/`: website showcase (dark HUD, farm survey on a fixed-wing, detections)
 - `teardown/`: interactive teardown page (`npm install && python3 tools/pack_assets.py && node build.mjs`)
 
 - `docs/01-sensor-interfaces.md` — pinouts and constraints read from the supplied sensor-board files

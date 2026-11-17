@@ -3,6 +3,7 @@
 import {BANDS, LID, RGB, MIRA_QE, OVERLAP, SSD_GB, POWER, AMBIENT, ndvi, ndviColor} from './sim.js';
 import {ACCENT} from './machine.js';
 import {CLASSES} from './farm.js';
+import {MARK} from './logo.js';
 
 export const C = {ink: '#e9f3fb', mute: '#7f95aa', faint: '#3b4d61', line: 'rgba(120,200,255,.16)', panel: 'rgba(7,13,22,.58)', acc: ACCENT, cyan: '#38e1ff', blue: '#3d8fe0'};
 export const CAMS = ['hero', 'underside', 'inside', 'lid'];
@@ -69,9 +70,11 @@ export function createConsole(app) {
   });
 
   // ------------------------------------------------------------ title and the key readout
-  add(`<div style="position:absolute;left:35px;top:33px;width:64px;height:2px;background:linear-gradient(90deg,${C.cyan},${C.acc});box-shadow:0 0 10px ${C.cyan}"></div>`);
-  add(`<div style="position:absolute;left:35px;top:45px;font:700 26px 'Space Grotesk',Inter,sans-serif;letter-spacing:-.3px;text-shadow:0 0 24px rgba(56,225,255,.25)">Aviac 6B <span style="color:${C.acc}">·</span> Six-Band Crop Camera</div>`);
-  add(`<div class="cp" style="position:absolute;left:35px;top:81px;font-weight:500;letter-spacing:1.7px;font-size:9.4px">IMX565 + 3 × MIRA220 &nbsp;•&nbsp; 2 × 2 GRID &nbsp;•&nbsp; HARD-ANODISED ALUMINIUM &nbsp;•&nbsp; NO FAN</div>`);
+  add(`<div style="position:absolute;left:33px;top:12px;width:44px;filter:drop-shadow(0 0 10px rgba(56,225,255,.45))">${MARK('#e9f3fb')}</div>`);
+  add(`<div style="position:absolute;left:86px;top:19px;font:700 10px 'Space Grotesk',Inter,sans-serif;letter-spacing:5px;color:#e9f3fb">AVIAC</div>`);
+  add(`<div style="position:absolute;left:86px;top:33px;width:64px;height:2px;background:linear-gradient(90deg,${C.cyan},${C.acc});box-shadow:0 0 10px ${C.cyan}"></div>`);
+  add(`<div style="position:absolute;left:35px;top:50px;font:700 24px 'Space Grotesk',Inter,sans-serif;letter-spacing:-.3px;text-shadow:0 0 24px rgba(56,225,255,.25)">Aviac MS <span style="color:${C.acc}">·</span> Multispectral Crop Camera</div>`);
+  add(`<div class="cp" style="position:absolute;left:35px;top:83px;font-weight:500;letter-spacing:1.7px;font-size:9.4px">IMX565 + 3 × MIRA220 &nbsp;•&nbsp; 2 × 2 GRID &nbsp;•&nbsp; HARD-ANODISED ALUMINIUM &nbsp;•&nbsp; NO FAN</div>`);
   const gsdBig = add(`<div style="position:absolute;left:33px;top:103px;font-size:58px;font-weight:700;letter-spacing:-2.6px;line-height:1" class="big"></div>`);
   add(`<div style="position:absolute;left:178px;top:128px;font-size:11px;font-weight:500;line-height:1.35">CM / PIXEL<br><span class="mu" style="letter-spacing:1px;font-size:9.4px">GROUND DETAIL, RGB</span></div>`);
   add(`<div style="position:absolute;left:35px;top:174px;width:247px;height:9px;background:rgba(120,200,255,.10)"></div>`);

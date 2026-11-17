@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aviac 6B - six-band crop-mapping camera, compact rugged box (CadQuery).
+"""Aviac MS - six-band multispectral crop camera, compact rugged box (CadQuery).
 
 Replaces the long belly pod (build_model_pod.py, kept for reference) with one machined block you can hold in
 one hand: four cameras in a centred 2 x 2 grid, all lens fronts on one plane, the Jetson flipped against a
@@ -235,7 +235,7 @@ for ref, h in (("J1", 5.6), ("J8", 4.6), ("J9", 4.6), ("J12", 3.6), ("J13", 4.6)
     zlo, zhi = BOARD_LOW - h, BOARD_LOW + 0.4
     side = 1 if y1 > 0 else -1
     body = body.cut(box(x0, x1, YW - T - 1, YW + 1, zlo, zhi) if side > 0 else box(x0, x1, -YW - 1, -YW + T + 1, zlo, zhi))
-    OPEN.append((x0, x1, zlo, zhi, side))
+    OPEN.append((x0, x1, zlo, zhi, side, ref))
 # lid screw bosses hang from the wall top (they must clear the RGB sensor board below)
 LIDSCREWS = [(X0 + 7.0, -YW + 7.0), (X0 + 7.0, YW - 7.0), (X1 - 7.0, -YW + 7.0), (X1 - 7.0, YW - 7.0)]
 for (x, y) in LIDSCREWS:
@@ -249,10 +249,6 @@ for (x, y) in POSTS:
 PIV_Z = H * 0.55
 for s in (-1, 1):
     body = body.union(cq.Workplane("XZ").circle(9.0).extrude(1.6).translate((CX, s * YW + (1.6 if s > 0 else 0), PIV_Z)))
-try:
-    body = body.cut(cq.Workplane("YZ").text("AVIAC  6B", 7.0, -0.5, kind="bold").translate((X1, 0, H * 0.40)))
-except Exception as e:
-    print("logo skipped", e)
 body = body.cut(cq.Workplane("YZ").center(0, H - 16).rect(12, 1.6).extrude(-3).translate((X1 + 0.5, 0, 0)))
 add("body", body, GUN, "Enclosure", (0, 0, -100), density=2.70,
     label="Body, 6061-T6 machined from solid, Type III hard anodised, bead-blasted", mat="hardcoat")
@@ -269,10 +265,75 @@ for i, (sx, sy) in enumerate(((-1, -1), (-1, 1), (1, -1), (1, 1))):
     add(f"bumper_{i}", corner, (0.035, 0.035, 0.038), "Enclosure", (sx * 18, sy * 18, -100), density=1.2,
         label="Corner guard, overmoulded TPU", mat="rubberised")
 # rubber port covers over the connector openings
-for i, (x0, x1, zlo, zhi, side) in enumerate(OPEN):
+for i, (x0, x1, zlo, zhi, side, ref) in enumerate(OPEN):
     y0 = YW if side > 0 else -YW - 1.4
     add(f"port_cover_{i}", rbox(x0 - 2, x1 + 2, y0, y0 + 1.4, zlo - 2, zhi + 2, 0.6).edges("|Y").fillet(0.6) if False else box(x0 - 2, x1 + 2, y0, y0 + 1.4, zlo - 2, zhi + 2),
         (0.035, 0.035, 0.038), "Enclosure", (0, side * 14, -100), mass=1.0, label="Port cover, silicone, tethered", mat="rubberised")
+
+
+# ---------------------------------------------------------------- markings: laser-etched through the anodise (reads light grey)
+sys.path.insert(0, os.path.join(REPO, "toolkit", "brand"))
+from logo import polygons as logo_polygons
+ETCH = 0.06
+
+
+def face_place(sol, face, at):
+    """Text and art are drawn in XY (x right, y up, extruded +z); turn them onto a face so they read from outside."""
+    if face == "+X":
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 90).rotate((0, 0, 0), (0, 0, 1), 90)
+    elif face == "-X":
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 90).rotate((0, 0, 0), (0, 0, 1), -90)
+    elif face == "+Y":
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 90).rotate((0, 0, 0), (0, 0, 1), 180)
+    elif face == "-Y":
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 90)
+    elif face == "-Z":                          # the window face, read from below with the nose (+X) up
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 180).rotate((0, 0, 0), (0, 0, 1), 90)
+    return sol.translate(at)
+
+
+def etched_text(txt, size, face, at, kind="bold", halign="center"):
+    t = cq.Workplane("XY").text(txt, size, ETCH + 0.02, kind=kind, halign=halign, valign="center").translate((0, 0, -0.02))
+    return face_place(t, face, at)
+
+
+def etched_logo(height, face, at):
+    k = height / 420.0                          # the mark spans y 120..540 in artwork space
+    sol = None
+    for poly in logo_polygons():
+        pts = [((x - 300) * k, (330 - y) * k) for (x, y) in poly]
+        w = cq.Workplane("XY").polyline(pts).close().extrude(ETCH + 0.02).translate((0, 0, -0.02))
+        sol = w if sol is None else sol.union(w)
+    return face_place(sol, face, at)
+
+
+marks = []
+# nose face: the mark, the name, the line
+marks.append(etched_logo(24.0, "+X", (X1, 0, H * 0.58)))
+marks.append(etched_text("AVIAC  MS", 7.2, "+X", (X1, 0, H * 0.33)))
+marks.append(etched_text("MULTISPECTRAL  ·  6 BAND", 2.6, "+X", (X1, 0, H * 0.25), kind="regular"))
+# rear face: identification plate
+marks.append(etched_text("AVIAC MS-6   REV B", 3.0, "-X", (X0, 0, H * 0.42)))
+marks.append(etched_text("S/N  MS6-0001   ·   3S - 6S  25 W MAX", 2.2, "-X", (X0, 0, H * 0.35), kind="regular"))
+marks.append(etched_text("MADE IN INDIA", 2.2, "-X", (X0, 0, H * 0.29), kind="regular"))
+# both flanks: product name and a flight-direction arrow
+for face, sy in (("+Y", YW), ("-Y", -YW)):
+    marks.append(etched_text("AVIAC MS", 4.2, face, (CX + (24 if sy > 0 else -24), sy, 34.0)))
+    marks.append(etched_text("FWD  →" if sy < 0 else "←  FWD", 3.0, face, (CX + (24 if sy > 0 else -24), sy, 40.0), kind="regular"))
+# port labels above the openings
+PORTN = {"J1": "PWR 3-6S", "J8": "TELEM", "J9": "TRIG", "J12": "USB-C", "J13": "DLS"}
+for (x0, x1, zlo, zhi, side, ref) in OPEN:
+    face = "+Y" if side > 0 else "-Y"
+    marks.append(etched_text(PORTN[ref], 2.2, face, ((x0 + x1) / 2, side * YW, zhi + 4.2)))
+# window face: a band label beside each window, on the raised window plate
+for ((mx, my), r, lab) in [(RGB, WR["rgb"], "RGB")] + [(m[0], WR["mira"], {"RE": "RE 723", "NIR": "NIR 840", "XNIR": "NIR+ 890"}[m[2]]) for m in MIRAS]:
+    sx, sy = (1 if mx > CX else -1), (1 if my > 0 else -1)
+    off = r * 0.78 + 3.2
+    marks.append(etched_text(lab, 2.3, "-Z", (mx + sx * off, my + sy * off, -1.4)))
+etch = marks[0]
+for m in marks[1:]:
+    etch = etch.union(m)
+add("markings", etch, (0.72, 0.73, 0.75), "Enclosure", (0, 0, -100), mass=0.0, label="Laser-etched markings: Aviac mark, name, ports, bands", mat="etch")
 
 # ---------------------------------------------------------------- finned lid: the heatsink
 lid = rbox(X0, X1, -YW, YW, H, H + LID_T, RC)
@@ -496,7 +557,7 @@ for p in parts:
     mass = p["mass"] if p["mass"] is not None else vol * p["density"]
     if p["group"] != "Drone":
         total += mass
-    coarse = p["name"].startswith(("brd_", "jetson_passives")) or "_passives" in p["name"]
+    coarse = p["name"].startswith(("brd_", "jetson_passives", "markings")) or "_passives" in p["name"]
     pos = tess(p["solid"], 0.10 if coarse else 0.04, 0.35 if coarse else 0.2)
     bb = shp.BoundingBox()
     meta.append(dict(name=p["name"], label=p["label"], group=p["group"], color=p["color"], explode=p["explode"], mat=p["mat"], proxy=p["proxy"],

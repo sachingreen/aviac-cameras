@@ -124,10 +124,90 @@ function paintPatches(g, m2p) {
   return list;
 }
 
+
+// ---------------------------------------------------------------- things people built: power lines, farmyards
+// Built in metres for one texture tile (x along the flight line, z = -(v - Y0)); three copies cover the view.
+function buildProps(paint) {
+  const g = new THREE.Group();
+  const M = (c, o = {}) => new THREE.MeshStandardMaterial({color: new THREE.Color(c), roughness: 0.8, metalness: 0.05, envMapIntensity: 0.4, ...o});
+  const wood = M('#5a4634'), barnRed = M('#8e3426'), roofGrey = M('#7d8790', {metalness: 0.5, roughness: 0.45}), wall = M('#c9c3b6'),
+    silo = M('#b8bec4', {metalness: 0.7, roughness: 0.35}), darkRoof = M('#3a3d42'), tank = M('#e6e8ea', {metalness: 0.3});
+  const at = (mesh, x, v, y = 0, ry = 0) => { mesh.position.set(x, y, -(v - Y0)); mesh.rotation.y = ry; g.add(mesh); return mesh; };
+  // power lines: two lines of poles across the flight path along farm tracks, wires between them
+  const poleG = new THREE.CylinderGeometry(0.5, 0.7, 13, 6).translate(0, 6.5, 0);
+  const armG = new THREE.BoxGeometry(4.2, 0.6, 0.6).translate(0, 12.2, 0);
+  const wires = [];
+  for (const x of [520, 1288, 2228]) {
+    let prev = null;
+    for (let v = 20; v < TILE; v += 55) {
+      const pole = new THREE.Mesh(poleG, wood), arm = new THREE.Mesh(armG, wood);
+      at(pole, x, v); at(arm, x, v);
+      const z = -(v - Y0);
+      if (prev !== null) for (const dx of [-1.4, 0, 1.4]) {
+        // a little sag: three segments per span
+        const a = [x + 0, 12.5, prev], b = [x + 0, 12.5, z];
+        const mid = (k) => [x, 12.5 - 1.4 * Math.sin(Math.PI * k), prev + (z - prev) * k];
+        const pts = [a, mid(1 / 3), mid(2 / 3), b];
+        for (let i = 0; i < 3; i++) wires.push(pts[i][0] + 0 * dx, pts[i][1], pts[i][2], pts[i + 1][0], pts[i + 1][1], pts[i + 1][2]);
+        // offset the three conductors across the crossarm (crossarm runs along z, so offset in x is the wire spacing)
+        for (let i = wires.length - 18; i < wires.length; i += 3) wires[i] += dx;
+      }
+      prev = z;
+      paint.fillStyle = 'rgba(40,32,24,0.6)';
+      paint.fillRect(x * paint.m2p - 1, (TILE - v) * paint.m2p - 1, 3, 3);
+    }
+  }
+  const wireL = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(wires, 3)),
+    new THREE.LineBasicMaterial({color: '#1c1f22', transparent: true, opacity: 0.8}));
+  g.add(wireL);
+  // farmyards near the flight line: barn, machine shed, two silos, a house, a water tank, on a gravel pad
+  const gable = (w, l, h) => {
+    const sh = new THREE.Shape();
+    sh.moveTo(-w / 2, 0); sh.lineTo(w / 2, 0); sh.lineTo(0, h); sh.closePath();
+    return new THREE.ExtrudeGeometry(sh, {depth: l, bevelEnabled: false}).translate(0, 0, -l / 2);
+  };
+  const yard = (x, v, ry) => {
+    const grp = new THREE.Group();
+    const put = (m, px, pz, py = 0) => { m.position.set(px, py, pz); grp.add(m); };
+    put(new THREE.Mesh(new THREE.BoxGeometry(14, 7, 26).translate(0, 3.5, 0), barnRed), -18, 0);
+    put(new THREE.Mesh(gable(15, 27, 5), darkRoof), -18, 0, 7);
+    put(new THREE.Mesh(new THREE.BoxGeometry(18, 6, 34).translate(0, 3, 0), wall), 6, -4);
+    put(new THREE.Mesh(gable(19, 35, 3), roofGrey), 6, -4, 6);
+    for (const [sx, sz] of [[26, 10], [26, 20]]) {
+      put(new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 15, 20).translate(0, 7.5, 0), silo), sx, sz);
+      put(new THREE.Mesh(new THREE.ConeGeometry(4.2, 3, 20).translate(0, 16.5, 0), silo), sx, sz);
+    }
+    put(new THREE.Mesh(new THREE.BoxGeometry(10, 5, 8).translate(0, 2.5, 0), wall), -14, 30);
+    put(new THREE.Mesh(gable(11, 9, 3), barnRed), -14, 30, 5);
+    put(new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 4, 16).translate(0, 9, 0), tank), 16, -30);
+    for (const [lx, lz] of [[14, -32], [18, -32], [14, -28], [18, -28]]) put(new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 7, 4).translate(0, 3.5, 0), wood), lx, lz);
+    grp.rotation.y = ry;
+    at(grp, x, v);
+    // the gravel pad and a track out to the nearest field road, painted into the texture
+    paint.save();
+    paint.translate(x * paint.m2p, (TILE - v) * paint.m2p);
+    paint.rotate(-ry);
+    paint.fillStyle = '#8d8676';
+    paint.fillRect(-36 * paint.m2p, -44 * paint.m2p, 72 * paint.m2p, 88 * paint.m2p);
+    paint.restore();
+  };
+  yard(300, Y0 + 95, 0.3);
+  yard(860, Y0 - 110, -0.2);
+  yard(1500, Y0 + 120, 1.2);
+  yard(1960, Y0 - 95, 0.6);
+  yard(2600, Y0 + 100, -0.5);
+  yard(3050, Y0 - 140, 0.9);
+  return g;
+}
 export function createFarm(groundY, gx, GD) {
   const group = new THREE.Group();
   const {canvas, g, m2p} = paintFarm();
   const patches = paintPatches(g, m2p);
+  g.m2p = m2p;
+  const propTile = buildProps(g);
+  const props = new THREE.Group();
+  for (const c of [-1, 0, 1]) { const t = c ? propTile.clone() : propTile; t.position.x = c * TILE; props.add(t); }
+  group.add(props);
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
@@ -177,6 +257,8 @@ export function createFarm(groundY, gx, GD) {
       tex.repeat.set(R, R);
       tex.offset.set((s.dist - B / (2 * scale)) / TILE, (Y0 - B / (2 * scale)) / TILE);
       grid.position.x = gx - ((s.dist * scale) % 0.1);
+      props.scale.setScalar(scale);
+      props.position.set(gx - (((s.dist % TILE) + TILE) % TILE) * scale, groundY, 0);
       const half = (s.fl.along * scale) / 2, swath = (s.fl.swath * scale) / 2;
       const tags = [];
       for (const k of markers) {

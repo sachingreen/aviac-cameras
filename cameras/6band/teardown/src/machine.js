@@ -1,4 +1,4 @@
-// The 6B itself: every part of the CAD model as its own mesh, plus what shows it working: the four fields of
+// The Aviac MS itself: every part of the CAD model as its own mesh, plus what shows it working: the four fields of
 // view, the field sliding underneath, the footprints left by each trigger, frames travelling down the four flat
 // cables to the Jetson, and heat leaving the finned lid.
 // Structure after the teardown kit's example machines (elvarofficial/teardown, MIT).
@@ -27,6 +27,7 @@ function material(kind, c) {
     case 'alu': return P({color: new THREE.Color('#b9bcc0'), metalness: 1, roughness: 0.42, envMapIntensity: 0.9});
     case 'hardcoat': return P({color: new THREE.Color('#62666c'), metalness: 0.8, roughness: 0.46, envMapIntensity: 0.85});
     case 'steel_brushed': return P({color: new THREE.Color('#b4b6b9'), metalness: 1, roughness: 0.32});
+    case 'etch': return P({color: new THREE.Color('#a9adb3'), metalness: 0.5, roughness: 0.6});
     case 'paper': return P({color: new THREE.Color('#f4f4f1'), roughness: 0.9});
     case 'anodised': return P({color: new THREE.Color('#18181a'), metalness: 0.85, roughness: 0.5, envMapIntensity: 0.55});
     case 'rubberised': return P({color: new THREE.Color('#111113'), roughness: 0.8});

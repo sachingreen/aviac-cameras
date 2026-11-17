@@ -1,4 +1,4 @@
-// A small fixed-wing survey drone for scale: 1.6 m span, high wing, V-tail, pusher prop. The 6B hangs in a belly
+// A small fixed-wing survey drone for scale: 1.6 m span, high wing, V-tail, pusher prop. The Aviac MS hangs in a belly
 // bay on its quick-release plate. Built from primitives here; it is an illustration, not a model of a real aircraft.
 // Axes as the rest of the scene: x forward (direction of flight), y up, z to the right wing.
 import * as THREE from 'three';
