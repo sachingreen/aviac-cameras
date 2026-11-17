@@ -1,7 +1,8 @@
 // The overlay: a fixed 1600 x 900 layout of panels around the camera. update(s) redraws every live part from the
 // frame's state; nothing here computes a number of its own. Layout pattern after the teardown kit's examples.
-import {BANDS, LID, MIRA_QE, OVERLAP, SSD_GB, POWER, AMBIENT, ndvi, ndviColor} from './sim.js';
+import {BANDS, LID, RGB, MIRA_QE, OVERLAP, SSD_GB, POWER, AMBIENT, ndvi, ndviColor} from './sim.js';
 import {ACCENT} from './machine.js';
+import {CLASSES} from './farm.js';
 
 export const C = {ink: '#e9f3fb', mute: '#7f95aa', faint: '#3b4d61', line: 'rgba(120,200,255,.16)', panel: 'rgba(7,13,22,.58)', acc: ACCENT, cyan: '#38e1ff', blue: '#3d8fe0'};
 export const CAMS = ['hero', 'underside', 'inside', 'lid'];
@@ -37,6 +38,11 @@ const CSS = `
 .cur{position:absolute;left:0;top:0;z-index:50;filter:drop-shadow(0 0 6px rgba(56,225,255,.6))}
 .ring{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:1.5px solid ${C.cyan};box-shadow:0 0 12px ${C.cyan};opacity:0;z-index:49}
 .callsvg line{filter:drop-shadow(0 0 3px rgba(56,225,255,.9))}
+.tag{position:absolute;transform:translate(-50%,-100%);margin-top:-6px;padding:4px 8px 4px 9px;background:rgba(4,10,18,.72);border:1px solid var(--c);border-radius:2px;white-space:nowrap;
+  box-shadow:0 0 14px color-mix(in srgb,var(--c) 45%,transparent);backdrop-filter:blur(6px)}
+.tag::after{content:'';position:absolute;left:50%;top:100%;width:1px;height:6px;background:var(--c)}
+.tag b{display:block;font:700 9px 'Space Grotesk',Inter,sans-serif;letter-spacing:1.3px;color:var(--c)}
+.tag span{display:block;font:500 8.4px 'JetBrains Mono',monospace;color:#cfe2ee;margin-top:1px}
 .live{display:inline-block;width:6px;height:6px;border-radius:50%;background:${C.acc};box-shadow:0 0 8px ${C.acc};margin-right:6px;animation:pulse 1.4s infinite}
 @keyframes pulse{50%{opacity:.25}}
 `;
@@ -70,8 +76,7 @@ export function createConsole(app) {
   add(`<div style="position:absolute;left:178px;top:128px;font-size:11px;font-weight:500;line-height:1.35">CM / PIXEL<br><span class="mu" style="letter-spacing:1px;font-size:9.4px">GROUND DETAIL, RGB</span></div>`);
   add(`<div style="position:absolute;left:35px;top:174px;width:247px;height:9px;background:rgba(120,200,255,.10)"></div>`);
   const gsdFill = add(`<div class="fill" style="position:absolute;left:35px;top:174px;height:9px"></div>`);
-  add(`<div class="cp mu" style="position:absolute;left:35px;top:188px;font-size:9px;font-weight:500">0</div>`);
-  add(`<div class="cp" style="position:absolute;left:226px;top:188px;font-size:9px;font-weight:500">3 CM / PX</div>`);
+  const gsdMath = add(`<div style="position:absolute;left:35px;top:188px;width:260px;font:500 9.2px 'JetBrains Mono',monospace;color:#9fb6c9;white-space:nowrap"></div>`);
 
   // ------------------------------------------------------------ flight
   add(`<div class="pn" style="left:35px;top:214px;width:247px;height:168px"></div>`);
@@ -79,21 +84,34 @@ export function createConsole(app) {
   add(`<div class="cp mu" style="position:absolute;right:${1600 - 271}px;top:226px;font-weight:500">${Math.round(OVERLAP * 100)} % FORWARD OVERLAP</div>`);
   const fr = rows(46, 247, ['Detail, NIR bands', 'Swath width', 'Frame length on ground', 'Trigger every', 'Shutter for ½-pixel blur', 'Coverage', 'Sync error on ground']);
 
-  // ------------------------------------------------------------ trigger timeline
+  // ------------------------------------------------------------ detections
   add(`<div class="pn" style="left:35px;top:390px;width:247px;height:178px"></div>`);
-  add(`<div class="cp" style="position:absolute;left:46px;top:402px;font-weight:700">ONE TRIGGER</div>`);
-  add(`<div class="cp mu" style="position:absolute;right:${1600 - 271}px;top:402px;font-weight:500">FIRST 80 MS</div>`);
-  const tl = add(`<svg style="position:absolute;left:46px;top:420px" width="226" height="118"></svg>`);
-  add(`<div style="position:absolute;left:46px;top:546px;font-size:9.5px;color:${C.mute}">All four shutters open within <b style="color:${C.ink}">50 µs</b> of each other</div>`);
+  add(`<div class="cp" style="position:absolute;left:46px;top:402px;font-weight:700"><i class="live"></i>FIELD DETECTIONS</div>`);
+  add(`<div class="cp mu" style="position:absolute;right:${1600 - 271}px;top:402px;font-weight:500">ON-BOARD · LIVE</div>`);
+  const detRows = CLASSES.map((c, i) => {
+    const y = 424 + i * 21;
+    add(`<div style="position:absolute;left:46px;top:${y + 3}px;width:8px;height:8px;border-radius:2px;background:${c.color};box-shadow:0 0 8px ${c.color}"></div>`);
+    add(`<div style="position:absolute;left:62px;top:${y}px;font:600 10.6px 'Space Grotesk',Inter,sans-serif;letter-spacing:.3px;color:#e9f3fb">${c.name}</div>`);
+    return add(`<div style="position:absolute;right:${1600 - 271}px;top:${y - 2}px;font:600 14px 'JetBrains Mono',monospace;color:${c.color};text-shadow:0 0 10px ${c.color}">0</div>`);
+  });
+  add(`<div style="position:absolute;left:46px;top:511px;width:225px;height:1px;background:rgba(120,200,255,.16)"></div>`);
+  const detLast = add(`<div style="position:absolute;left:46px;top:518px;width:225px;font-size:10px;line-height:1.45"></div>`);
 
-  // ------------------------------------------------------------ live map
+  // ------------------------------------------------------------ survey mission: a 640-acre block flown in passes
+  const BLOCK_AC = 640, BLOCK_M = Math.sqrt(BLOCK_AC * 4046.86);       // one square mile
   add(`<div class="pn" style="left:35px;top:576px;width:247px;height:190px"></div>`);
-  add(`<div class="cp" style="position:absolute;left:46px;top:588px;font-weight:700"><i class="live"></i>VIGOUR MAP, LIVE</div>`);
-  add(`<div class="cp mu" style="position:absolute;right:${1600 - 271}px;top:588px;font-weight:500">SIMULATED FIELD</div>`);
-  const mapC = add(`<canvas width="452" height="250" style="position:absolute;left:46px;top:606px;width:226px;height:125px;background:rgba(120,200,255,.10)"></canvas>`);
-  add(`<div style="position:absolute;left:46px;top:738px;width:226px;height:6px;background:linear-gradient(90deg,rgb(150,92,60),rgb(214,170,70),rgb(196,205,90),rgb(96,170,78),rgb(22,104,58))"></div>`);
-  add(`<div class="cp mu" style="position:absolute;left:46px;top:748px;font-size:8.4px;font-weight:500">STRESSED</div>`);
-  add(`<div class="cp mu" style="position:absolute;right:${1600 - 271}px;top:748px;font-size:8.4px;font-weight:500">NDVI &nbsp;·&nbsp; VIGOROUS</div>`);
+  add(`<div class="cp" style="position:absolute;left:46px;top:588px;font-weight:700"><i class="live"></i>SURVEY MISSION</div>`);
+  add(`<div class="cp mu" style="position:absolute;right:${1600 - 271}px;top:588px;font-weight:500">${BLOCK_AC}-ACRE BLOCK</div>`);
+  const MP = 260;
+  const mapC = add(`<canvas width="${MP}" height="${MP}" style="position:absolute;left:46px;top:606px;width:130px;height:130px;background:rgba(120,200,255,.06);outline:1px solid rgba(120,200,255,.25)"></canvas>`);
+  const mapO = add(`<canvas width="${MP}" height="${MP}" style="position:absolute;left:46px;top:606px;width:130px;height:130px"></canvas>`);
+  const acBig = add(`<div class="big" style="position:absolute;left:186px;top:606px;font-size:26px;font-weight:700;letter-spacing:-.8px;line-height:1"></div>`);
+  add(`<div class="cp mu" style="position:absolute;left:187px;top:634px;font-size:8.4px;font-weight:500">ACRES SURVEYED</div>`);
+  const ms = [650, 676, 702].map((y) => add(`<div style="position:absolute;left:187px;top:${y}px;font:600 11px 'JetBrains Mono',monospace;color:#f2f8fc"></div>`));
+  const msl = ['DONE', 'PASS', 'TIME LEFT'];
+  [662, 688, 714].forEach((y, i) => add(`<div class="cp mu" style="position:absolute;left:187px;top:${y}px;font-size:7.8px;font-weight:500">${msl[i]}</div>`));
+  add(`<div style="position:absolute;left:46px;top:744px;width:130px;height:5px;background:linear-gradient(90deg,rgb(150,92,60),rgb(214,170,70),rgb(196,205,90),rgb(96,170,78),rgb(22,104,58))"></div>`);
+  add(`<div class="cp mu" style="position:absolute;left:46px;top:752px;font-size:7.6px;font-weight:500">NDVI · STRESSED → VIGOROUS</div>`);
 
   // ------------------------------------------------------------ transport
   add(`<div class="pn" style="left:35px;top:774px;width:259px;height:111px"></div>`);
@@ -191,6 +209,7 @@ export function createConsole(app) {
   add(`<div class="cp" style="position:absolute;left:0;right:0;top:874px;text-align:center;font-weight:500;color:${C.faint}">DRAG TO ORBIT &nbsp;·&nbsp; SCROLL TO ZOOM &nbsp;·&nbsp; H HIDES THE PANELS</div>`);
 
   // ------------------------------------------------------------ callouts, the pointer
+  const tagG = add(`<div style="position:absolute;inset:0"></div>`);
   const callSvg = add(`<svg class="callsvg" style="position:absolute;inset:0;overflow:visible" width="1600" height="900"></svg>`);
   const callG = add(`<div style="position:absolute;inset:0"></div>`);
   const ring = add(`<div class="ring"></div>`);
@@ -198,8 +217,10 @@ export function createConsole(app) {
   const centre = (n) => [n.offsetLeft + n.offsetWidth / 2, n.offsetTop + n.offsetHeight / 2];
   const spots = Object.fromEntries(Object.entries(btn).map(([k, n]) => [k, centre(n)]));
   const knobX = (k) => SL.x + k * SL.w;
-  const mctx = mapC.getContext('2d');
-  let mapX = -1;
+  const mctx = mapC.getContext('2d'), octx = mapO.getContext('2d');
+  let mapD = 0, seenDet = 0;
+  const pinsReset = () => {};
+  const pins = [];
 
   return {
     spots, btn, root: ui, SL,
@@ -211,6 +232,11 @@ export function createConsole(app) {
       ring.style.left = `${c.rx}px`; ring.style.top = `${c.ry}px`;
       ring.style.opacity = String(c.ring * 0.85);
       ring.style.transform = `scale(${(0.35 + 0.9 * (1 - c.ring)).toFixed(3)})`;
+    },
+    /** tags: [{at:[x,y] screen px, cls, conf, area, a}] - floating labels over the detections */
+    tags(list) {
+      tagG.innerHTML = list.filter((t) => t.at && t.at[1] > 110 && t.at[1] < 770 && t.at[0] > 300 && t.at[0] < 1300).map((t) =>
+        `<div class="tag" style="left:${t.at[0].toFixed(0)}px;top:${t.at[1].toFixed(0)}px;opacity:${t.a.toFixed(2)};--c:${t.cls.color}"><b>${t.cls.short}</b><span>${Math.round(t.conf * 100)} % · ${(t.area * 1e4).toFixed(0)} m²</span></div>`).join('');
     },
     /** calls: [{at:[x,y] screen px of the part, to:[x,y] label corner, title, sub, a: 0..1}] */
     callouts(calls) {
@@ -228,13 +254,14 @@ export function createConsole(app) {
     update(s) {
       const f = s.fl, th = s.th;
       gsdBig.textContent = (f.gsdRgb * 100).toFixed(2);
+      gsdMath.innerHTML = `GSD = <b style="color:#fff">${f.h.toFixed(0)} m</b> × ${(RGB.pitch * 1e6).toFixed(2)} µm ÷ ${(RGB.f * 1e3).toFixed(0)} mm = <b style="color:${C.cyan}">${(f.gsdRgb * 100).toFixed(2)} cm</b>`;
       gsdFill.style.width = `${Math.min(1, (f.gsdRgb * 100) / 3) * 247}px`;
       fr[0].textContent = `${(f.gsdMira * 100).toFixed(1)} cm / px`;
       fr[1].textContent = `${f.swath.toFixed(0)} m`;
       fr[2].textContent = `${f.along.toFixed(0)} m`;
       fr[3].textContent = `${(f.dt * 1000).toFixed(0)} ms`;
       fr[4].textContent = `1 / ${Math.round(1 / f.texp)} s`;
-      fr[5].textContent = `${f.haPerHour.toFixed(0)} ha / h`;
+      fr[5].textContent = `${(f.haPerHour * 2.471).toFixed(0)} acres / h`;
       fr[6].textContent = `${(f.skewGround * 1000).toFixed(1)} mm`;
       capRate.textContent = `${f.fps.toFixed(2)} SETS / S`;
       frameBig.textContent = String(s.frames).padStart(4, '0');
@@ -262,42 +289,52 @@ export function createConsole(app) {
       for (const [n, g] of MODULES) btn['m:' + g].classList.toggle('on', s.iso === g);
       modInfo.textContent = s.isoText;
 
-      // one trigger: the trigger edge, four exposures, four read-outs. 0..80 ms across the panel.
-      {
-        const since = s.since * 1000, X = (ms) => 44 + (Math.min(80, ms) / 80) * 176;
-        const names = ['TRIGGER', 'RGB', 'RED EDGE', 'NIR', 'EXT NIR'];
-        let g = '';
-        names.forEach((n, i) => {
-          const y = 8 + i * 20;
-          g += `<text x="0" y="${y + 8}" font-size="7.6" font-weight="600" fill="${C.mute}" letter-spacing=".8">${n}</text><line x1="44" y1="${y + 11}" x2="220" y2="${y + 11}" stroke="${C.line}"/>`;
-          if (i === 0) g += `<rect x="44" y="${y}" width="2.4" height="11" fill="${C.ink}"/>`;
-          else {
-            const read = (i === 1 ? f.readRgb : f.readMira) * 1000, exp = f.texp * 1000;
-            g += `<rect x="${X(0)}" y="${y}" width="${Math.max(2.2, X(exp) - X(0))}" height="11" fill="${C.acc}"/>`;
-            g += `<rect x="${X(exp) + 1}" y="${y + 3}" width="${X(exp + read) - X(exp)}" height="8" fill="${BANDS[i === 1 ? 2 : i + 1].color}" opacity=".8"/>`;
-          }
-        });
-        for (const ms of [0, 20, 40, 60, 80]) g += `<text x="${X(ms)}" y="116" font-size="7.2" fill="${C.mute}" text-anchor="middle">${ms}</text>`;
-        if (since < 80) g += `<line x1="${X(since)}" y1="2" x2="${X(since)}" y2="106" stroke="${C.ink}" stroke-width="1"/>`;
-        tl.innerHTML = g;
+      // detections
+      if (s.det) {
+        CLASSES.forEach((c, i) => (detRows[i].textContent = String(s.det.counts[c.key])));
+        const e = s.det.log[0];
+        detLast.innerHTML = e
+          ? `<b style="font:700 10.4px 'Space Grotesk',Inter,sans-serif;letter-spacing:1px;color:${e.cls.color}">${e.cls.short}</b> <span class="mu">· ${Math.round(e.conf * 100)} % confidence</span><br>` +
+            `<span class="mu">${e.cls.note} · ${(e.area * 1e4).toFixed(0)} m²</span>`
+          : `<span class="mu">Scanning the crop for stress, pests and gaps…</span>`;
       }
 
-      // the map: one column per stretch of ground flown, painted as the frames come in
+      // the survey: lawnmower passes across the block, 30 % side overlap, painted as NDVI as the frames come in
       {
-        const W = 452, Hh = 250, mPerPx = 0.75;
-        const col = Math.floor(s.mapped / mPerPx);
-        if (col < mapX) { mctx.clearRect(0, 0, W, Hh); mapX = -1; }
-        const half = (f.swath / 2 / mPerPx) | 0;
-        for (let c = mapX + 1; c <= col; c++) {
-          const x = c % W;
-          if (x === 0) mctx.clearRect(0, 0, W, Hh);
-          for (let y = Math.max(0, 125 - half); y < Math.min(Hh, 125 + half); y += 2) {
-            const [r, g, b] = ndviColor(ndvi(c * mPerPx, (y - 125) * mPerPx + 22));
-            mctx.fillStyle = `rgb(${r},${g},${b})`;
-            mctx.fillRect(x, y, 1, 2);
-          }
+        const sw = f.swath * 0.7, passes = Math.ceil(BLOCK_M / sw), pw = MP / passes, k = MP / BLOCK_M;
+        const total = passes * BLOCK_M;
+        let d = s.mapped % total;
+        if (d < mapD) { mctx.clearRect(0, 0, MP, MP); pins.length = 0; mapD = 0; }
+        const at = (dd) => {
+          const pass = Math.floor(dd / BLOCK_M), along = dd - pass * BLOCK_M;
+          return [pass % 2 ? BLOCK_M - along : along, pass];
+        };
+        for (let x = mapD; x < d; x += 4) {
+          const [u, pass] = at(x);
+          const [r, g, b] = ndviColor(ndvi(u, pass * sw * 0.8));
+          mctx.fillStyle = `rgb(${r},${g},${b})`;
+          mctx.fillRect(u * k - 1, pass * pw, 2.6, pw + 0.4);
         }
-        mapX = col;
+        mapD = d;
+        const [u, pass] = at(d);
+        const cx = u * k, cy = (pass + 0.5) * pw;
+        if (s.det) for (; seenDet < s.det.events.length; seenDet++) {
+          const e = s.det.events[seenDet], [pu, pp] = at(e.d % total);
+          pins.push([pu * k, (pp + 0.5) * pw, e.cls.color]);
+        }
+        octx.clearRect(0, 0, MP, MP);
+        for (const [px, py, c] of pins) {
+          octx.fillStyle = c; octx.shadowColor = c; octx.shadowBlur = 8;
+          octx.beginPath(); octx.arc(px, py, 4, 0, Math.PI * 2); octx.fill();
+        }
+        octx.shadowBlur = 12; octx.shadowColor = '#38e1ff'; octx.strokeStyle = '#38e1ff'; octx.lineWidth = 2;
+        octx.strokeRect(cx - 6, cy - pw / 2 - 2, 12, pw + 4);
+        octx.shadowBlur = 0;
+        const acres = (d * f.swath * 0.7) / 4046.86;
+        acBig.textContent = acres.toFixed(acres < 100 ? 1 : 0);
+        ms[0].textContent = `${((d / total) * 100).toFixed(1)} %`;
+        ms[1].textContent = `${pass + 1} / ${passes}`;
+        ms[2].textContent = `${Math.max(0, (total - d) / f.v / 60).toFixed(0)} min`;
       }
     },
   };

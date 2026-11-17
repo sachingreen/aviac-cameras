@@ -15,16 +15,16 @@ const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const lerp = (a, b, k) => a + (b - a) * k;
 
 const VIEWS = {
-  hero: {tx: 0.05, ty: -0.03, tz: 0, az: -1.02, el: 0.26, d: 1.12},
+  hero: {tx: 0.05, ty: -0.15, tz: 0, az: 1.22, el: 0.2, d: 4.0},
   underside: {tx: 0.05, ty: 0.01, tz: 0, az: -0.95, el: -0.8, d: 0.6},
   inside: {tx: 0.05, ty: 0.05, tz: 0, az: -0.85, el: 0.8, d: 0.58},
   lid: {tx: 0.05, ty: 0.07, tz: 0, az: -1.15, el: 0.3, d: 0.66},
   open: {tx: 0.05, ty: 0.035, tz: 0, az: -1.0, el: 0.16, d: 1.75},
 };
 const CALLS = {
-  hero: [['rgb_bezel', 'RGB: Sony IMX565', '16 mm C-mount · 12.4 MP', [540, 600]], ['mira2_bezel', 'Three Mira220 bands', 'red edge · NIR · extended NIR', [1075, 620]],
-    ['bumper_3', 'Machined aluminium body', 'hard anodised · TPU corners', [1075, 330]], ['lid', 'Finned lid, no fan', 'flight air runs along the fins', [1075, 200]],
-    ['qr_plate', 'Quick-release mount', 'tilts 0 – 35°, locks with two knobs', [540, 190]]],
+  hero: [['body', 'Aviac 6B, 112 mm box', 'six bands · belly bay · quick-release', [1075, 330]],
+    ['mira2_bezel', 'Four lenses, one face', 'RGB + red edge + NIR + ext. NIR', [1075, 520]],
+    ['nose', 'Fixed-wing survey drone', '1.6 m span · 100 – 1000 acres a day', [540, 230], 'wing']],
   underside: [['rgb_bezel', 'RGB', 'blue · green · red', [540, 300]], ['mira0_bezel', 'Red edge', '717 – 730 nm', [540, 620]],
     ['mira1_bezel', 'Near infrared', '830 – 850 nm', [1075, 290]], ['mira2_bezel', 'Extended NIR', '860 – 920 nm', [1075, 600]]],
   inside: [['brd_U6', 'Sync microcontroller', 'one edge fires all four shutters', [540, 330]], ['brd_J1', 'Power in', '3S – 6S, reverse protected', [540, 200]],
@@ -162,12 +162,19 @@ async function run() {
 
   // ------------------------------------------------------------ state
   let T = 0, paused = false, hidden = false;
-  let h = 120, v = 18, hT = 120, vT = 18;
-  let dist = 0, frames = 0, lastTrigDist = 0, mapped = 0;
+  let h = 100, v = 18, hT = 100, vT = 18;
+  // the mission is already under way when the page opens: fast-forward the first passes so the map and the
+  // detection log have something in them
+  const D0 = 5200;
+  {
+    const fl0 = flight(100, 18);
+    for (let d = 0; d < D0; d += 12) mc.farm.update({fl: fl0, dist: d, T: (d - D0) / 18});
+  }
+  let dist = D0, frames = Math.round(D0 / (flight(100, 18).along * (1 - OVERLAP))), lastTrigDist = D0, mapped = D0;
   const trig = [];
   let view = 'hero', open = 'closed', iso = null;
   const show = {labels: 1, footprints: 1, signals: 1, heat: 1};
-  const an = {k: 0, lid: 1, body: 1, mount: 1, foot: 1, sig: 1, heat: 1, call: 1};
+  const an = {plane: 1, k: 0, lid: 1, body: 1, mount: 1, foot: 1, sig: 1, heat: 1, call: 1};
   const cam = {...VIEWS.hero, d: VIEWS.hero.d * 2.6, az: VIEWS.hero.az + 1.4, el: 0.7};      // flies in on reveal
   const off = {az: 0, el: 0, k: 1};
   let ring = {t: -9, x: 0, y: 0};
@@ -199,7 +206,7 @@ async function run() {
 
   // ------------------------------------------------------------ the tour: operator moves on a 48 s loop
   const SCRIPT = [
-    [0.0, () => { open = 'closed'; iso = null; setView('hero'); Object.assign(show, {labels: 1, footprints: 1, signals: 1, heat: 1}); hT = 120; vT = 18; }, null],
+    [0.0, () => { open = 'closed'; iso = null; setView('hero'); Object.assign(show, {labels: 1, footprints: 1, signals: 1, heat: 1}); hT = 100; vT = 18; }, null],
     [6.0, () => act('underside'), 'underside'],
     [12.0, () => act('m:RGB camera (IMX565)'), 'm:RGB camera (IMX565)'],
     [15.5, () => act('m:RGB camera (IMX565)'), 'm:RGB camera (IMX565)'],
@@ -208,8 +215,8 @@ async function run() {
     [28.5, () => act('exploded'), 'exploded'],
     [35.5, () => act('closed'), 'closed'],
     [36.5, () => act('hero'), 'hero'],
-    [39.0, () => { hT = 60; }, 'h', (60 - H_RANGE[0]) / (H_RANGE[1] - H_RANGE[0])],
-    [43.5, () => { hT = 120; }, 'h', (120 - H_RANGE[0]) / (H_RANGE[1] - H_RANGE[0])],
+    [39.0, () => { hT = 140; }, 'h', (140 - H_RANGE[0]) / (H_RANGE[1] - H_RANGE[0])],
+    [43.5, () => { hT = 100; }, 'h', (100 - H_RANGE[0]) / (H_RANGE[1] - H_RANGE[0])],
   ];
   const DUR = 48;
   const AP = {on: true, t0: 0, i: 0};
@@ -297,6 +304,7 @@ async function run() {
     // eased state
     const ease = (key, to, rate = 4) => (an[key] = lerp(an[key], to, 1 - Math.exp(-dt * rate)));
     ease('k', open === 'exploded' ? 1 : 0, 3.2);
+    ease('plane', view === 'hero' && open === 'closed' && !iso ? 1 : 0, 4);
     ease('lid', open === 'closed' || open === 'exploded' ? 1 : 0, 5);
     ease('body', 1, 5);
     ease('mount', open === 'lid off' || view === 'inside' || view === 'underside' ? 0 : 1, 5);
@@ -309,19 +317,20 @@ async function run() {
     if (AP.on && view === 'hero' && open !== 'exploded') off.az = Math.sin(T * 0.25) * 0.2;
     else if (AP.on) off.az = lerp(off.az, 0, kc);
 
-    mc.update({k: an.k, lid: an.lid, body: an.body, mount: an.mount, iso, foot: an.foot, sigOn: an.sig, heatOn: an.heat, fl, th, dist,
+    mc.update({plane: an.plane, flying: !paused, k: an.k, lid: an.lid, body: an.body, mount: an.mount, iso, foot: an.foot, sigOn: an.sig, heatOn: an.heat, fl, th, dist,
       trig: trig.map((t) => T - t), T});
     st.frame({tx: cam.tx, ty: cam.ty, tz: cam.tz, az: cam.az + off.az, el: clamp(cam.el + off.el, -1.45, 1.45), d: cam.d * off.k});
 
     // overlay
     const since = trig.length ? T - trig[0] : 9;
-    ui.update({fl, th, frames, paused, flying: !paused, view, open, show, iso, since, dist, mapped,
+    ui.update({fl, th, frames, paused, flying: !paused, view, open, show, iso, since, dist, mapped, T, det: mc.farm,
       isoText: iso ? MOD_NOTE[iso] : 'FOUR GLOBAL SHUTTERS · ONE HARDWARE TRIGGER · ONE MAP, BUILT IN FLIGHT'});
     const set = open === 'exploded' ? CALLS.open : CALLS[view];
     const steady = Math.abs(cam.d - vt.d) < 0.04 && Math.abs(cam.az - vt.az) < 0.06 && Math.abs(off.az) < 0.35 && Math.abs(off.el) < 0.2 && Math.abs(an.k - (open === 'exploded' ? 1 : 0)) < 0.04;
     an.call = lerp(an.call, show.labels && steady && !iso ? 1 : 0, 1 - Math.exp(-dt * (steady ? 5 : 14)));
+    ui.tags(an.foot > 0.5 && an.k < 0.1 ? mc.tags().map((t) => ({...t, at: st.project(...t.p)})) : []);
     ui.callouts((set || []).map(([name, title, sub, to, at]) => {
-      const p = at || mc.anchor(name, an.k);
+      const p = at === 'wing' ? mc.plane.wingTip : at || mc.anchor(name, an.k);
       return {at: st.project(p[0], p[1], p[2]), to, title, sub, a: an.call, hot: /bezel|lens_glass/.test(name) && since < 0.25};
     }));
     const rk = clamp((T - ring.t) / 0.5, 0, 1);

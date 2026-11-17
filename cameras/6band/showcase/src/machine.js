@@ -4,11 +4,13 @@
 // Structure after the teardown kit's example machines (elvarofficial/teardown, MIT).
 import * as THREE from 'three';
 import {toCreasedNormals} from 'three/addons/utils/BufferGeometryUtils.js';
-import {FOV, vigour} from './sim.js';
+import {FOV} from './sim.js';
+import {createFarm} from './farm.js';
+import {createPlane} from './plane.js';
 
 export const ACCENT = '#ff6b2c';
 const CAMCOL = ['#38c8ff', '#ff4a3a', '#ff3aa8', '#9b6cff'];   // RGB, red edge, NIR, extended NIR
-export const GROUND_D = 0.15;                   // the field is drawn 15 cm under the lenses: angles true, height not
+export const GROUND_D = 0.8;                   // the field is drawn 15 cm under the lenses: angles true, height not
 
 function material(kind, c) {
   const col = new THREE.Color(c[0], c[1], c[2]);
@@ -102,59 +104,14 @@ export function buildMachine(data, bin, boardTex) {
     return {m, lines};
   });
 
-  // ---------------------------------------------------------------- the field: crop rows that slide under the camera
-  const GL = 0.62, GW = 0.46;
-  const gc = document.createElement('canvas');
-  gc.width = 1024; gc.height = 768;
-  {
-    const g = gc.getContext('2d');
-    const img = g.createImageData(gc.width, gc.height);
-    for (let j = 0; j < gc.height; j++) {
-      for (let i = 0; i < gc.width; i++) {
-        const xm = i * 0.4, ym = j * 0.4, Lp = gc.width * 0.4, wgt = i / gc.width;
-        const n = vigour(xm, ym) * (1 - wgt) + vigour(xm - Lp, ym) * wgt;          // periodic in x
-        const row = Math.pow(0.5 + 0.5 * Math.cos((j / gc.height) * Math.PI * 2 * 60), 2.2);
-        const leaf = [34 + 90 * (1 - n), 92 + 70 * n, 40 + 18 * (1 - n)], soil = [150, 124, 96];
-        const k = Math.min(1, 0.15 + 0.85 * row * (0.5 + 0.6 * n));
-        const o = (j * gc.width + i) * 4;
-        for (let c = 0; c < 3; c++) img.data[o + c] = soil[c] * (1 - k) + leaf[c] * k;
-        img.data[o + 3] = 255;
-      }
-    }
-    g.putImageData(img, 0, 0);
-  }
-  const gtex = new THREE.CanvasTexture(gc);
-  gtex.colorSpace = THREE.SRGBColorSpace;
-  gtex.wrapS = THREE.RepeatWrapping;
-  gtex.anisotropy = 8;
-  // soft edges: the field fades into the dark floor
-  const ac = document.createElement('canvas');
-  ac.width = ac.height = 256;
-  {
-    const g = ac.getContext('2d');
-    const gr = g.createRadialGradient(128, 128, 30, 128, 128, 128);
-    gr.addColorStop(0, '#fff'); gr.addColorStop(0.55, '#ddd'); gr.addColorStop(1, '#000');
-    g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
-  }
-  const atex = new THREE.CanvasTexture(ac);
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(GL, GW), new THREE.MeshStandardMaterial({alphaMap: atex, map: gtex, color: new THREE.Color(0.42, 0.5, 0.47), roughness: 0.95, envMapIntensity: 0.15, transparent: true}));
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.set(gx, groundY, 0);
-  ground.receiveShadow = true;
-  optics.add(ground);
-  const rim = new THREE.LineLoop(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(
-    [gx - GL / 2, groundY, -GW / 2, gx + GL / 2, groundY, -GW / 2, gx + GL / 2, groundY, GW / 2, gx - GL / 2, groundY, GW / 2], 3)),
-    new THREE.LineBasicMaterial({color: '#38e1ff', transparent: true, blending: THREE.AdditiveBlending}));
-  rim.visible = false;
-  optics.add(rim);
-  // holographic floor: a cyan grid that runs out past the field into the dark
-  const grid = new THREE.GridHelper(2.6, 52, '#38e1ff', '#1d5a78');
-  grid.material.transparent = true;
-  grid.material.opacity = 0.22;
-  grid.material.blending = THREE.AdditiveBlending;
-  grid.material.depthWrite = false;
-  grid.position.set(gx, groundY - 0.0012, 0);
-  optics.add(grid);
+  // ---------------------------------------------------------------- the farm: runs to the horizon, always on show
+  const GL = 3.3;
+  const farm = createFarm(groundY, gx, GROUND_D);
+  root.add(farm.group);
+  // the aircraft the 6B flies on, for scale: its belly sits on the quick-release receiver
+  const rcv = byName.qr_receiver;
+  const plane = createPlane(rcv.p.ctr[1] + 0.0045, rcv.p.ctr[0]);
+  root.add(plane.group);
 
   // footprints of the last triggers, travelling with the ground
   const stamps = [];
@@ -211,6 +168,7 @@ export function buildMachine(data, bin, boardTex) {
    * s: {k explode 0..1, lid 0..1, body 0..1, mount 0..1, iso group or null, foot, sigOn, heatOn 0..1,
    *     fl: flight(), th: thermal(), dist: metres flown, trig: [s since each recent trigger], T}
    */
+  let tags = [];
   function update(s) {
     for (const rec of parts) {
       const p = rec.p;
@@ -228,7 +186,9 @@ export function buildMachine(data, bin, boardTex) {
     face.material.opacity = carrier.vis;
     face.visible = carrier.vis > 0.01;
 
-    // field and footprints
+    // the farm and its detections; then the footprints
+    tags = farm.update(s);
+    plane.update(s.plane ?? 0, s.T, s.flying !== false);
     const fo = s.foot * (1 - s.k);
     optics.visible = fo > 0.01;
     const since = s.trig.length ? s.trig[0] : 9;
@@ -240,11 +200,6 @@ export function buildMachine(data, bin, boardTex) {
     for (const r of bezels) r.mat.emissiveIntensity = 1.4 * flash * (1 - s.k);
     if (optics.visible) {
       const scale = GROUND_D / s.fl.h;                                  // metres on the field -> metres in the drawing
-      ground.material.opacity = fo;
-      rim.material.opacity = fo;
-      grid.material.opacity = 0.22 * fo;
-      grid.position.x = gx - ((s.dist * scale) % 0.05);
-      gtex.offset.x = (s.dist * scale) / GL;
       const vg = s.fl.v * scale;
       stamps.forEach((set, i) => {
         const age = s.trig[i];
@@ -298,5 +253,5 @@ export function buildMachine(data, bin, boardTex) {
     const r = byName[name];
     return [r.p.ctr[0] + r.p.e[0] * k, r.p.ctr[1] + r.p.e[1] * k, r.p.ctr[2] + r.p.e[2] * k];
   };
-  return {root, parts, byName, update, lenses, groundY, anchor};
+  return {root, parts, byName, update, lenses, groundY, anchor, farm, plane, tags: () => tags};
 }

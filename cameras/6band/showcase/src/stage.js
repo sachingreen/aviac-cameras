@@ -8,7 +8,7 @@ import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
 import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-export const BG = {top: '#03050a', mid: '#07101b', low: '#0b1726'};
+export const BG = {top: '#040a16', mid: '#0f2236', low: '#3a4a52'};      // dusk sky, warm haze at the horizon
 
 export function createStage(canvas) {
   const renderer = new THREE.WebGLRenderer({canvas, antialias: false, preserveDrawingBuffer: true, powerPreference: 'high-performance'});
@@ -23,13 +23,14 @@ export function createStage(canvas) {
     c.width = 4; c.height = 512;
     const g = c.getContext('2d');
     const gr = g.createLinearGradient(0, 0, 0, 512);
-    gr.addColorStop(0, BG.top); gr.addColorStop(0.55, BG.mid); gr.addColorStop(1, BG.low);
+    gr.addColorStop(0, BG.top); gr.addColorStop(0.42, BG.mid); gr.addColorStop(0.62, '#24384a'); gr.addColorStop(0.72, BG.low); gr.addColorStop(1, '#2a3a44');
     g.fillStyle = gr; g.fillRect(0, 0, 4, 512);
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
     scene.background = tex;
   }
-  const camera = new THREE.PerspectiveCamera(24, 16 / 9, 0.02, 30);
+  scene.fog = new THREE.FogExp2('#26394a', 0.11);          // the farm fades into the evening haze
+  const camera = new THREE.PerspectiveCamera(24, 16 / 9, 0.02, 60);
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(4, 4, {type: THREE.HalfFloatType, samples: 4}));
   composer.addPass(new RenderPass(scene, camera));
   const gtao = new GTAOPass(scene, camera, 4, 4);
