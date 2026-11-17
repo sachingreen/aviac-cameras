@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aviac Technologies · Crop intelligence from the air</title>
+<meta name="description" content="Aviac Technologies builds drone cameras for agriculture: Aviac MS, a six-band multispectral camera for large-area surveys, and Aviac Duo, a stereo spray-check camera for spray drones.">
+<link rel="icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--green:#18241e;--green-2:#1f2f27;--green-3:#2a3d33;--ivory:#f2f1eb;--ivory-2:#c9cbc2;--mute:#8e978f;--line:rgba(242,241,235,.12);--accent:#ff6b2c;--cyan:#38e1ff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--green);color:var(--ivory);font:400 16px/1.6 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:Newsreader,Georgia,serif;font-weight:400;letter-spacing:-.01em;margin:0}
+.eyebrow{font:600 11px Inter,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
+/* nav */
+nav{position:sticky;top:0;z-index:20;background:rgba(24,36,30,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand img.m{height:28px}.brand img.w{height:16px}
+nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0;font-size:14px;color:var(--ivory-2)}
+nav ul a{text-decoration:none}nav ul a:hover{color:var(--ivory)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border-radius:999px;font:600 14px Inter,sans-serif;text-decoration:none;border:1px solid var(--line);transition:.2s}
+.btn.solid{background:var(--ivory);color:var(--green);border-color:var(--ivory)}
+.btn.solid:hover{background:#fff}
+.btn.ghost:hover{border-color:var(--ivory-2)}
+/* hero */
+.hero{position:relative;overflow:hidden;padding:96px 0 72px}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(60% 70% at 78% 40%,rgba(56,225,255,.08),transparent 60%),repeating-radial-gradient(circle at 80% 30%,transparent 0 38px,rgba(242,241,235,.035) 39px 40px)}
+.hero .wrap:not(.plain){position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(44px,6vw,76px);line-height:1.02}
+.hero h1 em{font-style:italic;color:var(--ivory-2)}
+.hero p.lead{font-size:19px;color:var(--ivory-2);max-width:520px;margin:24px 0 34px}
+.hero .ctas{display:flex;gap:14px;flex-wrap:wrap}
+.hero figure{margin:0;position:relative}
+.hero figure img{width:100%;border-radius:18px;display:block;box-shadow:0 40px 80px -30px rgba(0,0,0,.7)}
+.hero figure figcaption{position:absolute;left:18px;bottom:16px;font:500 12px Inter;letter-spacing:.1em;text-transform:uppercase;color:var(--ivory-2);background:rgba(24,36,30,.7);padding:6px 10px;border-radius:8px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:72px}
+.stats div{padding:26px 24px;border-right:1px solid var(--line)}
+.stats div:last-child{border-right:0}
+.stats b{display:block;font:400 34px Newsreader,serif}
+.stats span{font-size:13px;color:var(--mute)}
+/* products */
+section{padding:100px 0}
+.head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:48px}
+.head h2{font-size:clamp(34px,4vw,52px);line-height:1.08;max-width:640px}
+.head p{color:var(--ivory-2);max-width:420px;margin:0}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.card{background:var(--green-2);border:1px solid var(--line);border-radius:22px;overflow:hidden;display:flex;flex-direction:column}
+.card .img{aspect-ratio:16/10;overflow:hidden;background:#111}
+.card .img img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.card:hover .img img{transform:scale(1.04)}
+.card .body{padding:28px 28px 30px;display:flex;flex-direction:column;gap:14px;flex:1}
+.card h3{font-size:34px}
+.card .tag{font:600 11px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+.card p{margin:0;color:var(--ivory-2)}
+.card ul{margin:4px 0 8px;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;font-size:14px}
+.card li{padding-left:16px;position:relative;color:var(--ivory)}
+.card li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--cyan)}
+.card .row{margin-top:auto;display:flex;gap:12px;flex-wrap:wrap}
+/* detections */
+.detect{background:var(--green-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.det{border:1px solid var(--line);border-radius:16px;padding:24px;background:rgba(0,0,0,.12)}
+.det i{display:block;width:12px;height:12px;border-radius:3px;margin-bottom:18px}
+.det h4{margin:0 0 6px;font:500 18px Newsreader,serif}
+.det p{margin:0;font-size:14px;color:var(--ivory-2)}
+/* how */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;counter-reset:s}
+.step{border-top:1px solid var(--line);padding-top:24px}
+.step::before{counter-increment:s;content:'0' counter(s);font:500 13px Inter;letter-spacing:.2em;color:var(--accent)}
+.step h4{font:400 26px Newsreader,serif;margin:10px 0 8px}
+.step p{margin:0;color:var(--ivory-2)}
+/* specs */
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:14px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 11px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+td:first-child{color:var(--ivory-2);width:30%}
+/* gallery */
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.gallery img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:14px;display:block}
+/* contact */
+.contact{text-align:center}
+.contact h2{font-size:clamp(36px,5vw,60px)}
+.contact p{color:var(--ivory-2);margin:18px auto 30px;max-width:560px}
+footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mute);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.note{font-size:12px;color:var(--mute);margin-top:18px}
+@media (max-width:900px){
+  nav ul{display:none}
+  .hero{padding-top:56px}
+  .hero .wrap,.cards{grid-template-columns:1fr}
+  .stats,.grid4{grid-template-columns:1fr 1fr}
+  .stats div:nth-child(2){border-right:0}
+  .steps,.gallery{grid-template-columns:1fr}
+  .head{flex-direction:column;align-items:start}
+  .card ul{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="./"><img class="m" src="img/mark.svg" alt=""><img class="w" src="img/wordmark.svg" alt="Aviac Technologies"></a>
+  <ul><li><a href="#products">Cameras</a></li><li><a href="#detect">What it finds</a></li><li><a href="#how">How it works</a></li><li><a href="#specs">Specifications</a></li><li><a href="#contact">Contact</a></li></ul>
+  <a class="btn ghost" href="ms/">Live 3D demo</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div>
+    <div class="eyebrow">Drone cameras for agriculture</div>
+    <h1 style="margin-top:18px">See every acre.<br><em>Act on every plant.</em></h1>
+    <p class="lead">Aviac builds rugged cameras that ride on survey and spray drones, see crops in six spectral bands and in stereo, and tell the grower what needs attention before the drone has landed.</p>
+    <div class="ctas"><a class="btn solid" href="ms/">Explore Aviac MS in 3D &rarr;</a><a class="btn ghost" href="duo/">Explore Aviac Duo &rarr;</a></div>
+  </div>
+  <figure><img src="img/ms_01_box_hero.jpg" alt="Aviac MS multispectral camera, hard-anodised aluminium"><figcaption>Aviac MS · six-band multispectral</figcaption></figure>
+</div>
+<div class="wrap plain"><div class="stats">
+  <div><b>6 bands</b><span>blue · green · red · red edge · NIR · extended NIR</span></div>
+  <div><b>1.7 cm/px</b><span>RGB ground detail at 100 m</span></div>
+  <div><b>1,000 acres</b><span>surveyed per flying day, fixed-wing</span></div>
+  <div><b>2 mm/px</b><span>spray-check detail at 3 m, stereo</span></div>
+</div></div>
+</header>
+
+<section id="products"><div class="wrap">
+  <div class="head"><h2>Two cameras, one platform.</h2><p>Both share the same Jetson Orin carrier, the same machined aluminium build and the same on-board processing. They differ in what they fly on and what they look for.</p></div>
+  <div class="cards">
+    <article class="card">
+      <div class="img"><img src="img/ms_03_box_underside.jpg" alt="Aviac MS underside, four windows in a 2 by 2 grid"></div>
+      <div class="body">
+        <div class="tag">Large-area survey · fixed-wing</div>
+        <h3>Aviac MS</h3>
+        <p>A six-band multispectral camera for farms of 100 to 1,000 acres. Sony IMX565 for colour, three Mira220 sensors for red edge and near infrared, all four lenses on one machined plate.</p>
+        <ul><li>RGB + red edge + NIR + ext. NIR</li><li>1.7 cm/px at 100 m</li><li>Vigour, stress and pest maps in flight</li><li>Hard-anodised, no fan, 112 mm</li></ul>
+        <div class="row"><a class="btn solid" href="ms/">Open the interactive 3D &rarr;</a></div>
+      </div>
+    </article>
+    <article class="card">
+      <div class="img"><img src="img/duo_01_box_hero.jpg" alt="Aviac Duo stereo spray-check camera"></div>
+      <div class="body">
+        <div class="tag">Spray verification · multi-rotor</div>
+        <h3>Aviac Duo</h3>
+        <p>A stereo camera that clamps to any spray drone and checks the job as it is done: where the spray landed, where it missed, and how the crop responds days later.</p>
+        <ul><li>Two Mira220, 60 mm stereo</li><li>2 mm/px at 3 m</li><li>Coverage and gap map, live</li><li>Fits 20 to 25 mm frame tubes</li></ul>
+        <div class="row"><a class="btn solid" href="duo/">Open the interactive 3D &rarr;</a></div>
+      </div>
+    </article>
+  </div>
+</div></section>
+
+<section id="detect" class="detect"><div class="wrap">
+  <div class="head"><h2>What it finds, while it flies.</h2><p>The bands a healthy leaf reflects are not the bands a stressed one does. The camera compares them frame by frame and pins every problem to the map.</p></div>
+  <div class="grid4">
+    <div class="det"><i style="background:#ffb020"></i><h4>Poor vegetation</h4><p>Thin canopy and low vigour, flagged from NDVI before it shows in colour.</p></div>
+    <div class="det"><i style="background:#ff4a3a"></i><h4>Crop loss</h4><p>Bare soil, lodged or washed-out patches, measured in square metres.</p></div>
+    <div class="det"><i style="background:#ff3aa8"></i><h4>Pest damage</h4><p>Feeding damage shows first as a drop in red edge.</p></div>
+    <div class="det"><i style="background:#b8ff3a"></i><h4>Nutrient deficiency</h4><p>Chlorosis from low nitrogen, mapped so it can be fed where it is short.</p></div>
+  </div>
+  <p class="note">The detections in the interactive demos are simulated to show the workflow. Field accuracy will be published after trials.</p>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <div class="head"><h2>Fly. See. Act.</h2><p>No ground station needed. The camera fires all its shutters on one hardware trigger, processes on board, and lands with the map ready.</p></div>
+  <div class="steps">
+    <div class="step"><h4>Fly the block</h4><p>Mount on the quick-release, set height and overlap, and fly the survey pattern or the spray job as usual.</p></div>
+    <div class="step"><h4>See in six bands</h4><p>Every trigger captures all sensors within 50 µs, time-stamped by GNSS and corrected by the sun sensor.</p></div>
+    <div class="step"><h4>Act on the map</h4><p>Stress, pests, gaps and missed spray come back as pinned areas, ready for a variable-rate job or a second pass.</p></div>
+  </div>
+</div></section>
+
+<section id="specs" style="padding-top:0"><div class="wrap">
+  <div class="head"><h2>Specifications.</h2><p>Design figures, calculated from the parts chosen. Measured figures follow after the first build.</p></div>
+  <table>
+    <tr><th></th><th>Aviac MS</th><th>Aviac Duo</th></tr>
+    <tr><td>Sensors</td><td>Sony IMX565 12.4 MP + 3 × Mira220 2.2 MP, global shutter</td><td>2 × Mira220 2.2 MP, global shutter</td></tr>
+    <tr><td>Bands</td><td>Blue, green, red, red edge 723, NIR 840, NIR+ 890</td><td>RGB + NIR (camera A), any band by filter (camera B)</td></tr>
+    <tr><td>Ground detail</td><td>1.7 cm/px RGB, 4.7 cm/px NIR at 100 m</td><td>2.1 mm/px at 3 m</td></tr>
+    <tr><td>Depth</td><td>–</td><td>±2.6 cm at 3 m (60 mm baseline)</td></tr>
+    <tr><td>Computer</td><td colspan="2">NVIDIA Jetson Orin Nano 8 GB, 256 GB NVMe</td></tr>
+    <tr><td>Power</td><td colspan="2">3S to 6S direct from the drone, 15 to 25 W</td></tr>
+    <tr><td>Body</td><td>112 × 108 × 99 mm, machined 6061, hard anodised</td><td>108 × 98 × 77 mm, machined 6061, hard anodised</td></tr>
+    <tr><td>Cooling</td><td colspan="2">Finned lid, no fan</td></tr>
+    <tr><td>Mount</td><td>Tilt yoke, dovetail quick-release</td><td>Tilt yoke, 20 to 25 mm tube clamp</td></tr>
+  </table>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <div class="head"><h2>Built to be dropped in a field.</h2><p>Machined from solid aluminium, rubber corner guards, a stainless skid rim that keeps the windows off the ground, sealed ports.</p></div>
+  <div class="gallery">
+    <img src="img/ms_02_box_hero_light.jpg" alt="Aviac MS, light background">
+    <img src="img/ms_05_box_exploded.jpg" alt="Aviac MS exploded view">
+    <img src="img/ms_06_box_inside.jpg" alt="Aviac MS with the lid off">
+    <img src="img/ms_07_box_filter_closeup.jpg" alt="Aviac MS windows and band labels">
+    <img src="img/duo_02_box_hero_light.jpg" alt="Aviac Duo, light background">
+    <img src="img/duo_05_box_exploded.jpg" alt="Aviac Duo exploded view">
+  </div>
+</div></section>
+
+<section id="contact" class="contact" style="border-top:1px solid var(--line)"><div class="wrap">
+  <img src="img/mark.svg" alt="" style="height:54px;margin-bottom:22px">
+  <h2>Fly it on your farm.</h2>
+  <p>We are lining up field trials for the coming season. Tell us your crop, your acreage and the drone you fly.</p>
+  <a class="btn solid" href="mailto:hello@example.com?subject=Aviac%20field%20trial">Request a field trial &rarr;</a>
+</div></section>
+
+<footer><div class="wrap">
+  <a class="brand" href="./"><img class="m" src="img/mark.svg" alt="" style="height:22px"><img class="w" src="img/wordmark.svg" alt="Aviac Technologies" style="height:13px"></a>
+  <span>© Aviac Technologies. Concept designs; specifications subject to change.</span>
+</div></footer>
+</body>
+</html>

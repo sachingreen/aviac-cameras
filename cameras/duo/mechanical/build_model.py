@@ -210,6 +210,7 @@ for (cx, cy), *_ in CAMS:
     body = body.cut(cyl(cx, cy, -3, T + 1, WIN_R))
     body = body.cut(ring(cx, cy, -1.6, -0.9, WIN_R + 3.4, WIN_R))
 # connector openings, from the real board, on whichever flank each connector faces
+OPEN = []
 for ref, h in (("J1", 5.6), ("J8", 4.6), ("J9", 4.6), ("J12", 3.6), ("J13", 4.6)):
     x0, x1, y0, y1 = pbox(ref, 0.6)
     y0, y1 = fy(y1), fy(y0)
@@ -218,6 +219,7 @@ for ref, h in (("J1", 5.6), ("J8", 4.6), ("J9", 4.6), ("J12", 3.6), ("J13", 4.6)
         body = body.cut(box(x0, x1, YW - T - 1, YW + 1, zlo, zhi))
     else:
         body = body.cut(box(x0, x1, -YW - 1, -YW + T + 1, zlo, zhi))
+    OPEN.append((x0, x1, zlo, zhi, 1 if y1 > 0 else -1, ref))
 LIDSCREWS = [(X0 + 6.5, -YW + 6.5), (X0 + 6.5, YW - 6.5), (X1 - 6.5, -YW + 6.5), (X1 - 6.5, YW - 6.5)]
 for (x, y) in LIDSCREWS:
     body = body.union(cyl(x, y, T, H, 3.4).intersect(outer)).cut(cyl(x, y, T + 2, H + 1, 1.25))
@@ -227,15 +229,64 @@ for (x, y) in POSTS:
 PIV_Z = H * 0.52
 for s in (-1, 1):
     body = body.union(cq.Workplane("XZ").circle(8.0).extrude(1.4).translate((CX, s * YW + (1.4 if s > 0 else 0), PIV_Z)))
-try:
-    body = body.cut(cq.Workplane("YZ").text("AVIAC  DUO", 6.0, -0.45, kind="bold").translate((X1, 0, H * 0.45)))
-except Exception as e:
-    print("logo skipped", e)
 body = body.cut(cq.Workplane("YZ").center(0, H - 13).rect(10, 1.6).extrude(-3).translate((X1 + 0.5, 0, 0)))   # status light bar
-add("body", body, (0.10, 0.105, 0.115), "Enclosure", (0, 0, -92), density=1.20,
-    label="Body, glass-filled nylon, IP65 with the lid gasket", mat="shell")
+add("body", body, (0.20, 0.205, 0.215), "Enclosure", (0, 0, -92), density=2.70,
+    label="Body, 6061-T6 machined from solid, Type III hard anodised, bead-blasted", mat="hardcoat")
 add("status_bar", cbox(X1 - 1.2, 0, H - 13.8, H - 12.2, 0.6, 9.6), (1.0, 0.55, 0.12), "Enclosure", (0, 0, -92), mass=0.0,
     label="Status light", mat="emit")
+
+# ---------------------------------------------------------------- markings: laser-etched through the anodise (reads light grey)
+sys.path.insert(0, os.path.join(REPO, "toolkit", "brand"))
+from logo import polygons as logo_polygons
+ETCH = 0.06
+
+
+def face_place(sol, face, at):
+    """Text and art are drawn in XY (x right, y up, extruded +z); turn them onto a face so they read from outside."""
+    if face == "+X":
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 90).rotate((0, 0, 0), (0, 0, 1), 90)
+    elif face == "-X":
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 90).rotate((0, 0, 0), (0, 0, 1), -90)
+    elif face == "+Y":
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 90).rotate((0, 0, 0), (0, 0, 1), 180)
+    elif face == "-Y":
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 90)
+    elif face == "-Z":                          # the window face, read from below with the nose (+X) up
+        sol = sol.rotate((0, 0, 0), (1, 0, 0), 180).rotate((0, 0, 0), (0, 0, 1), 90)
+    return sol.translate(at)
+
+
+def etched_text(txt, size, face, at, kind="bold", halign="center"):
+    t = cq.Workplane("XY").text(txt, size, ETCH + 0.02, kind=kind, halign=halign, valign="center").translate((0, 0, -0.02))
+    return face_place(t, face, at)
+
+
+def etched_logo(height, face, at):
+    """The Aviac mark, from the trace of the supplied artwork (toolkit/brand), height in mm."""
+    sol = None
+    for poly in logo_polygons():
+        pts = [(x * height, y * height) for (x, y) in poly]
+        w = cq.Workplane("XY").polyline(pts).close().extrude(ETCH + 0.02).translate((0, 0, -0.02))
+        sol = w if sol is None else sol.union(w)
+    return face_place(sol, face, at)
+
+
+marks = []
+marks.append(etched_logo(16.0, "+X", (X1, 0, H * 0.62)))
+marks.append(etched_text("AVIAC  DUO", 6.4, "+X", (X1, 0, H * 0.36)))
+marks.append(etched_text("STEREO  ·  SPRAY CHECK", 2.4, "+X", (X1, 0, H * 0.27), kind="regular"))
+marks.append(etched_text("AVIAC DUO-2   REV B", 2.8, "-X", (X0, 0, H * 0.46)))
+marks.append(etched_text("S/N  DUO-0001   ·   3S - 6S  15 W", 2.1, "-X", (X0, 0, H * 0.38), kind="regular"))
+marks.append(etched_text("MADE IN INDIA", 2.1, "-X", (X0, 0, H * 0.31), kind="regular"))
+PORTN = {"J1": "PWR 3-6S", "J8": "TELEM", "J9": "SPRAY", "J12": "USB-C", "J13": "DLS"}
+for (x0, x1, zlo, zhi, side, ref) in OPEN:
+    marks.append(etched_text(PORTN[ref], 2.1, "+Y" if side > 0 else "-Y", ((x0 + x1) / 2, side * YW, zhi + 4.0)))
+for (cx, cy), key, *_ in CAMS:
+    marks.append(etched_text("A · RGB+NIR" if key == "A" else "B · BAND", 2.3, "-Z", (cx + WIN_R + 6.5, cy, -1.4)))
+etch = marks[0]
+for m in marks[1:]:
+    etch = etch.union(m)
+add("markings", etch, (0.72, 0.73, 0.75), "Enclosure", (0, 0, -92), mass=0.0, label="Laser-etched markings: Aviac mark, name, ports, cameras", mat="etch")
 
 # ---------------------------------------------------------------- finned lid: the heatsink, machined aluminium
 lid = rbox(X0, X1, -YW, YW, H, H + LID_T, RC)
@@ -385,7 +436,7 @@ for s in (-1, 1):
     yoke = arm if yoke is None else yoke.union(arm)
 bridge = rbox(CX - 15, CX + 15, -(YW + 1.6 + ARM_T), YW + 1.6 + ARM_T, TOPZ, TOPZ + 4.0, 3.0)
 yoke = yoke.union(bridge)
-add("yoke", yoke, (0.08, 0.08, 0.09), MG, (0, 0, 104), density=2.70, label="Tilt yoke, 0-35 deg back, aluminium", mat="anodised")
+add("yoke", yoke, (0.20, 0.205, 0.215), MG, (0, 0, 104), density=2.70, label="Tilt yoke, 7075 aluminium, hard anodised", mat="hardcoat")
 for s in (-1, 1):
     yk = s * (YW + 1.6 + ARM_T + 0.01) if s > 0 else -(YW + 1.6 + ARM_T + 0.01)
     knob = cq.Workplane("XZ").circle(8.5).extrude(-5.0 if s > 0 else 5.0).translate((CX, yk, PIV_Z))
@@ -402,8 +453,8 @@ clamp = clamp.cut(cq.Workplane("YZ").circle(TUBE_R).extrude(30).translate((CX - 
 cap = cq.Workplane("YZ").circle(TUBE_R + 5).circle(TUBE_R).extrude(24).translate((CX - 12, 0, cz)).intersect(box(CX - 12, CX + 12, -40, 40, cz + 0.6, cz + 30))
 cap = cap.union(box(CX - 12, CX + 12, -TUBE_R - 11, -TUBE_R - 1, cz + 0.6, cz + 4)).union(box(CX - 12, CX + 12, TUBE_R + 1, TUBE_R + 11, cz + 0.6, cz + 4))
 clamp = clamp.union(box(CX - 12, CX + 12, -TUBE_R - 11, -TUBE_R - 1, cz - 4, cz)).union(box(CX - 12, CX + 12, TUBE_R + 1, TUBE_R + 11, cz - 4, cz))
-add("clamp_base", clamp, (0.08, 0.08, 0.09), MG, (0, 0, 124), density=2.70, label="Tube clamp, fits 20 / 22 / 25 mm with inserts", mat="anodised")
-add("clamp_cap", cap, (0.08, 0.08, 0.09), MG, (0, 0, 146), density=2.70, label="Tube clamp cap", mat="anodised")
+add("clamp_base", clamp, (0.20, 0.205, 0.215), MG, (0, 0, 124), density=2.70, label="Tube clamp, fits 20 / 22 / 25 mm with inserts", mat="hardcoat")
+add("clamp_cap", cap, (0.20, 0.205, 0.215), MG, (0, 0, 146), density=2.70, label="Tube clamp cap", mat="hardcoat")
 for s in (-1, 1):
     add(f"clamp_screw_{s}", cyl(CX, s * (TUBE_R + 6), cz + 4, cz + 6.5, 2.6), (0.6, 0.6, 0.62), MG, (0, 0, 156), mass=1.0, label="M3 clamp screw", mat="steel")
 tube = cq.Workplane("XZ").circle(TUBE_R - 0.05).extrude(-180).translate((CX, -90, cz))
@@ -429,7 +480,7 @@ for p in parts:
     mass = p["mass"] if p["mass"] is not None else vol * p["density"]
     if p["group"] != "Drone":
         total += mass
-    coarse = p["name"].startswith(("brd_", "jetson_passives")) or "_passives" in p["name"]
+    coarse = p["name"].startswith(("brd_", "jetson_passives", "markings")) or "_passives" in p["name"]
     pos = tess(p["solid"], 0.10 if coarse else 0.04, 0.35 if coarse else 0.2)
     bb = shp.BoundingBox()
     meta.append(dict(name=p["name"], label=p["label"], group=p["group"], color=p["color"], explode=p["explode"], mat=p["mat"], proxy=p["proxy"],

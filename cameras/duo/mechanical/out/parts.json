@@ -64,9 +64,9 @@
  },
  {
   "name": "body",
-  "label": "Body, glass-filled nylon, IP65 with the lid gasket",
+  "label": "Body, 6061-T6 machined from solid, Type III hard anodised, bead-blasted",
   "group": "Enclosure",
-  "mass": 105.81,
+  "mass": 238.16,
   "estimated": false
  },
  {
@@ -260,7 +260,7 @@
  },
  {
   "name": "yoke",
-  "label": "Tilt yoke, 0-35 deg back, aluminium",
+  "label": "Tilt yoke, 7075 aluminium, hard anodised",
   "group": "Mount",
   "mass": 60.43,
   "estimated": false
