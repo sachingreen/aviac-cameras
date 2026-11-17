@@ -9,3 +9,4 @@ boards/orin-carrier/kicad/variants/
 boards/orin-carrier/kicad/route.log
 **/out/test/
 route.ses
+**/out/render.log
