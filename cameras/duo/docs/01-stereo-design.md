@@ -1,78 +1,92 @@
-# Aviac Duo: two Mira220 cameras for stereo, guidance and maps
+# Aviac Duo: compact stereo camera for spray drones
 
-Status: concept. The numbers below are calculated; nothing has been measured.
+Status: concept. The numbers below are calculated; nothing has been built or measured.
 
 ## What it is
 
-Two Mira220 camera modules on one machined aluminium lens plate, both looking down, both fired by the
-same hardware trigger. One Jetson Orin Nano carrier (the same board as the 6-band camera, with two of
-its four camera ports fitted) does the stereo depth, the guidance video and the maps.
+A sealed box, 152 x 98 x 62 mm (111 mm tall with the tube clamp), about 600 g with the mount. Inside:
+two Mira220 cameras 60 mm apart on one machined lens plate, both looking down and fired by the same
+hardware trigger, and the shared Jetson Orin Nano carrier (duo variant: two of its four camera ports
+fitted). No fan and no air duct: the Jetson presses on a finned aluminium lid through a thermal pad,
+and the rotor downwash cools the lid.
 
-| | Camera A (front) | Camera B (rear) |
+| | Camera A | Camera B |
 | --- | --- | --- |
 | Sensor | Mira220 RGB-IR (2QI1WP) recommended, or RGB (2QC1WP) | Mira220 mono (2QM1WP) |
 | Gives | Red, green, blue and near-infrared from one sensor | Any band you put a filter on, at full resolution |
-| Lens | 6 mm CS-mount, 40.8° x 36.1° | same |
-| Filter | Dual-band (visible + 850 nm) for RGB-IR | 25 mm front filter, swapped by the user |
-| Carrier port | CAM0 (J3), CSI0, 2 lanes | CAM1 (J4), CSI1, 2 lanes |
+| Lens | 4 mm CS-mount, 58° x 52° | same |
+| Filter | Dual-band (visible + 850 nm) behind a fixed ring | Twist-lock ring: changed in the field without tools |
+| Carrier port | CAM0 (J3) | CAM1 (J4) |
 
-Why RGB-IR for camera A: it gives NDVI from one sensor with no registration, and an RGB-IR sensor sees
-roughly the same scene as a mono sensor, which matters for stereo (next section). Both sensor types
-use the same module, so the choice is made when the modules are ordered.
+Both sensor types fit the same module, so the choice is made when the modules are ordered.
 
-## Stereo geometry
+## Why a box, not the 6-band pod
 
-Baseline 100 mm, along the flight direction (camera A ahead of camera B). Along-track keeps the pod
-92 mm wide; across-track would allow at most about 60 mm.
+The 6-band pod is shaped for a fixed-wing belly at 18 m/s and carries a 25 W computer, so it needs a
+ram-air duct. A spray drone flies at 2-5 m and 3-7 m/s under its own downwash, and the Duo's work fits
+in the Jetson's 15 W mode. A plain finned lid is enough:
 
-Focal length 6 mm on 2.79 µm pixels = 2151 px. Depth error for a 0.25 px matching error:
+| Jetson mode | Lid temperature rise, still air | Under rotor downwash (3-5 m/s) |
+| --- | --- | --- |
+| 7 W | 9 °C | 4 °C |
+| 15 W (recommended in flight) | 19 °C | 8 °C |
+| 25 W (MAXN SUPER) | 32 °C | 14 °C |
+
+Lid area 0.065 m² including 19 fins 8.5 mm tall; heat-transfer coefficients assumed 12 W/m²K still
+and 28 W/m²K under downwash. Direct sun on a black lid adds to these. Run 7 W on the ground,
+15 W in flight; 25 W only with airflow. **Not yet measured.**
+
+An inner wall between the electronics and the cameras keeps the Jetson's heat off the sensors.
+
+## Coverage and detail at spray height (4 mm lens)
+
+| Height | Footprint | Ground detail |
+| --- | --- | --- |
+| 2 m | 2.2 x 2.0 m | 1.4 mm per pixel |
+| 3 m | 3.4 x 2.9 m | 2.1 mm per pixel |
+| 5 m | 5.6 x 4.9 m | 3.5 mm per pixel |
+
+Spray swaths are 5-9 m wide, so at 3 m one frame covers roughly half the swath; at 5 m about all of it.
+A 3.5 mm lens widens this to 3.8 m at 3 m. The lens is a user choice.
+
+## Stereo
+
+Baseline 60 mm, side by side (across the flight direction). Focal length 4 mm = 1434 px.
+Depth error for a 0.25 px matching error:
 
 | Range | Disparity | Depth error |
 | --- | --- | --- |
-| 2 m | 108 px | ± 0.5 cm |
-| 5 m | 43 px | ± 3 cm |
-| 10 m | 22 px | ± 12 cm |
-| 20 m | 11 px | ± 47 cm |
-| 50 m | 4.3 px | ± 2.9 m |
-| 120 m | 1.8 px | ± 17 m |
+| 2 m | 43 px | ± 1.2 cm |
+| 3 m | 29 px | ± 2.6 cm |
+| 5 m | 17 px | ± 7.3 cm |
 
-Read this as: useful depth from the camera pair up to about 20 m. That covers landing, obstacle
-checks, terrain following at low height and crop height from a low pass. At normal mapping height
-(120 m) the pair adds nothing; 3D maps there come from consecutive frames along the flight line
-(structure from motion), where the baseline is the 12 m flown between frames.
+At spray height this is plenty for crop height, boom-to-canopy distance and obstacle checks.
 
-Closest usable range: about 0.8 m (256 px disparity search). Footprints overlap 87 % at 1 m.
+Stereo needs both cameras to see similar images. Plants are dark in red and bright in near infrared,
+so a red-filtered and an NIR-filtered camera match badly over crops. For stereo, put the same (or a
+clear) filter on camera B; for an extra spectral band, accept weaker stereo over vegetation.
 
-## Stereo needs both cameras to see the same thing
+## Mounting
 
-Matching works on texture that looks alike in both images. Plants look completely different in red and
-in near infrared (dark in one, bright in the other), so a red-filtered camera and an NIR-filtered camera
-match badly over crops. Two modes, chosen by the filter on camera B:
+A tilt yoke (0-35° back, locked by two knobs) with a split clamp for 20, 22 or 25 mm tubes, the common
+sizes on spray-drone frames. Mount it ahead of the spray boom and tilt it back so the frame sees the
+area just sprayed, without the windows sitting in the mist.
 
-| Mode | Camera B filter | Stereo | Spectral output |
-| --- | --- | --- | --- |
-| Guidance / 3D | Clear, or the same dual-band filter as camera A | Good | RGB + NIR from camera A |
-| Mapping | Narrow band for the job (red edge, 940 nm, etc.) | Weak over vegetation; fine over soil and structures | RGB + NIR from A, plus the extra band from B |
+Spray on the windows is the practical risk. The windows are hydrophobic-coated and recessed in hoods;
+the mounting position matters more than the coating. **Not yet tested.**
 
-At mapping height the two cameras are registered with a fixed offset: the parallax between them is
-1.8 px at 120 m and changes by only 0.015 px per metre of crop height.
+## Power: needs a decision
 
-## Synchronisation
+Spray drones mostly run 12S-14S batteries (44-59 V). The shared carrier accepts 3S-6S (9-25 V); its
+input protection would be destroyed by a 12S battery. Two options:
 
-Same as the 6-band camera: the sync microcontroller fires both REQ_EXP lines from one timer, so the two
-exposures start together (budget 50 µs; at 18 m/s that is 0.9 mm of travel). The extracted module design
-(`boards/mira220-module`) adds the trigger on FPC pin 18, which the stock SincereFirst module lacks.
+1. Power the Duo from the drone's 12 V auxiliary output or a 12S-to-12 V converter (no board change).
+2. Carrier rev A2 with a 12-60 V input stage (wider-rated converter, TVS and reverse-polarity MOSFET).
 
-## Data and processing
+## Synchronisation, data, calibration
 
-- Guidance: both cameras at 60 fps full resolution = 1.6 Gbit/s per camera, 806 Mbit/s per lane of the
-  1.5 Gbit/s the sensor allows. Stereo disparity on the Orin Nano with NVIDIA VPI.
-- Mapping: one frame pair per trigger, 16-bit TIFF + XMP, as on the 6-band camera.
-- Calibration: intrinsics and the stereo extrinsics from a checkerboard on the bench. The lens plate
-  is one machined part so the calibration holds; re-check after any lens or filter change that moves
-  the lens in its thread (focus).
-
-## Open decisions
-
-- Downward only, or a forward-looking variant for multirotor guidance (a different mount, same internals).
-- Whether SincereFirst will build the module with the RGB-IR sensor and the trigger change.
+- Both shutters fire from one timer on the sync microcontroller (budget 50 µs). The extracted module
+  design (`boards/mira220-module`) adds the trigger pin the stock SincereFirst module lacks.
+- Up to 60 fps per camera at full resolution, 806 Mbit/s per lane (sensor limit 1.5 Gbit/s).
+- Stereo calibration on the bench with a checkerboard; the lens plate is one machined part so it holds.
+  Re-check after changing a lens or refocusing.

@@ -1,247 +1,205 @@
 [
  {
-  "name": "enclosure_upper",
-  "label": "Upper shell (PA12, 1.4 mm wall)",
-  "group": "Enclosure",
-  "mass": 51.11,
-  "estimated": false
- },
- {
-  "name": "enclosure_lower",
-  "label": "Lower shell with air duct and lens bezels (PA12)",
-  "group": "Enclosure",
-  "mass": 83.62,
-  "estimated": false
- },
- {
-  "name": "screw_0",
-  "label": "M2.5 x 12 socket screw",
-  "group": "Enclosure",
-  "mass": 0.55,
-  "estimated": true
- },
- {
-  "name": "screw_1",
-  "label": "M2.5 x 12 socket screw",
-  "group": "Enclosure",
-  "mass": 0.55,
-  "estimated": true
- },
- {
-  "name": "screw_2",
-  "label": "M2.5 x 12 socket screw",
-  "group": "Enclosure",
-  "mass": 0.55,
-  "estimated": true
- },
- {
-  "name": "screw_3",
-  "label": "M2.5 x 12 socket screw",
-  "group": "Enclosure",
-  "mass": 0.55,
-  "estimated": true
- },
- {
-  "name": "screw_4",
-  "label": "M2.5 x 12 socket screw",
-  "group": "Enclosure",
-  "mass": 0.55,
-  "estimated": true
- },
- {
-  "name": "screw_5",
-  "label": "M2.5 x 12 socket screw",
-  "group": "Enclosure",
-  "mass": 0.55,
-  "estimated": true
- },
- {
-  "name": "mount_plate",
-  "label": "Belly mount plate (CFRP 1.5 mm)",
-  "group": "Mount",
-  "mass": 18.3,
-  "estimated": false
- },
- {
-  "name": "damper_1",
-  "label": "M3 vibration damper (silicone)",
-  "group": "Mount",
-  "mass": 0.9,
-  "estimated": true
- },
- {
-  "name": "damper_2",
-  "label": "M3 vibration damper (silicone)",
-  "group": "Mount",
-  "mass": 0.9,
-  "estimated": true
- },
- {
-  "name": "damper_3",
-  "label": "M3 vibration damper (silicone)",
-  "group": "Mount",
-  "mass": 0.9,
-  "estimated": true
- },
- {
-  "name": "damper_4",
-  "label": "M3 vibration damper (silicone)",
-  "group": "Mount",
-  "mass": 0.9,
-  "estimated": true
- },
- {
   "name": "carrier_pcb",
-  "label": "Carrier PCB, 100 x 82 mm, 6-layer, 1.0 mm",
+  "label": "Carrier PCB, 100 x 82 mm, 6-layer (duo variant)",
   "group": "Carrier board",
   "mass": 16.5,
   "estimated": true
  },
  {
   "name": "brd_bom_mass",
-  "label": "Board components (sum of BOM masses)",
+  "label": "Board components (BOM)",
   "group": "Carrier board",
   "mass": 11.0,
   "estimated": true
  },
  {
   "name": "m2_ssd",
-  "label": "M.2 2230 NVMe SSD, 256 GB or more",
+  "label": "M.2 2230 NVMe SSD",
   "group": "Carrier board",
   "mass": 2.6,
   "estimated": true
  },
  {
   "name": "m2_ssd_ctrl",
-  "label": "NVMe controller + flash",
-  "group": "Carrier board",
-  "mass": 0.3,
-  "estimated": true
- },
- {
-  "name": "m2_standoff",
-  "label": "M2 SSD standoff + screw",
+  "label": "NVMe controller",
   "group": "Carrier board",
   "mass": 0.3,
   "estimated": true
  },
  {
   "name": "sodimm_socket",
-  "label": "260-pin SO-DIMM socket (TE 2309413-1)",
+  "label": "260-pin SO-DIMM socket",
   "group": "Carrier board",
   "mass": 3.4,
   "estimated": true
  },
  {
   "name": "standoff_0",
-  "label": "Module standoff M2.5 x 6.5",
+  "label": "Module standoff",
   "group": "Carrier board",
   "mass": 0.5,
-  "estimated": true
- },
- {
-  "name": "standoff_screw_0",
-  "label": "M2.5 screw",
-  "group": "Jetson Orin Nano",
-  "mass": 0.2,
   "estimated": true
  },
  {
   "name": "standoff_1",
-  "label": "Module standoff M2.5 x 6.5",
+  "label": "Module standoff",
   "group": "Carrier board",
   "mass": 0.5,
   "estimated": true
  },
  {
-  "name": "standoff_screw_1",
-  "label": "M2.5 screw",
-  "group": "Jetson Orin Nano",
-  "mass": 0.2,
-  "estimated": true
- },
- {
   "name": "jetson_pcb",
-  "label": "Jetson Orin Nano 8GB module (69.6 x 45 mm)",
+  "label": "Jetson Orin Nano 8GB module",
   "group": "Jetson Orin Nano",
   "mass": 60.0,
   "estimated": true
  },
  {
-  "name": "heatsink",
-  "label": "Heatsink, black-anodised Al 6063, fins along airflow",
-  "group": "Thermal",
-  "mass": 33.3,
-  "estimated": false
- },
- {
   "name": "tim_pad",
-  "label": "Thermal pad on the SoC plate",
+  "label": "Thermal pad, 0.5 mm, 6 W/mK",
   "group": "Thermal",
   "mass": 0.8,
   "estimated": true
  },
  {
+  "name": "body",
+  "label": "Body, glass-filled nylon (moulded or printed), IP65 with the lid gasket",
+  "group": "Enclosure",
+  "mass": 121.03,
+  "estimated": false
+ },
+ {
+  "name": "lid",
+  "label": "Finned lid, 6063 aluminium, black anodised: the heatsink",
+  "group": "Thermal",
+  "mass": 194.17,
+  "estimated": false
+ },
+ {
+  "name": "lid_screw_0",
+  "label": "M2.5 lid screw",
+  "group": "Thermal",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "lid_screw_1",
+  "label": "M2.5 lid screw",
+  "group": "Thermal",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "lid_screw_2",
+  "label": "M2.5 lid screw",
+  "group": "Thermal",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "lid_screw_3",
+  "label": "M2.5 lid screw",
+  "group": "Thermal",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "lid_screw_4",
+  "label": "M2.5 lid screw",
+  "group": "Thermal",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "lid_screw_5",
+  "label": "M2.5 lid screw",
+  "group": "Thermal",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "gasket",
+  "label": "Silicone gasket (IP65)",
+  "group": "Enclosure",
+  "mass": 1.0,
+  "estimated": true
+ },
+ {
   "name": "mira0_pcb",
-  "label": "SincereFirst SF3RA220IRY32 module (30 x 24 mm)",
+  "label": "Mira220 module (30 x 24 mm, trigger on pin 18)",
   "group": "Camera A (Mira220)",
   "mass": 2.4,
   "estimated": true
  },
  {
   "name": "mira0_lens_barrel",
-  "label": "6 mm CS-mount lens, 1/2.7-inch, low distortion",
+  "label": "4 mm CS-mount lens, 58 deg, 1/2.7-inch",
   "group": "Camera A (Mira220)",
-  "mass": 22.0,
+  "mass": 18.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_window",
+  "label": "Window, hydrophobic + AR coated: spray mist beads off",
+  "group": "Camera A (Mira220)",
+  "mass": 1.2,
   "estimated": true
  },
  {
   "name": "mira0_filter",
   "label": "Dual-band filter, visible + 850 nm (RGB-IR sensor)",
   "group": "Camera A (Mira220)",
-  "mass": 1.1,
+  "mass": 0.9,
   "estimated": true
  },
  {
   "name": "mira0_bezel",
-  "label": "Bezel ring, anodised",
+  "label": "Filter retaining ring",
   "group": "Camera A (Mira220)",
-  "mass": 0.6,
+  "mass": 0.8,
   "estimated": true
  },
  {
   "name": "mira1_pcb",
-  "label": "SincereFirst SF3RA220IRY32 module (30 x 24 mm)",
+  "label": "Mira220 module (30 x 24 mm, trigger on pin 18)",
   "group": "Camera B (Mira220)",
   "mass": 2.4,
   "estimated": true
  },
  {
   "name": "mira1_lens_barrel",
-  "label": "6 mm CS-mount lens, 1/2.7-inch, low distortion",
+  "label": "4 mm CS-mount lens, 58 deg, 1/2.7-inch",
   "group": "Camera B (Mira220)",
-  "mass": 22.0,
+  "mass": 18.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_window",
+  "label": "Window, hydrophobic + AR coated: spray mist beads off",
+  "group": "Camera B (Mira220)",
+  "mass": 1.2,
   "estimated": true
  },
  {
   "name": "mira1_filter",
-  "label": "Swappable band filter, 25 mm (mono sensor)",
+  "label": "Twist-lock filter, swappable (mono sensor)",
   "group": "Camera B (Mira220)",
-  "mass": 1.1,
+  "mass": 0.9,
   "estimated": true
  },
  {
   "name": "mira1_bezel",
-  "label": "Bezel ring, anodised",
+  "label": "Filter retaining ring, twist-lock",
   "group": "Camera B (Mira220)",
-  "mass": 0.6,
+  "mass": 0.8,
   "estimated": true
  },
  {
   "name": "lens_plate",
-  "label": "Lens plate, machined 6061 aluminium: 2 x CS-mount, 100 mm stereo baseline",
+  "label": "Lens plate, machined aluminium, 2 x CS-mount, 60 mm baseline",
   "group": "Optics bench",
-  "mass": 108.42,
+  "mass": 35.78,
   "estimated": false
  },
  {
@@ -302,65 +260,65 @@
  },
  {
   "name": "fpc_J3",
-  "label": "CAM0 cable: 22-way FPC to camera A",
+  "label": "CAM0 cable to camera A",
   "group": "FPC cables",
-  "mass": 0.9,
-  "estimated": true
- },
- {
-  "name": "fpc_J4",
-  "label": "CAM1 cable: 22-way FPC to camera B, along the side of the bay",
-  "group": "FPC cables",
-  "mass": 0.9,
-  "estimated": true
- },
- {
-  "name": "dls_housing",
-  "label": "Top-unit base (PA12)",
-  "group": "DLS + GNSS top unit",
-  "mass": 4.28,
-  "estimated": false
- },
- {
-  "name": "dls_pcb",
-  "label": "DLS board",
-  "group": "DLS + GNSS top unit",
-  "mass": 2.2,
-  "estimated": true
- },
- {
-  "name": "gnss_patch",
-  "label": "GNSS ceramic patch antenna 18 mm",
-  "group": "DLS + GNSS top unit",
-  "mass": 7.5,
-  "estimated": true
- },
- {
-  "name": "dls_diffuser",
-  "label": "PTFE cosine diffuser",
-  "group": "DLS + GNSS top unit",
   "mass": 0.6,
   "estimated": true
  },
  {
-  "name": "dls_lid",
-  "label": "Top-unit lid",
-  "group": "DLS + GNSS top unit",
-  "mass": 3.68,
-  "estimated": false
- },
- {
-  "name": "harness",
-  "label": "GNSS coax + DLS cable to the top unit (0.4 m)",
-  "group": "DLS + GNSS top unit",
-  "mass": 9.0,
+  "name": "fpc_J4",
+  "label": "CAM1 cable to camera B",
+  "group": "FPC cables",
+  "mass": 0.6,
   "estimated": true
  },
  {
-  "name": "fasteners",
-  "label": "Remaining fasteners and threaded inserts (set)",
-  "group": "Enclosure",
-  "mass": 4.0,
+  "name": "yoke",
+  "label": "Tilt yoke, 0-35 deg back, aluminium",
+  "group": "Mount",
+  "mass": 52.91,
+  "estimated": false
+ },
+ {
+  "name": "tilt_knob_-1",
+  "label": "Tilt lock knob",
+  "group": "Mount",
+  "mass": 3.0,
+  "estimated": true
+ },
+ {
+  "name": "tilt_knob_1",
+  "label": "Tilt lock knob",
+  "group": "Mount",
+  "mass": 3.0,
+  "estimated": true
+ },
+ {
+  "name": "clamp_base",
+  "label": "Tube clamp, fits 20 / 22 / 25 mm with inserts",
+  "group": "Mount",
+  "mass": 29.59,
+  "estimated": false
+ },
+ {
+  "name": "clamp_cap",
+  "label": "Tube clamp cap",
+  "group": "Mount",
+  "mass": 17.6,
+  "estimated": false
+ },
+ {
+  "name": "clamp_screw_-1",
+  "label": "M3 clamp screw",
+  "group": "Mount",
+  "mass": 1.0,
+  "estimated": true
+ },
+ {
+  "name": "clamp_screw_1",
+  "label": "M3 clamp screw",
+  "group": "Mount",
+  "mass": 1.0,
   "estimated": true
  }
 ]

@@ -172,6 +172,8 @@ for m in meta:
     if key not in matcache:
         matcache[key] = make_material(m["mat"], m["color"], m["mat"] + "_" + str(len(matcache)))
     ob.data.materials.append(matcache[key])
+    # CAD meshes have long thin triangles across flat faces; weighting normals by face area keeps flat faces flat
+    wn = ob.modifiers.new("wnormal", "WEIGHTED_NORMAL"); wn.mode = "FACE_AREA"; wn.keep_sharp = True
     if m["mat"] in ("shell", "anodised", "pcb", "plastic_gloss", "ic", "steel", "accent", "cfrp"):
         bv = ob.modifiers.new("bevel", "BEVEL"); bv.width = 0.00022 if m["mat"] == "shell" else 0.00010
         bv.segments = 2; bv.limit_method = "ANGLE"; bv.angle_limit = math.radians(40)
@@ -185,6 +187,9 @@ imported = [o for o in bpy.data.objects if o not in before]
 board_root = bpy.data.objects.new("board_root", None); scene.collection.objects.link(board_root); board_root.parent = rig
 # glTF import is already converted to Blender's Z-up; KiCad page coords: x right, y down (negated on export)
 OFF = Vector(((BO[0] - 100.0) * U, (BO[1] + 60.0) * U, BO[2] * U))
+if frame.get("flip"):        # board mounted upside down (socket side up): rotate the export 180 deg about X
+    board_root.rotation_euler = (math.pi, 0, 0)
+    OFF = Vector(((BO[0] - 100.0) * U, (-BO[1] - 60.0) * U, BO[2] * U))
 for o in imported:
     if o.parent is None:
         o.parent = board_root
@@ -407,6 +412,29 @@ for s in shots:
         c, size = pose(0, show_only=("Carrier board",), rot=(0, 0, 0), lift=0.035)
         b = board_root.matrix_world @ Vector((0.136, -0.090, 0.002))
         shoot("08_carrier_board_macro", b, Vector((0.07, 0.05, 0.02)), az=-125, el=32, lens=100, fill=0.8, fstop=16.0, focus=b)
+    # ---- compact box (Duo): shot in its flying orientation, mount on top
+    elif s == "box_hero":
+        c, size = pose(0, hide=("Drone",), rot=(0, 0, 0), lift=0.004)
+        shoot("01_box_hero", c, size, az=-38, el=16, lens=85, fill=0.72, dark=True)
+    elif s == "box_hero_light":
+        c, size = pose(0, hide=("Drone",), rot=(0, 0, 0), lift=0.004)
+        shoot("02_box_hero_light", c, size, az=-142, el=20, lens=85, fill=0.72)
+    elif s == "box_under":
+        c, size = pose(0, hide=("Drone",), rot=(0, 0, 0), lift=0.16)
+        shoot("03_box_underside", c, size, az=-62, el=-14, lens=85, fill=0.70)
+    elif s == "box_mounted":
+        c, size = pose(0, rot=(0, 0, 0), lift=0.12)
+        shoot("04_box_on_drone_tube", c, size, az=-28, el=8, lens=70, fill=0.70)
+    elif s == "box_exploded":
+        c, size = pose(1.0, hide=("Drone",), rot=(0, 0, 0), lift=0.02)
+        shoot("05_box_exploded", c, size, az=-50, el=14, lens=70, fill=0.60)
+    elif s == "box_inside":
+        c, size = pose(0, hide=("Drone", "Mount", "Enclosure", "lid", "gasket") + tuple(f"lid_screw_{i}" for i in range(6)), rot=(0, 0, 0), lift=0.02)
+        shoot("06_box_inside", c, size, az=-128, el=36, lens=85, fill=0.78)
+    elif s == "box_filter":
+        c, size = pose(0, hide=("Drone",), rot=(0, 0, 0), lift=0.16)
+        f = world_of(os.environ.get("FOCUS", "mira1_bezel"))
+        shoot("07_box_filter_closeup", f, Vector((0.07, 0.07, 0.03)), az=-70, el=-24, lens=100, fill=0.75, fstop=16.0, focus=f, dark=True)
     elif s == "top_unit":
         c, size = pose(0.5, show_only=(TOPU,), rot=(0, 0, 0), board=False)
         shoot("09_top_unit_exploded", c, size, az=-55, el=24, lens=100, fill=0.7)

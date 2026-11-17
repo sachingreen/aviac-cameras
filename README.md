@@ -7,7 +7,7 @@ a new camera starts from an existing folder and changes the parts list, layout a
 | Camera | Folder | State |
 | --- | --- | --- |
 | 6-band crop-mapping camera (IMX565 + 3 x Mira220, Jetson Orin Nano) | `cameras/6band/` | Concept model, schematic passes ERC, board is a first routing pass. Not ready for manufacture. |
-| Duo stereo camera (2 x Mira220, Jetson Orin Nano) | `cameras/duo/` | Concept model and stereo design. Uses the shared carrier with two camera ports fitted. |
+| Duo: compact stereo box for spray drones (2 x Mira220, Jetson Orin Nano, no fan) | `cameras/duo/` | Concept model, cooling and stereo calculations, spray-check method. Uses the shared carrier with two camera ports fitted. |
 
 Shared between cameras:
 
