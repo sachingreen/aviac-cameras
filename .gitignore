@@ -1,0 +1,6 @@
+node_modules/
+__pycache__/
+*.glb
+route.dsn
+mechanical/out/test/
+mechanical/out/renders/

@@ -1,0 +1,403 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-11-16T16:35:04+0000",
+    "kicad_version": "8.0.9",
+    "schematic_parity": [],
+    "source": "aviac_carrier.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [VBAT_IN] on F.Cu, length 1.2700 mm",
+                    "pos": {
+                        "x": 122.1,
+                        "y": 129.135
+                    },
+                    "uuid": "33212211-d555-4194-a65b-373a8c409f92"
+                },
+                {
+                    "description": "Pad 1 [VBAT_IN] of D1 on F.Cu",
+                    "pos": {
+                        "x": 122.35,
+                        "y": 137.5
+                    },
+                    "uuid": "83e5a403-87fc-442a-84ab-c3841f630e60"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Via [GND] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 152.1851,
+                        "y": 70.6359
+                    },
+                    "uuid": "190344cb-b737-4767-96c7-b9525dd03ea9"
+                },
+                {
+                    "description": "Pad 2 [GND] of C53 on F.Cu",
+                    "pos": {
+                        "x": 154.08,
+                        "y": 72.2
+                    },
+                    "uuid": "29fc1971-82f9-44ae-b8bd-90d2f5e23ced"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [GND] on B.Cu, length 0.9655 mm",
+                    "pos": {
+                        "x": 170.32,
+                        "y": 66.705
+                    },
+                    "uuid": "ee75d6c5-6cb1-4f94-989c-7046e4d3db7c"
+                },
+                {
+                    "description": "Pad 5 [GND] of J13 on F.Cu",
+                    "pos": {
+                        "x": 174.0,
+                        "y": 65.65
+                    },
+                    "uuid": "e2e771ef-5301-4c27-9f22-9b64951f83f6"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 7 [+3V3] of U7 on F.Cu",
+                    "pos": {
+                        "x": 145.4,
+                        "y": 130.75
+                    },
+                    "uuid": "17438a84-4d59-43c7-beb8-b37dbfdd16c3"
+                },
+                {
+                    "description": "Track [+3V3] on F.Cu, length 0.7800 mm",
+                    "pos": {
+                        "x": 144.9768,
+                        "y": 133.5668
+                    },
+                    "uuid": "811c0077-4328-4dcc-8bdf-a5635f1e0516"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3] on F.Cu, length 0.1312 mm",
+                    "pos": {
+                        "x": 186.6197,
+                        "y": 107.6072
+                    },
+                    "uuid": "13bdc055-6df2-4dc0-a04c-cfa29a774215"
+                },
+                {
+                    "description": "Track [+3V3] on F.Cu, length 1.0766 mm",
+                    "pos": {
+                        "x": 185.227,
+                        "y": 111.997
+                    },
+                    "uuid": "ccd3bcde-66aa-4d64-b52f-59e099b64508"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 5 [+1V8] of U10 on F.Cu",
+                    "pos": {
+                        "x": 145.5,
+                        "y": 93.9125
+                    },
+                    "uuid": "2cbcb6ec-02df-4abf-8f79-d066c154f54c"
+                },
+                {
+                    "description": "Track [+1V8] on F.Cu, length 1.1476 mm",
+                    "pos": {
+                        "x": 145.62,
+                        "y": 95.6
+                    },
+                    "uuid": "8bbdcb1b-9e04-44d0-a836-1d41693ed467"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [TELEM_RX_3V3] of U7 on F.Cu",
+                    "pos": {
+                        "x": 142.6,
+                        "y": 130.25
+                    },
+                    "uuid": "b4c4401d-b880-4b83-af0a-0ca402fe3671"
+                },
+                {
+                    "description": "Track [TELEM_RX_3V3] on F.Cu, length 3.1566 mm",
+                    "pos": {
+                        "x": 144.2935,
+                        "y": 133.0501
+                    },
+                    "uuid": "bafb6a55-70a9-4137-a9a3-90aa3c4e9af0"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "PTH pad [<no net>] of J1",
+                    "pos": {
+                        "x": 122.0,
+                        "y": 138.5
+                    },
+                    "uuid": "13eb3b37-1d7b-43cb-9ac0-0ef8ba206e77"
+                },
+                {
+                    "description": "Pad 1 [VBAT_IN] of D1 on F.Cu",
+                    "pos": {
+                        "x": 122.35,
+                        "y": 137.5
+                    },
+                    "uuid": "83e5a403-87fc-442a-84ab-c3841f630e60"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "PTH pad S1 [GND] of J12",
+                    "pos": {
+                        "x": 161.68,
+                        "y": 62.525
+                    },
+                    "uuid": "83215ee0-274a-4181-b7d0-1258b303a023"
+                },
+                {
+                    "description": "Pad 262 [<no net>] of J2 on B.Cu",
+                    "pos": {
+                        "x": 161.927,
+                        "y": 63.256
+                    },
+                    "uuid": "53dee49c-e6e8-466c-b030-e2d7cf8903ea"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "NPTH pad of J2",
+                    "pos": {
+                        "x": 173.926,
+                        "y": 66.605
+                    },
+                    "uuid": "5f2f704a-8992-49fc-ae57-dbbc9d876e06"
+                },
+                {
+                    "description": "Pad 5 [GND] of J13 on F.Cu",
+                    "pos": {
+                        "x": 174.0,
+                        "y": 65.65
+                    },
+                    "uuid": "e2e771ef-5301-4c27-9f22-9b64951f83f6"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Courtyards overlap",
+            "items": [
+                {
+                    "description": "Footprint J13",
+                    "pos": {
+                        "x": 176.5,
+                        "y": 63.8
+                    },
+                    "uuid": "0408e7ce-a550-49a5-b5b3-a99ce17e1632"
+                },
+                {
+                    "description": "Footprint J12",
+                    "pos": {
+                        "x": 166.0,
+                        "y": 63.6
+                    },
+                    "uuid": "b15626ea-2aa1-4cc8-baa2-a83a9e9d67c8"
+                }
+            ],
+            "severity": "error",
+            "type": "courtyards_overlap"
+        },
+        {
+            "description": "Courtyards overlap",
+            "items": [
+                {
+                    "description": "Footprint J1",
+                    "pos": {
+                        "x": 114.0,
+                        "y": 128.5
+                    },
+                    "uuid": "542ce51f-4d05-45da-a96f-1e11e366860e"
+                },
+                {
+                    "description": "Footprint D1",
+                    "pos": {
+                        "x": 124.5,
+                        "y": 137.5
+                    },
+                    "uuid": "a0a32c71-04b8-4926-9d3e-580ccf50619f"
+                }
+            ],
+            "severity": "error",
+            "type": "courtyards_overlap"
+        },
+        {
+            "description": "Courtyards overlap",
+            "items": [
+                {
+                    "description": "Footprint J1",
+                    "pos": {
+                        "x": 114.0,
+                        "y": 128.5
+                    },
+                    "uuid": "542ce51f-4d05-45da-a96f-1e11e366860e"
+                },
+                {
+                    "description": "Footprint Q1",
+                    "pos": {
+                        "x": 125.0,
+                        "y": 128.5
+                    },
+                    "uuid": "e4821ade-a8df-4597-8a45-0e525d65d2d4"
+                }
+            ],
+            "severity": "error",
+            "type": "courtyards_overlap"
+        },
+        {
+            "description": "Courtyards overlap",
+            "items": [
+                {
+                    "description": "Footprint D4",
+                    "pos": {
+                        "x": 149.5,
+                        "y": 134.8
+                    },
+                    "uuid": "5d9ab4e7-5e08-4455-ad95-c302831a6bd3"
+                },
+                {
+                    "description": "Footprint J8",
+                    "pos": {
+                        "x": 143.0,
+                        "y": 138.2
+                    },
+                    "uuid": "a7b0d9d3-e36c-4c2f-b1a0-98612f31ac76"
+                }
+            ],
+            "severity": "error",
+            "type": "courtyards_overlap"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.1500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Pad 5 [GND] of J13 on F.Cu",
+                    "pos": {
+                        "x": 174.0,
+                        "y": 65.65
+                    },
+                    "uuid": "e2e771ef-5301-4c27-9f22-9b64951f83f6"
+                },
+                {
+                    "description": "NPTH pad of J2",
+                    "pos": {
+                        "x": 173.926,
+                        "y": 66.605
+                    },
+                    "uuid": "5f2f704a-8992-49fc-ae57-dbbc9d876e06"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets  and VBAT_IN)",
+            "items": [
+                {
+                    "description": "PTH pad [<no net>] of J1",
+                    "pos": {
+                        "x": 122.0,
+                        "y": 138.5
+                    },
+                    "uuid": "13eb3b37-1d7b-43cb-9ac0-0ef8ba206e77"
+                },
+                {
+                    "description": "Pad 1 [VBAT_IN] of D1 on F.Cu",
+                    "pos": {
+                        "x": 122.35,
+                        "y": 137.5
+                    },
+                    "uuid": "83e5a403-87fc-442a-84ab-c3841f630e60"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation (netclass 'PWR_030' clearance 0.1500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "PTH pad S1 [GND] of J12",
+                    "pos": {
+                        "x": 161.68,
+                        "y": 62.525
+                    },
+                    "uuid": "83215ee0-274a-4181-b7d0-1258b303a023"
+                },
+                {
+                    "description": "Pad 262 [<no net>] of J2 on B.Cu",
+                    "pos": {
+                        "x": 161.927,
+                        "y": 63.256
+                    },
+                    "uuid": "53dee49c-e6e8-466c-b030-e2d7cf8903ea"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        }
+    ]
+}

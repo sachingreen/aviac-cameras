@@ -1,0 +1,14 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-11-16T15:58:22+0000",
+    "kicad_version": "8.0.9",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/6e95c52e-66eb-53cc-b407-3b1af455450f",
+            "violations": []
+        }
+    ],
+    "source": "aviac_carrier.kicad_sch"
+}
