@@ -12,3 +12,4 @@ route.ses
 **/out/render.log
 **/teardown/assets/model.bin
 **/showcase/assets/model.bin
+website/viewer/node_modules/

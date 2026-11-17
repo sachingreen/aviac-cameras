@@ -1,0 +1,7 @@
+{
+  "name": "aviac-site-viewer",
+  "private": true,
+  "type": "module",
+  "description": "Interactive 3D product viewer for the Aviac website.",
+  "dependencies": {"esbuild": "0.28.1", "three": "0.186.1"}
+}

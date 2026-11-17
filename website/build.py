@@ -27,13 +27,15 @@ open(os.path.join(OUT, "favicon.svg"), "w").write(fav)
 
 # renders, as web-sized JPEGs
 R = {"ms": os.path.join(REPO, "cameras", "6band", "mechanical", "out", "renders"),
-     "duo": os.path.join(REPO, "cameras", "duo", "mechanical", "out", "renders")}
+     "duo": os.path.join(REPO, "cameras", "duo", "mechanical", "out", "renders"),
+     "ms_front": os.path.join(REPO, "cameras", "6band", "mechanical", "out", "front"),
+     "duo_front": os.path.join(REPO, "cameras", "duo", "mechanical", "out", "front")}
 for cam, d in R.items():
     for f in sorted(os.listdir(d)) if os.path.isdir(d) else []:
         if f.endswith(".png"):
             im = Image.open(os.path.join(d, f)).convert("RGB")
             im.thumbnail((1600, 1000))
-            im.save(os.path.join(OUT, "img", f"{cam}_{f[:-4]}.jpg"), quality=84, optimize=True, progressive=True)
+            im.save(os.path.join(OUT, "img", f"{cam.split('_')[0]}_{f[:-4]}.jpg"), quality=84, optimize=True, progressive=True)
 
 # the interactive showcases
 BACK = ('<a href="../" style="position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:100;font:600 11px Inter,system-ui,sans-serif;'
@@ -48,6 +50,7 @@ for cam, d in (("ms", os.path.join(REPO, "cameras", "6band", "showcase", "dist")
     open(os.path.join(o, "index.html"), "w").write(html)
     for f in ("model.txt", "board.png"):
         shutil.copy(os.path.join(d, f), os.path.join(o, f))
+    shutil.copy(os.path.join(os.path.dirname(d), "src", "parts.json"), os.path.join(o, "parts.json"))   # for the 3D viewer
 
 # landing page and its stylesheet
 for f in os.listdir(os.path.join(HERE, "src")):

@@ -443,6 +443,16 @@ for s in shots:
         c, size = pose(0, hide=("Drone", TOPU), rot=(0, 0, 0), lift=0.16)
         f = world_of(os.environ.get("FOCUS", "mira1_bezel"))
         shoot("07_box_filter_closeup", f, Vector((0.07, 0.07, 0.03)), az=-70, el=-24, lens=100, fill=0.75, fstop=16.0, focus=f, dark=True)
+    # ---- lens-forward product shots: the box on its side, windows facing the viewer, lid behind
+    elif s == "front_hero":
+        c, size = pose(0, hide=("Drone", TOPU, "Mount"), rot=(math.pi / 2, 0, 0), lift=0.004)
+        shoot("11_front_hero", c, size, az=62, el=12, lens=85, fill=0.70, dark=True)
+    elif s == "front_light":
+        c, size = pose(0, hide=("Drone", TOPU, "Mount"), rot=(math.pi / 2, 0, 0), lift=0.004)
+        shoot("12_front_light", c, size, az=78, el=16, lens=85, fill=0.70)
+    elif s == "front_mount":
+        c, size = pose(0, hide=("Drone", TOPU), rot=(math.pi / 2, 0, 0), lift=0.004)
+        shoot("13_front_with_mount", c, size, az=40, el=20, lens=85, fill=0.68, dark=True)
     elif s == "top_unit":
         c, size = pose(0.5, show_only=(TOPU,), rot=(0, 0, 0), board=False)
         shoot("09_top_unit_exploded", c, size, az=-55, el=24, lens=100, fill=0.7)

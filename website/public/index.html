@@ -45,6 +45,18 @@ nav ul a{text-decoration:none}nav ul a:hover{color:var(--ivory)}
 .stats div:last-child{border-right:0}
 .stats b{display:block;font:400 34px Newsreader,serif}
 .stats span{font-size:13px;color:var(--mute)}
+/* 3D viewers */
+.v3d{position:relative;border-radius:18px;overflow:hidden;background:radial-gradient(90% 80% at 50% 40%,#2c4237,#18241e 75%);border:1px solid var(--line)}
+.v3d .viewer{width:100%;height:100%;cursor:grab}
+.v3d .viewer:active{cursor:grabbing}
+.v3d .viewer canvas{display:block}
+.v3d .viewer::after{content:'Loading 3D model…';position:absolute;inset:0;display:grid;place-items:center;font:500 12px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);pointer-events:none}
+.v3d .viewer.ready::after{display:none}
+.v3d .viewer.failed::after{content:'3D unavailable'}
+.v3d .ctl{position:absolute;left:16px;right:16px;bottom:14px;display:flex;align-items:center;gap:12px;font:600 10.5px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--ivory-2)}
+.v3d .ctl input{flex:1;accent-color:var(--accent)}
+.v3d .ctl button{background:rgba(24,36,30,.75);color:var(--ivory);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font:inherit;letter-spacing:inherit;cursor:pointer}
+.v3d .hint{position:absolute;top:14px;left:16px;font:600 10.5px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--ivory-2);background:rgba(24,36,30,.6);padding:5px 9px;border-radius:8px}
 /* products */
 section{padding:100px 0}
 .head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:48px}
@@ -117,7 +129,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
     <p class="lead">Aviac builds rugged cameras that ride on survey and spray drones, see crops in six spectral bands and in stereo, and tell the grower what needs attention before the drone has landed.</p>
     <div class="ctas"><a class="btn solid" href="ms/">Explore Aviac MS in 3D &rarr;</a><a class="btn ghost" href="duo/">Explore Aviac Duo &rarr;</a></div>
   </div>
-  <figure><img src="img/ms_01_box_hero.jpg" alt="Aviac MS multispectral camera, hard-anodised aluminium"><figcaption>Aviac MS · six-band multispectral</figcaption></figure>
+  <div class="v3d" style="height:460px"><div class="viewer" data-src="ms/"></div><div class="hint">Aviac MS · 3D · drag to turn</div><div class="ctl"><span>Explode</span><input type="range" min="0" max="1" step="0.01" value="0"><button data-reset>Reset</button></div></div>
 </div>
 <div class="wrap plain"><div class="stats">
   <div><b>6 bands</b><span>blue · green · red · red edge · NIR · extended NIR</span></div>
@@ -131,7 +143,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
   <div class="head"><h2>Two cameras, one platform.</h2><p>Both share the same Jetson Orin carrier, the same machined aluminium build and the same on-board processing. They differ in what they fly on and what they look for.</p></div>
   <div class="cards">
     <article class="card">
-      <div class="img"><img src="img/ms_03_box_underside.jpg" alt="Aviac MS underside, four windows in a 2 by 2 grid"></div>
+      <div class="v3d" style="border-radius:0;border:0;height:340px"><div class="viewer" data-src="ms/"></div><div class="hint">Aviac MS · drag to turn</div><div class="ctl"><span>Explode</span><input type="range" min="0" max="1" step="0.01" value="0"><button data-reset>Reset</button></div></div>
       <div class="body">
         <div class="tag">Large-area survey · fixed-wing</div>
         <h3>Aviac MS</h3>
@@ -141,7 +153,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
       </div>
     </article>
     <article class="card">
-      <div class="img"><img src="img/duo_01_box_hero.jpg" alt="Aviac Duo stereo spray-check camera"></div>
+      <div class="v3d" style="border-radius:0;border:0;height:340px"><div class="viewer" data-src="duo/"></div><div class="hint">Aviac Duo · drag to turn</div><div class="ctl"><span>Explode</span><input type="range" min="0" max="1" step="0.01" value="0"><button data-reset>Reset</button></div></div>
       <div class="body">
         <div class="tag">Spray verification · multi-rotor</div>
         <h3>Aviac Duo</h3>
@@ -192,12 +204,12 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 <section style="padding-top:0"><div class="wrap">
   <div class="head"><h2>Built to be dropped in a field.</h2><p>Machined from solid aluminium, rubber corner guards, a stainless skid rim that keeps the windows off the ground, sealed ports.</p></div>
   <div class="gallery">
-    <img src="img/ms_02_box_hero_light.jpg" alt="Aviac MS, light background">
+    <img src="img/ms_11_front_hero.jpg" alt="Aviac MS, lenses forward">
+    <img src="img/ms_13_front_with_mount.jpg" alt="Aviac MS with its mount">
+    <img src="img/duo_11_front_hero.jpg" alt="Aviac Duo, lenses forward">
     <img src="img/ms_05_box_exploded.jpg" alt="Aviac MS exploded view">
     <img src="img/ms_06_box_inside.jpg" alt="Aviac MS with the lid off">
-    <img src="img/ms_07_box_filter_closeup.jpg" alt="Aviac MS windows and band labels">
-    <img src="img/duo_02_box_hero_light.jpg" alt="Aviac Duo, light background">
-    <img src="img/duo_05_box_exploded.jpg" alt="Aviac Duo exploded view">
+    <img src="img/duo_13_front_with_mount.jpg" alt="Aviac Duo with its tube clamp">
   </div>
 </div></section>
 
@@ -212,5 +224,6 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
   <a class="brand" href="./"><img class="m" src="img/mark.svg" alt="" style="height:22px"><img class="w" src="img/wordmark.svg" alt="Aviac Technologies" style="height:13px"></a>
   <span>© Aviac Technologies. Concept designs; specifications subject to change.</span>
 </div></footer>
+<script type="module" src="viewer.js"></script>
 </body>
 </html>
