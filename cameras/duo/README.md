@@ -1,6 +1,6 @@
 # Aviac Duo: compact stereo camera for spray drones
 
-A sealed 152 x 98 x 62 mm box with two Mira220 cameras 60 mm apart, a Jetson Orin Nano cooled by its
+A sealed 108 x 98 x 77 mm box with two Mira220 cameras 60 mm apart and centred underneath, a Jetson Orin Nano cooled by its
 finned lid (no fan, no duct), and a tilt clamp that fits the 20-25 mm tubes on spray-drone frames.
 It checks whether a field was sprayed properly: coverage, deposit on water-sensitive cards, and the
 effect a few days later.
@@ -13,6 +13,7 @@ Status: concept. Calculated, not built or measured.
 | `docs/02-spray-verification.md` | What the camera can and cannot check about spraying |
 | `mechanical/build_model.py` | CadQuery model of the box; outputs in `mechanical/out/` (STEP, printable/machinable STL for body, lid, lens plate, yoke, clamp) |
 | `renders/` | Studio renders |
+| `teardown/` | Interactive teardown page (three.js, after elvarofficial/teardown). `npm install && node build.mjs` writes `dist/` |
 
 Shared parts, used unchanged from the rest of the repo:
 

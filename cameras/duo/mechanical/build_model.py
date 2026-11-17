@@ -3,7 +3,8 @@
 
 One box, no fan, no air duct: the Jetson module presses on a finned aluminium lid through a thermal pad,
 and rotor downwash cools the lid. Two Mira220 cameras look down through hydrophobic windows, 60 mm
-apart, on one machined lens plate. A tilting yoke clamps the box to a 20-25 mm carbon tube.
+apart, centred under the board on one machined lens plate. Both cameras sit on the box's centre line, under the board. A tilting yoke clamps the box to a
+20-25 mm carbon tube.
 
 Frame: X forward, Y left-right, Z up; Z=0 is the underside of the box (the windows). Units: mm.
 The carrier is the shared Orin Nano board (duo variant) mounted socket-side up, so the module sits
@@ -28,18 +29,16 @@ BL, BW = PL["board"]
 
 # ----------------------------------------------------------------- parameters
 T = 2.2                        # wall
-X0, X1 = -2.0, 150.0           # outer box, X
+X0, X1 = -3.0, 105.0           # outer box, X
 YW = 49.0                      # outer half width
-H = 51.2                       # body height (lid sits on top)
-LID_T, FIN_H, FIN_T, FIN_P = 2.6, 8.5, 1.4, 4.6
+CX = (X0 + X1) / 2             # the cameras sit on the box's centre line
+LID_T, FIN_H, FIN_T, FIN_P = 2.6, 8.0, 1.3, 4.2
 BX0 = 1.0                      # board x=0 at model X
-BOARD_LOW = 39.2               # carrier's downward face (the side with connectors, SSD and camera ports)
+BOARD_LOW = 54.0               # carrier's downward face (connectors, SSD, camera ports)
 BOARD_UP = BOARD_LOW + 1.0     # upward face (Jetson socket side)
-DIV_X = 104.0                  # wall between electronics and cameras
 BASE = 60.0                    # stereo baseline
-CAMX = 126.5
-CAMS = [((CAMX, -BASE / 2), "A", (0.30, 0.12, 0.42), "Dual-band filter, visible + 850 nm (RGB-IR sensor)"),
-        ((CAMX, BASE / 2), "B", (0.62, 0.05, 0.08), "Twist-lock filter, swappable (mono sensor)")]
+CAMS = [((CX, -BASE / 2), "A", (0.30, 0.12, 0.42), "Dual-band filter, visible + 850 nm (RGB-IR sensor)"),
+        ((CX, BASE / 2), "B", (0.62, 0.05, 0.08), "Twist-lock filter, swappable (mono sensor)")]
 LENS_FRONT = 4.0
 CS_LEN, CS_FLANGE = 26.0, 12.526       # compact 4 mm CS lens
 FLANGE_Z = LENS_FRONT + CS_LEN
@@ -114,7 +113,7 @@ def fy(y):            # board-frame Y -> model Y after the flip
 
 zt, zb = 0.0, -1.0
 CB, JG, TH = "Carrier board", "Jetson Orin Nano", "Thermal"
-EXB = (0, 0, 26)
+EXB = (0, 0, 32)
 POSTS = [b2m(PL["parts"][r]["x"], PL["parts"][r]["y"]) for r in ("H4", "H5", "H6", "H7")]
 pcb = box(BX0, BX0 + BL, -BW / 2, BW / 2, zb, zt)
 for (x, y) in POSTS:
@@ -174,7 +173,7 @@ mz = zt - 1.0 - 6.5
 mod = box(MOD_X0, MOD_X1, -34.8, 34.8, mz - 1.2, mz)
 for (x, y) in STAND:
     mod = mod.cut(cyl(x, y, mz - 2, mz + 1, 1.4))
-EXJ = (0, 0, 44)
+EXJ = (0, 0, 52)
 add("jetson_pcb", flip(mod), (0.02, 0.10, 0.06), JG, EXJ, mass=60.0, label="Jetson Orin Nano 8GB module", mat="pcb")
 uz = mz - 1.2
 add("jetson_soc", flip(cbox(MOD_X0 + 22, -6, uz - 2.8, uz, 25, 25)), (0.60, 0.61, 0.63), JG, EXJ, mass=0.0, label="Orin SoC thermal plate", mat="alu")
@@ -189,25 +188,27 @@ for k in range(80):
 add("jetson_passives", flip(jc), (0.62, 0.50, 0.36), JG, EXJ, mass=0.0, label="Module decoupling", mat="ceramic")
 SOC_TOP = BOARD_LOW - (uz - 2.8)            # after the flip
 LID_Z = SOC_TOP + 0.5                       # thermal pad 0.5 mm
-assert abs(LID_Z - H) < 0.6, (LID_Z, H)
+H = LID_Z                                   # body height: the lid sits on the Jetson through the pad
 socx, socy = MOD_X0 + 22, fy(-6)
-add("tim_pad", cbox(socx, socy, SOC_TOP, LID_Z, 25, 25), (0.55, 0.60, 0.68), TH, (0, 0, 64), mass=0.8, label="Thermal pad, 0.5 mm, 6 W/mK", mat="rubber")
+add("tim_pad", cbox(socx, socy, SOC_TOP, LID_Z, 25, 25), (0.55, 0.60, 0.68), TH, (0, 0, 70), mass=0.8, label="Thermal pad, 0.5 mm, 6 W/mK", mat="rubber")
 
-# ---------------------------------------------------------------- body (one sealed box)
-body = rbox(X0, X1, -YW, YW, 0, H, 7.0)
+# ---------------------------------------------------------------- body: one sealed box
+RC = 9.0
+outer = rbox(X0, X1, -YW, YW, 0, H, RC)
 try:
-    body = body.faces("<Z").edges().fillet(2.5)
+    outer = outer.faces("<Z").edges().fillet(3.0)
 except Exception:
     pass
-body = body.cut(rbox(X0 + T, X1 - T, -YW + T, YW - T, T, H + 1, 7.0 - T))
-# inner wall between electronics and cameras: keeps the Jetson's heat away from the sensors; slot for the two cables
-div = box(DIV_X - 1.0, DIV_X + 1.0, -YW + T, YW - T, T, H - 0.3).cut(box(DIV_X - 2, DIV_X + 2, -40, -18, 33, 46))
-body = body.union(div)
-# windows: recessed hoods in the floor
+body = outer.cut(rbox(X0 + T, X1 - T, -YW + T, YW - T, T, H + 1, RC - T))
+# a shallow groove 6 mm under the lid: reads as a machined parting line
+body = body.cut(box(X0 - 1, X1 + 1, -YW - 1, YW + 1, H - 6.6, H - 5.8).cut(rbox(X0 + 0.5, X1 - 0.5, -YW + 0.5, YW - 0.5, H - 8, H - 4, RC - 0.5)))
+# underside: one raised bezel plate carries both windows
 WIN_R = 13.0
+bez = rbox(CX - 19, CX + 19, -YW + 3.5, YW - 3.5, -1.4, 0.4, 18.0)
+body = body.union(bez)
 for (cx, cy), *_ in CAMS:
-    body = body.cut(cyl(cx, cy, -1, T + 1, WIN_R))
-    body = body.union(ring(cx, cy, -3.5, 0.2, WIN_R + 3.2, WIN_R + 0.6))
+    body = body.cut(cyl(cx, cy, -3, T + 1, WIN_R))
+    body = body.cut(ring(cx, cy, -1.6, -0.9, WIN_R + 3.4, WIN_R))
 # connector openings, from the real board, on whichever flank each connector faces
 for ref, h in (("J1", 5.6), ("J8", 4.6), ("J9", 4.6), ("J12", 3.6), ("J13", 4.6)):
     x0, x1, y0, y1 = pbox(ref, 0.6)
@@ -217,42 +218,43 @@ for ref, h in (("J1", 5.6), ("J8", 4.6), ("J9", 4.6), ("J12", 3.6), ("J13", 4.6)
         body = body.cut(box(x0, x1, YW - T - 1, YW + 1, zlo, zhi))
     else:
         body = body.cut(box(x0, x1, -YW - 1, -YW + T + 1, zlo, zhi))
-# lid screw bosses and board posts
-LIDSCREWS = [(X0 + 6, -YW + 6), (X0 + 6, YW - 6), (X1 - 6, -YW + 6), (X1 - 6, YW - 6), (DIV_X, -YW + 6), (DIV_X, YW - 6)]
+LIDSCREWS = [(X0 + 6.5, -YW + 6.5), (X0 + 6.5, YW - 6.5), (X1 - 6.5, -YW + 6.5), (X1 - 6.5, YW - 6.5)]
 for (x, y) in LIDSCREWS:
-    body = body.union(cyl(x, y, T, H, 3.2).intersect(rbox(X0, X1, -YW, YW, 0, H, 7.0))).cut(cyl(x, y, T + 2, H + 1, 1.25))
+    body = body.union(cyl(x, y, T, H, 3.4).intersect(outer)).cut(cyl(x, y, T + 2, H + 1, 1.25))
 for (x, y) in POSTS:
     yy = fy(y)
     body = body.union(cyl(x, yy, T, BOARD_LOW, 2.6)).cut(cyl(x, yy, T + 3, BOARD_LOW + 1, 1.25))
-# tilt pivots on both flanks and the name on the front
+PIV_Z = H * 0.52
 for s in (-1, 1):
-    body = body.union(cq.Workplane("XZ").circle(7.0).extrude(1.6).translate((74, s * YW + (1.6 if s > 0 else 0), 26)))
+    body = body.union(cq.Workplane("XZ").circle(8.0).extrude(1.4).translate((CX, s * YW + (1.4 if s > 0 else 0), PIV_Z)))
 try:
-    logo = cq.Workplane("YZ").text("AVIAC  DUO", 6.5, -0.5, kind="bold").translate((X1, 0, 30))
-    body = body.cut(logo)
+    body = body.cut(cq.Workplane("YZ").text("AVIAC  DUO", 6.0, -0.45, kind="bold").translate((X1, 0, H * 0.45)))
 except Exception as e:
     print("logo skipped", e)
-for i, x in enumerate((X0 + 10, X0 + 14.5)):        # status light pipes on the rear face
-    body = body.cut(cq.Workplane("YZ").circle(0.9).extrude(4).translate((X0 - 1, 30 - i * 0.01, 44 - i * 4.5)))
-add("body", body, (0.11, 0.115, 0.125), "Enclosure", (0, 0, -40), density=1.20, label="Body, glass-filled nylon (moulded or printed), IP65 with the lid gasket", mat="shell")
+body = body.cut(cq.Workplane("YZ").center(0, H - 13).rect(10, 1.6).extrude(-3).translate((X1 + 0.5, 0, 0)))   # status light bar
+add("body", body, (0.10, 0.105, 0.115), "Enclosure", (0, 0, -92), density=1.20,
+    label="Body, glass-filled nylon, IP65 with the lid gasket", mat="shell")
+add("status_bar", cbox(X1 - 1.2, 0, H - 13.8, H - 12.2, 0.6, 9.6), (1.0, 0.55, 0.12), "Enclosure", (0, 0, -92), mass=0.0,
+    label="Status light", mat="emit")
 
-# ---------------------------------------------------------------- finned lid: the heatsink
-lid = rbox(X0, X1, -YW, YW, H, H + LID_T, 7.0)
-y = -YW + 4.2
+# ---------------------------------------------------------------- finned lid: the heatsink, machined aluminium
+lid = rbox(X0, X1, -YW, YW, H, H + LID_T, RC)
 fins = None
-while y + FIN_T < YW - 4.0:
-    f = box(X0 + 5, X1 - 5, y, y + FIN_T, H + LID_T - 0.01, H + LID_T + FIN_H)
+y = -YW + 4.5
+while y + FIN_T < YW - 4.5:
+    f = box(X0 + 4, X1 - 4, y, y + FIN_T, H + LID_T - 0.01, H + LID_T + FIN_H)
     fins = f if fins is None else fins.union(f)
     y += FIN_P
+fins = fins.intersect(rbox(X0 + 4.5, X1 - 4.5, -YW + 4.5, YW - 4.5, H, H + LID_T + FIN_H + 1, RC - 4.5))
 lid = lid.union(fins)
 for (x, y) in LIDSCREWS:
-    lid = lid.cut(cyl(x, y, H - 1, H + LID_T + FIN_H + 1, 1.4)).cut(cyl(x, y, H + LID_T - 0.6, H + LID_T + FIN_H + 1, 3.0))
-add("lid", lid, (0.10, 0.10, 0.11), TH, (0, 0, 64), density=2.70, label="Finned lid, 6063 aluminium, black anodised: the heatsink", mat="anodised")
+    lid = lid.cut(cyl(x, y, H - 1, H + LID_T + FIN_H + 1, 1.4)).cut(cyl(x, y, H + LID_T - 0.8, H + LID_T + FIN_H + 1, 3.6))
+add("lid", lid, (0.62, 0.63, 0.65), TH, (0, 0, 74), density=2.70, label="Finned lid, 6063 aluminium, bead-blasted: the heatsink", mat="alu")
 for i, (x, y) in enumerate(LIDSCREWS):
-    hd = cyl(x, y, H + LID_T - 0.6, H + LID_T + 1.6, 2.4).cut(cq.Workplane("XY").polygon(6, 2.0).extrude(1.5).translate((x, y, H + LID_T + 0.2)))
-    add(f"lid_screw_{i}", hd, (0.6, 0.6, 0.62), TH, (0, 0, 82), mass=0.4, label="M2.5 lid screw", mat="steel")
-add("gasket", rbox(X0 + 0.6, X1 - 0.6, -YW + 0.6, YW - 0.6, H - 0.2, H, 6.4).cut(rbox(X0 + 1.6, X1 - 1.6, -YW + 1.6, YW - 1.6, H - 1, H + 1, 5.4)),
-    (0.85, 0.30, 0.08), "Enclosure", (0, 0, 20), mass=1.0, label="Silicone gasket (IP65)", mat="rubber")
+    hd = cyl(x, y, H + LID_T - 0.8, H + LID_T + 1.2, 2.5).cut(cq.Workplane("XY").polygon(6, 2.0).extrude(1.5).translate((x, y, H + LID_T - 0.1)))
+    add(f"lid_screw_{i}", hd, (0.08, 0.08, 0.09), TH, (0, 0, 92), mass=0.4, label="M2.5 lid screw", mat="steel_black")
+add("gasket", rbox(X0 + 0.6, X1 - 0.6, -YW + 0.6, YW - 0.6, H - 0.2, H, RC - 0.6).cut(rbox(X0 + 1.6, X1 - 1.6, -YW + 1.6, YW - 1.6, H - 1, H + 1, RC - 1.6)),
+    (0.85, 0.30, 0.08), "Enclosure", (0, 0, 30), mass=1.0, label="Silicone gasket (IP65)", mat="rubber")
 
 # ---------------------------------------------------------------- optics
 def lens(prefix, x, y, r_body, length, z_front, group, ex, label, mass, r_glass, tint):
@@ -286,45 +288,44 @@ for i, ((mx, my), key, bc, flabel) in enumerate(CAMS):
     MPOSTS += posts
     for (px, py) in posts:
         mp = mp.cut(cyl(px, py, MOD_Z - 1, MOD_Z + 2, 1.05))
-    add(f"mira{i}_pcb", mp, PCBG, g, (0, 0, 22), mass=2.4, label="Mira220 module (30 x 24 mm, trigger on pin 18)", mat="pcb")
-    add(f"mira{i}_sensor", cbox(mx, my, SENSOR_Z, MOD_Z, 6.6, 6.2), (0.06, 0.06, 0.07), g, (0, 0, 16), mass=0.0, label="ams OSRAM Mira220", mat="ceramic_dark")
-    add(f"mira{i}_fpc_conn", box(mx - 14.8, mx - 9.6, my - 7.6, my + 7.6, MOD_Z + 1.0, MOD_Z + 3.0), BEIGE, g, (0, 0, 22), mass=0.0,
+    add(f"mira{i}_pcb", mp, PCBG, g, (0, 0, -4), mass=2.4, label="Mira220 module (30 x 24 mm, trigger on pin 18)", mat="pcb")
+    add(f"mira{i}_sensor", cbox(mx, my, SENSOR_Z, MOD_Z, 6.6, 6.2), (0.06, 0.06, 0.07), g, (0, 0, -8), mass=0.0, label="ams OSRAM Mira220", mat="ceramic_dark")
+    add(f"mira{i}_fpc_conn", box(mx + 9.6, mx + 14.8, my - 7.6, my + 7.6, MOD_Z + 1.0, MOD_Z + 3.0), BEIGE, g, (0, 0, -4), mass=0.0,
         label="22-pin FPC connector", mat="plastic_gloss")
     mpas = None
     for k in range(14):
-        px, py = mx + random.uniform(-6, 10), my + random.uniform(-9, 9)
+        px, py = mx + random.uniform(-10, 6), my + random.uniform(-9, 9)
         b = cbox(round(px, 1), round(py, 1), MOD_Z + 1.0, MOD_Z + 1.5, 1.0, 0.5)
         mpas = b if mpas is None else mpas.union(b)
-    add(f"mira{i}_passives", mpas, (0.62, 0.50, 0.36), g, (0, 0, 22), mass=0.0, label="Module regulators", mat="ceramic")
-    lens(f"mira{i}_lens", mx, my, 13.5, CS_LEN, LENS_FRONT, g, (0, 0, -30), "4 mm CS-mount lens, 58 deg, 1/2.7-inch", 18.0, 7.0, (0.30, 0.08, 0.20))
-    # window and filter in the floor hood
-    add(f"mira{i}_window", cyl(mx, my, 0.4, 1.4, WIN_R + 0.4), (0.80, 0.90, 0.95), g, (0, 0, -52), mass=1.2,
+    add(f"mira{i}_passives", mpas, (0.62, 0.50, 0.36), g, (0, 0, -4), mass=0.0, label="Module regulators", mat="ceramic")
+    lens(f"mira{i}_lens", mx, my, 13.5, CS_LEN, LENS_FRONT, g, (0, 0, -34), "4 mm CS-mount lens, 58 deg, 1/2.7-inch", 18.0, 7.0, (0.30, 0.08, 0.20))
+    add(f"mira{i}_window", cyl(mx, my, 0.4, 1.4, WIN_R + 0.4), (0.80, 0.90, 0.95), g, (0, 0, -112), mass=1.2,
         label="Window, hydrophobic + AR coated: spray mist beads off", mat="window")
-    add(f"mira{i}_filter", cyl(mx, my, -2.6, -1.6, WIN_R + 0.2), bc, g, (0, 0, -62), mass=0.9, label=flabel, mat="bandpass")
-    bez = ring(mx, my, -3.4, -2.6, WIN_R + 3.0, WIN_R - 0.4)
+    add(f"mira{i}_filter", cyl(mx, my, -1.4, -0.5, WIN_R - 0.2), bc, g, (0, 0, -124), mass=0.9, label=flabel, mat="bandpass")
+    bz = ring(mx, my, -1.55, -0.95, WIN_R + 3.2, WIN_R - 0.6)
     if key == "B":                                     # twist-lock tabs: the user changes this filter in the field
-        for a in (0, 120, 240):
+        for a in (30, 150, 270):
             ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
-            bez = bez.union(cbox(mx + (WIN_R + 3.6) * ca, my + (WIN_R + 3.6) * sa, -3.4, -2.2, 3.4, 3.4))
-    add(f"mira{i}_bezel", bez, (0.85, 0.42, 0.08), g, (0, 0, -70), mass=0.8, label="Filter retaining ring" + (", twist-lock" if key == "B" else ""), mat="accent")
+            bz = bz.union(cbox(mx + (WIN_R + 3.4) * ca, my + (WIN_R + 3.4) * sa, -1.9, -0.95, 3.0, 3.0))
+    add(f"mira{i}_bezel", bz, (0.85, 0.42, 0.08), g, (0, 0, -132), mass=0.8, label="Filter retaining ring" + (", twist-lock" if key == "B" else ""), mat="accent")
 
 # lens plate: both CS threads and both sensor boards in one machined part (the stereo calibration lives here)
-lp = box(DIV_X + 1.5, X1 - T - 0.4, -YW + T + 0.4, YW - T - 0.4, FLANGE_Z, FLANGE_Z + 3.5)
+lp = rbox(CX - 21, CX + 21, -YW + T + 0.6, YW - T - 0.6, FLANGE_Z, FLANGE_Z + 3.5, 6.0)
 for (cx, cy), *_ in CAMS:
     lp = lp.cut(cyl(cx, cy, FLANGE_Z - 1, FLANGE_Z + 5, 12.0))
     lp = lp.union(ring(cx, cy, FLANGE_Z + 3.49, SENSOR_Z - 1.2, 14.5, 12.0))
 for (px, py) in MPOSTS:
     lp = lp.union(ring(px, py, FLANGE_Z + 3.49, MOD_Z, 2.0, 0.8))
-lp = lp.cut(box(DIV_X + 8, X1 - 8, -8, 8, FLANGE_Z + 1.2, FLANGE_Z + 4))          # lightening pocket between the bores
-for (x, y) in ((DIV_X + 5, -42), (DIV_X + 5, 42), (X1 - 7, -42), (X1 - 7, 42)):
+lp = lp.cut(rbox(CX - 14, CX + 14, -9, 9, FLANGE_Z + 1.2, FLANGE_Z + 4, 3.0))
+for (x, y) in ((CX - 17, -42), (CX - 17, 42), (CX + 17, -42), (CX + 17, 42)):
     lp = lp.cut(cyl(x, y, FLANGE_Z - 1, FLANGE_Z + 5, 1.4))
-add("lens_plate", lp, (0.05, 0.05, 0.055), "Optics bench", (0, 0, -14), density=2.70,
+add("lens_plate", lp, (0.05, 0.05, 0.055), "Optics bench", (0, 0, -18), density=2.70,
     label=f"Lens plate, machined aluminium, 2 x CS-mount, {BASE:.0f} mm baseline", mat="anodised")
 for i, (px, py) in enumerate(MPOSTS):
-    add(f"post_screw_{i}", cyl(px, py, MOD_Z + 1.0, MOD_Z + 2.2, 1.6), (0.10, 0.10, 0.11), "Optics bench", (0, 0, 22), mass=0.15,
+    add(f"post_screw_{i}", cyl(px, py, MOD_Z + 1.0, MOD_Z + 2.2, 1.6), (0.10, 0.10, 0.11), "Optics bench", (0, 0, -4), mass=0.15,
         label="Sensor-board screw", mat="steel_black")
 
-# ---------------------------------------------------------------- flat cables
+# ---------------------------------------------------------------- flat cables: down the end of the board to the cameras
 def ribbon(name, pts, width, label):
     sol = None
     for (a, b) in zip(pts[:-1], pts[1:]):
@@ -336,7 +337,7 @@ def ribbon(name, pts, width, label):
         seg = seg.rotate((0, 0, 0), (0, 1, 0), -math.degrees(math.atan2(dz, math.hypot(dx, dy)))).rotate((0, 0, 0), (0, 0, 1), math.degrees(math.atan2(dy, dx)))
         seg = seg.translate(((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2))
         sol = seg if sol is None else sol.union(seg)
-    add(name, sol, (0.80, 0.42, 0.05), "FPC cables", (0, 0, 0), mass=0.6, label=label, mat="fpc")
+    add(name, sol, (0.80, 0.42, 0.05), "FPC cables", (0, 0, 8), mass=0.6, label=label, mat="fpc")
 
 
 def scurve(p0, p1, n=9):
@@ -354,55 +355,59 @@ def conn(ref):
     return x1 - 0.5, fy((y0 + y1) / 2), face
 
 
-zc = MOD_Z + 2.0
+XE = X1 - T - 1.2                       # cables drop down the end wall, past the board edge
 for ref, (i, lab) in (("J3", (0, "CAM0 cable to camera A")), ("J4", (1, "CAM1 cable to camera B"))):
     cx, cy, cz = conn(ref)
     (mx, my), *_ = CAMS[i]
-    tx = mx - 14.6
-    pts = [(cx, cy, cz), (cx + 2.0, cy, cz)] + scurve((cx + 2.0, cy, cz), (DIV_X, -29.0 + i * 0.4, zc + 0.6 * i), 8) + \
-          scurve((DIV_X, -29.0 + i * 0.4, zc + 0.6 * i), (tx - 1.0, my, zc + 0.6 * i), 8)[1:] + [(tx + 3.5, my, zc + 0.6 * i)]
+    zc = MOD_Z + 2.0 + 0.5 * i
+    xe = XE - 0.6 * i
+    pts = [(cx, cy, cz), (xe - 1.0, cy, cz)] + scurve((xe - 1.0, cy, cz), (xe, cy, cz - 3.0), 4)[1:] + \
+          [(xe, cy, zc + 2.0)] + scurve((xe, cy, zc + 2.0), (mx + 18.0, my, zc), 8)[1:] + [(mx + 11.5, my, zc)]
     ribbon("fpc_" + ref, pts, 11.5, lab)
 
 # ---------------------------------------------------------------- tilt yoke and tube clamp (fits any drone with a 20-25 mm tube)
 MG = "Mount"
-PIV_X, PIV_Z = 74.0, 26.0
-TOPZ = H + LID_T + FIN_H + 14.0
-ARM_T = 3.0
+TOPZ = H + LID_T + FIN_H + 12.0
+ARM_T = 3.2
 yoke = None
 for s in (-1, 1):
-    y0 = s * (YW + 1.8) if s > 0 else -(YW + 1.8 + ARM_T)
-    arm = (cq.Workplane("XZ").moveTo(PIV_X - 9, PIV_Z).lineTo(PIV_X + 9, PIV_Z).lineTo(PIV_X + 14, TOPZ).lineTo(PIV_X - 14, TOPZ).close()
+    y0 = s * (YW + 1.6) if s > 0 else -(YW + 1.6 + ARM_T)
+    arm = (cq.Workplane("XZ").moveTo(CX - 10, PIV_Z).lineTo(CX + 10, PIV_Z).lineTo(CX + 15, TOPZ).lineTo(CX - 15, TOPZ).close()
            .extrude(-ARM_T).translate((0, y0, 0)))
-    arm = arm.union(cq.Workplane("XZ").circle(9.0).extrude(-ARM_T).translate((PIV_X, y0, PIV_Z)))
-    arm = arm.cut(cq.Workplane("XZ").circle(2.6).extrude(-ARM_T - 2).translate((PIV_X, y0 + 1, PIV_Z)))
-    # tilt scale slot
-    arm = arm.cut(cq.Workplane("XZ").center(PIV_X, PIV_Z).circle(14.5).circle(12.5).extrude(-ARM_T - 2).translate((0, y0 + 1, 0))
-                  .intersect(box(PIV_X - 30, PIV_X - 2, -80, 80, PIV_Z + 4, PIV_Z + 30)))
+    arm = arm.union(cq.Workplane("XZ").circle(10.0).extrude(-ARM_T).translate((CX, y0, PIV_Z)))
+    try:
+        arm = arm.edges("|Y").fillet(1.2)
+    except Exception:
+        pass
+    arm = arm.cut(cq.Workplane("XZ").circle(2.6).extrude(-ARM_T - 2).translate((CX, y0 + 1, PIV_Z)))
+    arm = arm.cut(cq.Workplane("XZ").center(CX, PIV_Z).circle(15.5).circle(13.5).extrude(-ARM_T - 2).translate((0, y0 + 1, 0))
+                  .intersect(box(CX - 30, CX - 2, -80, 80, PIV_Z + 4, PIV_Z + 30)))
     yoke = arm if yoke is None else yoke.union(arm)
-yoke = yoke.union(box(PIV_X - 14, PIV_X + 14, -(YW + 1.8 + ARM_T), YW + 1.8 + ARM_T, TOPZ, TOPZ + 4.0))
-add("yoke", yoke, (0.08, 0.08, 0.09), MG, (0, 0, 96), density=2.70, label="Tilt yoke, 0-35 deg back, aluminium", mat="anodised")
+bridge = rbox(CX - 15, CX + 15, -(YW + 1.6 + ARM_T), YW + 1.6 + ARM_T, TOPZ, TOPZ + 4.0, 3.0)
+yoke = yoke.union(bridge)
+add("yoke", yoke, (0.08, 0.08, 0.09), MG, (0, 0, 104), density=2.70, label="Tilt yoke, 0-35 deg back, aluminium", mat="anodised")
 for s in (-1, 1):
-    yk = s * (YW + 1.8 + ARM_T + 0.01) if s > 0 else -(YW + 1.8 + ARM_T + 0.01)
-    knob = cq.Workplane("XZ").circle(8.0).extrude(-5.0 if s > 0 else 5.0).translate((PIV_X, yk, PIV_Z))
-    for k in range(12):
-        a = 2 * math.pi * k / 12
+    yk = s * (YW + 1.6 + ARM_T + 0.01) if s > 0 else -(YW + 1.6 + ARM_T + 0.01)
+    knob = cq.Workplane("XZ").circle(8.5).extrude(-5.0 if s > 0 else 5.0).translate((CX, yk, PIV_Z))
+    for k in range(14):
+        a = 2 * math.pi * k / 14
         knob = knob.cut(cq.Workplane("XZ").circle(1.1).extrude(-5.2 if s > 0 else 5.2)
-                        .translate((PIV_X + 8.4 * math.cos(a), yk, PIV_Z + 8.4 * math.sin(a))))
-    add(f"tilt_knob_{s}", knob, (0.85, 0.42, 0.08), MG, (0, s * 16, 96), mass=3.0, label="Tilt lock knob", mat="accent")
+                        .translate((CX + 8.9 * math.cos(a), yk, PIV_Z + 8.9 * math.sin(a))))
+    add(f"tilt_knob_{s}", knob, (0.85, 0.42, 0.08), MG, (0, s * 16, 104), mass=3.0, label="Tilt lock knob", mat="accent")
 TUBE_R = 12.5
 cz = TOPZ + 4.0 + TUBE_R + 1.0
-clamp = box(PIV_X - 12, PIV_X + 12, -26, 26, TOPZ + 4.0, cz).union(
-    cq.Workplane("YZ").circle(TUBE_R + 5).extrude(24).translate((PIV_X - 12, 0, cz)).intersect(box(PIV_X - 12, PIV_X + 12, -40, 40, TOPZ + 4.0, cz)))
-clamp = clamp.cut(cq.Workplane("YZ").circle(TUBE_R).extrude(30).translate((PIV_X - 15, 0, cz)))
-cap = cq.Workplane("YZ").circle(TUBE_R + 5).circle(TUBE_R).extrude(24).translate((PIV_X - 12, 0, cz)).intersect(box(PIV_X - 12, PIV_X + 12, -40, 40, cz + 0.6, cz + 30))
-cap = cap.union(box(PIV_X - 12, PIV_X + 12, -TUBE_R - 11, -TUBE_R - 1, cz + 0.6, cz + 4)).union(box(PIV_X - 12, PIV_X + 12, TUBE_R + 1, TUBE_R + 11, cz + 0.6, cz + 4))
-clamp = clamp.union(box(PIV_X - 12, PIV_X + 12, -TUBE_R - 11, -TUBE_R - 1, cz - 4, cz)).union(box(PIV_X - 12, PIV_X + 12, TUBE_R + 1, TUBE_R + 11, cz - 4, cz))
-add("clamp_base", clamp, (0.08, 0.08, 0.09), MG, (0, 0, 116), density=2.70, label="Tube clamp, fits 20 / 22 / 25 mm with inserts", mat="anodised")
-add("clamp_cap", cap, (0.08, 0.08, 0.09), MG, (0, 0, 138), density=2.70, label="Tube clamp cap", mat="anodised")
+clamp = rbox(CX - 12, CX + 12, -26, 26, TOPZ + 4.0, cz, 2.0).union(
+    cq.Workplane("YZ").circle(TUBE_R + 5).extrude(24).translate((CX - 12, 0, cz)).intersect(box(CX - 12, CX + 12, -40, 40, TOPZ + 4.0, cz)))
+clamp = clamp.cut(cq.Workplane("YZ").circle(TUBE_R).extrude(30).translate((CX - 15, 0, cz)))
+cap = cq.Workplane("YZ").circle(TUBE_R + 5).circle(TUBE_R).extrude(24).translate((CX - 12, 0, cz)).intersect(box(CX - 12, CX + 12, -40, 40, cz + 0.6, cz + 30))
+cap = cap.union(box(CX - 12, CX + 12, -TUBE_R - 11, -TUBE_R - 1, cz + 0.6, cz + 4)).union(box(CX - 12, CX + 12, TUBE_R + 1, TUBE_R + 11, cz + 0.6, cz + 4))
+clamp = clamp.union(box(CX - 12, CX + 12, -TUBE_R - 11, -TUBE_R - 1, cz - 4, cz)).union(box(CX - 12, CX + 12, TUBE_R + 1, TUBE_R + 11, cz - 4, cz))
+add("clamp_base", clamp, (0.08, 0.08, 0.09), MG, (0, 0, 124), density=2.70, label="Tube clamp, fits 20 / 22 / 25 mm with inserts", mat="anodised")
+add("clamp_cap", cap, (0.08, 0.08, 0.09), MG, (0, 0, 146), density=2.70, label="Tube clamp cap", mat="anodised")
 for s in (-1, 1):
-    add(f"clamp_screw_{s}", cyl(PIV_X, s * (TUBE_R + 6), cz + 4, cz + 6.5, 2.6), (0.6, 0.6, 0.62), MG, (0, 0, 150), mass=1.0, label="M3 clamp screw", mat="steel")
-tube = cq.Workplane("XZ").circle(TUBE_R - 0.05).extrude(-180).translate((PIV_X, -90, cz))
-add("drone_tube", tube, (0.02, 0.02, 0.025), "Drone", (0, 0, 70), mass=0.0, label="Drone frame tube, 25 mm carbon (not part of the camera)", mat="cfrp")
+    add(f"clamp_screw_{s}", cyl(CX, s * (TUBE_R + 6), cz + 4, cz + 6.5, 2.6), (0.6, 0.6, 0.62), MG, (0, 0, 156), mass=1.0, label="M3 clamp screw", mat="steel")
+tube = cq.Workplane("XZ").circle(TUBE_R - 0.05).extrude(-180).translate((CX, -90, cz))
+add("drone_tube", tube, (0.02, 0.02, 0.025), "Drone", (0, 0, 146), mass=0.0, label="Drone frame tube, 25 mm carbon (not part of the camera)", mat="cfrp")
 
 # ------------------------------------------------------------------- export
 def tess(solid, tol, ang):

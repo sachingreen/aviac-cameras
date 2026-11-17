@@ -4,10 +4,10 @@ Status: concept. The numbers below are calculated; nothing has been built or mea
 
 ## What it is
 
-A sealed box, 152 x 98 x 62 mm (111 mm tall with the tube clamp), about 600 g with the mount. Inside:
-two Mira220 cameras 60 mm apart on one machined lens plate, both looking down and fired by the same
+A sealed box, 108 x 98 x 77 mm (124 mm tall with the tube clamp), about 535 g with the mount. Inside:
+two Mira220 cameras 60 mm apart, centred under the box on one machined lens plate, both looking down and fired by the same
 hardware trigger, and the shared Jetson Orin Nano carrier (duo variant: two of its four camera ports
-fitted). No fan and no air duct: the Jetson presses on a finned aluminium lid through a thermal pad,
+fitted). The Jetson sits upside down above the carrier. No fan and no air duct: the Jetson presses on a finned aluminium lid through a thermal pad,
 and the rotor downwash cools the lid.
 
 | | Camera A | Camera B |

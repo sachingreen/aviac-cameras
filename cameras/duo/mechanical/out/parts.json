@@ -64,16 +64,16 @@
  },
  {
   "name": "body",
-  "label": "Body, glass-filled nylon (moulded or printed), IP65 with the lid gasket",
+  "label": "Body, glass-filled nylon, IP65 with the lid gasket",
   "group": "Enclosure",
-  "mass": 121.03,
+  "mass": 105.81,
   "estimated": false
  },
  {
   "name": "lid",
-  "label": "Finned lid, 6063 aluminium, black anodised: the heatsink",
+  "label": "Finned lid, 6063 aluminium, bead-blasted: the heatsink",
   "group": "Thermal",
-  "mass": 194.17,
+  "mass": 130.94,
   "estimated": false
  },
  {
@@ -99,20 +99,6 @@
  },
  {
   "name": "lid_screw_3",
-  "label": "M2.5 lid screw",
-  "group": "Thermal",
-  "mass": 0.4,
-  "estimated": true
- },
- {
-  "name": "lid_screw_4",
-  "label": "M2.5 lid screw",
-  "group": "Thermal",
-  "mass": 0.4,
-  "estimated": true
- },
- {
-  "name": "lid_screw_5",
   "label": "M2.5 lid screw",
   "group": "Thermal",
   "mass": 0.4,
@@ -199,7 +185,7 @@
   "name": "lens_plate",
   "label": "Lens plate, machined aluminium, 2 x CS-mount, 60 mm baseline",
   "group": "Optics bench",
-  "mass": 35.78,
+  "mass": 35.31,
   "estimated": false
  },
  {
@@ -276,7 +262,7 @@
   "name": "yoke",
   "label": "Tilt yoke, 0-35 deg back, aluminium",
   "group": "Mount",
-  "mass": 52.91,
+  "mass": 60.43,
   "estimated": false
  },
  {
@@ -297,7 +283,7 @@
   "name": "clamp_base",
   "label": "Tube clamp, fits 20 / 22 / 25 mm with inserts",
   "group": "Mount",
-  "mass": 29.59,
+  "mass": 29.46,
   "estimated": false
  },
  {
