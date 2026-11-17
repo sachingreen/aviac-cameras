@@ -11,3 +11,4 @@ boards/orin-carrier/kicad/route.log
 route.ses
 **/out/render.log
 **/teardown/assets/model.bin
+**/showcase/assets/model.bin
