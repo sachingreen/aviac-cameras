@@ -4,7 +4,7 @@
 // visitor and 25 s of quiet hands it back. Structure after the teardown kit (elvarofficial/teardown, MIT).
 import * as THREE from 'three';
 import {warmComposer} from '../kit/warm.js';
-import {MARK} from './logo.js';
+import {MARK, WORDMARK} from './logo.js';
 import {CAMS, createConsole, H_RANGE, MODULES, OPENS, SHOWS, V_RANGE} from './console.js';
 import {buildMachine} from './machine.js';
 import data from './parts.json';
@@ -69,9 +69,11 @@ body::after{content:'';position:fixed;left:0;right:0;height:140px;top:-140px;poi
 @keyframes blink{50%{opacity:.15}}
 .turn{position:fixed;left:0;right:0;bottom:18px;text-align:center;font:600 12px/1.4 'JetBrains Mono',monospace;letter-spacing:1px;color:#7f95aa;text-transform:uppercase;display:none;z-index:5}
 @media (orientation:portrait) and (max-width:820px){.turn{display:block}}
-.intro{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(80% 70% at 50% 45%,#0b1a2c,#03060b 70%);transition:opacity 1.1s ease,filter 1.1s ease}
+.intro{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(80% 70% at 50% 45%,#22342b,#18241e 55%,#0d1612 100%);transition:opacity 1.1s ease,filter 1.1s ease}
 .intro.out{opacity:0;filter:blur(8px);pointer-events:none}
-.intro .logo{width:150px;margin-bottom:22px;filter:drop-shadow(0 0 24px rgba(56,225,255,.5));animation:rise 1.6s ease both}
+.intro .logo{width:170px;margin-bottom:26px;filter:drop-shadow(0 0 22px rgba(242,241,235,.25));animation:rise 1.6s ease both}
+.intro .word{width:420px;animation:rise 1.6s .25s ease both}
+.intro .word svg{width:100%;height:auto;display:block}
 .intro .logo svg{width:100%;height:auto;display:block}
 @keyframes rise{from{opacity:0;transform:translateY(14px) scale(.94)}}
 .intro .mark{font:700 64px 'Space Grotesk',Inter,sans-serif;letter-spacing:22px;margin-right:-22px;color:transparent;background:linear-gradient(180deg,#fff,#38e1ff);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 22px rgba(56,225,255,.45))}
@@ -95,7 +97,7 @@ async function run() {
   const intro = document.createElement('div');
   intro.className = 'intro';
   const BANDC = ['#2f6fe0', '#2fa14b', '#d8382c', '#c2261f', '#7a1d4a', '#5b2a9a'];
-  intro.innerHTML = `<div class="logo">${MARK('url(#lg)').replace('<g fill', '<defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#38e1ff"/></linearGradient></defs><g fill')}</div><div class="mark">AVIAC</div><div class="sub">MS &nbsp;·&nbsp; Multispectral crop camera</div>
+  intro.innerHTML = `<div class="logo">${MARK('#f2f1eb')}</div><div class="word">${WORDMARK('#f2f1eb')}</div><div class="sub">MS &nbsp;·&nbsp; Multispectral crop camera</div>
     <div class="bands">${BANDC.map((c) => `<i style="background:${c};color:${c}"></i>`).join('')}</div>
     <div class="bar"><b></b></div><div class="msg">Initialising sensor array</div>`;
   app.appendChild(intro);

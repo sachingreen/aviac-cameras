@@ -22,7 +22,7 @@ Power: the target drones run on 6S packs (several in parallel). The carrier's 3S
 Markings, laser-etched through the anodise: the Aviac mark with "AVIAC MS" and "MULTISPECTRAL · 6 BAND"
 on the nose, a serial plate on the rear (MS-6, rev B, S/N, 3S-6S 25 W max), the name and a FWD arrow
 on both flanks, port labels (PWR 3-6S, TELEM, TRIG, USB-C, DLS) and band labels beside each window
-(RGB, RE 723, NIR 840, NIR+ 890). The mark is vectorised in `toolkit/brand/logo.py`.
+(RGB, RE 723, NIR 840, NIR+ 890). The Aviac Technologies mark is traced from the supplied artwork in `toolkit/brand` (logo.py, src/).
 
 - `mechanical/build_model.py`: the box (CadQuery). `build_model_pod.py` is the earlier pod, kept for reference.
 - `mechanical/out/renders/`: studio renders

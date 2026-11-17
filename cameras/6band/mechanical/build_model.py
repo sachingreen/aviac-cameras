@@ -298,10 +298,10 @@ def etched_text(txt, size, face, at, kind="bold", halign="center"):
 
 
 def etched_logo(height, face, at):
-    k = height / 420.0                          # the mark spans y 120..540 in artwork space
+    """The Aviac mark, from the trace of the supplied artwork (toolkit/brand), height in mm."""
     sol = None
     for poly in logo_polygons():
-        pts = [((x - 300) * k, (330 - y) * k) for (x, y) in poly]
+        pts = [(x * height, y * height) for (x, y) in poly]
         w = cq.Workplane("XY").polyline(pts).close().extrude(ETCH + 0.02).translate((0, 0, -0.02))
         sol = w if sol is None else sol.union(w)
     return face_place(sol, face, at)
@@ -309,7 +309,7 @@ def etched_logo(height, face, at):
 
 marks = []
 # nose face: the mark, the name, the line
-marks.append(etched_logo(24.0, "+X", (X1, 0, H * 0.58)))
+marks.append(etched_logo(20.0, "+X", (X1, 0, H * 0.60)))
 marks.append(etched_text("AVIAC  MS", 7.2, "+X", (X1, 0, H * 0.33)))
 marks.append(etched_text("MULTISPECTRAL  ·  6 BAND", 2.6, "+X", (X1, 0, H * 0.25), kind="regular"))
 # rear face: identification plate
