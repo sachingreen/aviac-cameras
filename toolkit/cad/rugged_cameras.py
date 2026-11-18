@@ -648,7 +648,7 @@ def build_duos():
             rh = rh.cut(rbox(sx * Wd / 2 - 3.0, sx * Wd / 2 + 3.0, 9.0, 19.0, 5.0 + k * 2.4, 6.3 + k * 2.4, 0.5, "|X"))
     try:
         rh = rh.cut(mark_on_side(8.0, 14.0, 21.0, Wd / 2 - inset(14.0), 0.4))
-        word = cq.Workplane("YZ").text("DUOS", 2.0, 0.5, kind="regular", halign="center", valign="center").mirror("XZ")      # reads from +X
+        word = cq.Workplane("YZ").text("DUOS", 2.0, 0.5, kind="regular", halign="center", valign="center")      # reads from +X as drawn
         bb = word.val().BoundingBox()
         xf = Wd / 2 - inset(14.0)
         rh = rh.cut(word.translate((xf - 0.35 - bb.xmin, 14.0 - (bb.ymin + bb.ymax) / 2, 15.2 - (bb.zmin + bb.zmax) / 2)))
