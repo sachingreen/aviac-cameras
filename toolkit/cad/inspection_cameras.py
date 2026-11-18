@@ -38,7 +38,7 @@ def big_lens(name, x, z, y_front, y_back, r, tint, label, glass_label, glass_mat
                 p_["mat"], p_["label"] = glass_mat, glass_label
 
 
-def body(Wd, H, D, lenses, word, bar_z):
+def body(Wd, H, D, lenses, word, bar_z, glass_holes=()):
     FT, frame, recess, wall = 6.0, 1.6, 1.2, 1.5
     fs, panel, rh, (px0, px1, pz0, pz1), inset = sculpted_body(Wd, H, -4.0, D, 7.0, FT, frame, recess, wall, 3.0, EXF, E(55), taper=1.4, r_rear=4.5, hd=3.8, b=0.9)
     for (x, z, rr) in lenses:
@@ -46,6 +46,8 @@ def body(Wd, H, D, lenses, word, bar_z):
     panel = light_bar(panel, (0.0, bar_z, 10.0, 0.9), recess, EXF)
     add("panel", panel, EXT, EXF, finish="panel", density=PA12CF, label="Front panel")
     light_pipe(0.0, bar_z, 10.0, recess + 1.0, 6.5, EXT, E(-82))
+    rc.front_glass(px0 + 0.3, px1 - 0.3, pz0 + 0.3, pz1 - 0.3, -7.3, 3.0, glass_holes, (0.0, bar_z, 10.0, 0.9))
+    add("glass_name", rc.etch_text(word, 1.8, 0.0, 4.6, -7.3), EXT, (0, -240, 0), mat="etch", color=(0.7, 0.71, 0.73), mass=0.0, label="Name, etched on the glass")
     add("gasket", W(cq.Solid.makeLoft([rr_wire(Wd - 1.0, H - 1.0, 6.5, FT - 0.2, H / 2), rr_wire(Wd - 1.0, H - 1.0, 6.5, FT + 0.2, H / 2)], True))
         .cut(W(cq.Solid.makeLoft([rr_wire(Wd - 2.2, H - 2.2, 5.9, FT - 1, H / 2), rr_wire(Wd - 2.2, H - 2.2, 5.9, FT + 1, H / 2)], True))),
         EXT, E(-75), mat="rubber", color=(0.85, 0.30, 0.08), mass=0.4, label="Silicone gasket")
@@ -82,10 +84,10 @@ def build_th():
     rc.parts.clear()
     Wd, H, D = 60.0, 42.0, 36.0
     LW, RGB = (-9.0, 21.0), (17.5, 21.0)
-    body(Wd, H, D, [(LW[0], LW[1], 12.6), (RGB[0], RGB[1], 7.2)], "TH", 37.0)
+    body(Wd, H, D, [(LW[0], LW[1], 12.6), (RGB[0], RGB[1], 7.2)], "TH", 37.0, [(LW[0], LW[1], 13.9), (RGB[0], RGB[1], 9.3)])
     lens_ring("lwir", LW[0], LW[1], -3.8, 1.2, 27.0, 22.0, OPT, E(-70))
     oring("lwir_oring", LW[0], LW[1], 1.0, 12.4, 0.55, OPT, E(-88))
-    big_lens("lwir", LW[0], LW[1], -6.5, 9.0, 10.0, (0.20, 0.17, 0.24), "Germanium LWIR lens, 13 mm f/1.0", "Germanium window, DLC-coated", glass_mat="die_dark")
+    big_lens("lwir", LW[0], LW[1], -6.1, 9.0, 10.0, (0.20, 0.17, 0.24), "Germanium LWIR lens, 13 mm f/1.0", "Germanium window, DLC-coated", glass_mat="die_dark")
     lens_ring("rgb", RGB[0], RGB[1], -3.8, 1.2, 18.0, 15.0, OPT, E(-70))
     m12_lens("rgb", RGB[0], RGB[1], -6.0, 12.0, OPT, E(-60), (0.10, 0.22, 0.20), "M12 lens, colour camera")
     # thermal core: a machined block with the bolometer window, on its own board
@@ -107,10 +109,10 @@ def build_sw():
     rc.parts.clear()
     Wd, H, D = 58.0, 46.0, 44.0
     L = (0.0, 23.0)
-    body(Wd, H, D, [(L[0], L[1], 16.2)], "SW", 41.5)
+    body(Wd, H, D, [(L[0], L[1], 16.2)], "SW", 41.5, [(L[0], L[1], 17.4)])
     lens_ring("swir", L[0], L[1], -3.8, 1.2, 34.0, 28.5, OPT, E(-70))
     oring("swir_oring", L[0], L[1], 1.0, 15.8, 0.6, OPT, E(-88))
-    big_lens("swir", L[0], L[1], -9.0, 12.0, 13.2, (0.24, 0.15, 0.06), "SWIR lens, 25 mm f/1.4, 0.9-1.7 um coating", "Front element, SWIR AR coating")
+    big_lens("swir", L[0], L[1], -6.1, 12.0, 13.2, (0.24, 0.15, 0.06), "SWIR lens, 25 mm f/1.4, 0.9-1.7 um coating", "Front element, SWIR AR coating")
     # InGaAs sensor in a ceramic package with a thermo-electric cooler behind it
     x, z, yb = L[0], L[1], 14.0
     add("swir_pkg", rbox(x - 11, x + 11, yb - 2.2, yb, z - 9.5, z + 9.5, 0.8), SEN, E(-15), mat="ceramic_dark", color=(0.10, 0.10, 0.105), mass=2.0,

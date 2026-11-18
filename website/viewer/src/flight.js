@@ -43,6 +43,7 @@ const M = {
   black: phys(0x0c0c0d, {roughness: 0.55}), satin: phys(0x1d1e20, {roughness: 0.38, metalness: 0.6}), steel: phys(0xc4c8cc, {roughness: 0.22, metalness: 1}),
   ti: phys(0xb3b5b6, {roughness: 0.32, metalness: 0.85}), gunmetal: phys(0x3a3d41, {roughness: 0.34, metalness: 0.8}),
   glass: phys(0x08100f, {roughness: 0.02, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0, iridescence: 1, iridescenceIOR: 1.45, iridescenceThicknessRange: [180, 520]}),
+  glassFront: phys(0x050506, {roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0, transparent: true, opacity: 0.82}),
   amber: new THREE.MeshBasicMaterial({color: 0xffa040}), orange: phys(0xd8692c, {roughness: 0.4}),
   germ: phys(0x2a2c33, {roughness: 0.18, metalness: 0.75, iridescence: 0.6, iridescenceIOR: 1.8}),
 };
@@ -69,8 +70,8 @@ function cameraHead(kind, finish) {
   const bodyM = finish === 'white' ? M.white : finish === 'dark' ? M.gunmetal : M.ti;
   g.add(rbox(w, h, d, Math.min(w, h) * 0.12, bodyM));
   const hood = rbox(w * 1.06, h * 1.06, d * 0.16, Math.min(w, h) * 0.1, M.black); hood.position.z = -d / 2; g.add(hood);
-  const face = box(w * 0.9, h * 0.86, 0.001, M.black); face.position.z = -d / 2 - d * 0.03; g.add(face);
-  const at = (x, y, r) => { const l = lensAssembly(r); l.position.set(x, y, -d / 2 - d * 0.03); g.add(l); return l; };
+  const face = rbox(w * 0.92, h * 0.88, 0.0015, Math.min(w, h) * 0.08, M.glassFront); face.position.z = -d / 2 - d * 0.075; g.add(face);
+  const at = (x, y, r) => { const l = lensAssembly(r); l.position.set(x, y, -d / 2 - d * 0.03 + r * 1.1 - d * 0.04); g.add(l); return l; };
   if (kind === 'MS') { at(0.012, -0.004, 0.017); [0.028, 0, -0.028].forEach((y) => at(-0.032, y, 0.0075)); }
   if (kind === 'Duos') { at(-0.013, 0, 0.0065); at(0.013, 0, 0.0065); }
   if (kind === 'TH') { const l = at(-0.009, 0, 0.011); l.children[3].material = M.germ; at(0.018, 0, 0.0065); }

@@ -199,7 +199,7 @@ def lens_ring(name, x, z, y_front, y_panel, od, idia, group, ex):
     except Exception:
         pass
     add(name + "_ring", r, group, ex, mat="satin", color=(0.035, 0.035, 0.038), mass=0.0, label="Lens ring")
-    add(name + "_lip", yring(x, z, y_front - 0.05, y_front + 0.12, od / 2 - 0.45, od / 2 - 0.85), group, ex, mat="satin", color=(0.32, 0.33, 0.34), mass=0.0, label="Ring chamfer")
+    add(name + "_lip", yring(x, z, y_front - 0.05, y_front + 0.12, od / 2 - 0.45, od / 2 - 0.85), group, ex, mat="satin", color=(0.10, 0.10, 0.11), mass=0.0, label="Ring chamfer")
 
 
 def dome(x, z, y_apex, r_edge, sag):
@@ -218,7 +218,7 @@ def m12_lens(name, x, z, y_front, length, group, ex, tint, label, filt=None):
         barrel = barrel.cut(ycyl(x + 7.75 * math.cos(a), z + 7.75 * math.sin(a), y_front + 1.4, y_front + 4.4, 0.42))
     barrel = barrel.cut(ycyl(x, z, y_front - 1, y_front + 2.2, 5.4)).cut(ycyl(x, z, y_front - 1, y_front + 8.0, 4.4))
     add(name + "_barrel", barrel, group, ex, mat="anodised", color=(0.015, 0.015, 0.018), mass=3.0 if length > 15 else 1.8, label=label)
-    lens_stack(name, x, z, y_front + 1.9, 4.3, group, ex, tint, depth=4.5)
+    lens_stack(name, x, z, y_front + 1.9, 5.1, group, ex, tint, depth=4.5)
     if filt:
         add(name + "_filter", ycyl(x, z, y_front - 0.6, y_front - 0.1, 6.9), group, ex, mat="filterglass", color=filt[1], mass=0.4, label=f"Band-pass filter, {filt[0]}")
 
@@ -238,6 +238,21 @@ def lens_stack(name, x, z, y_front, r, group, ex, tint=(0.10, 0.22, 0.20), depth
     add(name + "_iris", blades, group, ex, mat="iris", color=(0.03, 0.03, 0.03), mass=0.0, label="Iris blades")
     add(name + "_inner", yring(x, z, y_front + sag * 0.6, y_front + sag + depth, r * 1.04, r * 0.9), group, ex, mat="black", color=(0, 0, 0), mass=0.0, label="Lens interior")
     add(name + "_back", ycyl(x, z, y_front + sag + depth, y_front + sag + depth + 0.2, r * 0.9), group, ex, mat="black", color=(0, 0, 0), mass=0.0, label="Rear group")
+
+
+def front_glass(px0, px1, pz0, pz1, y, r, holes, slot=None, ex=(0, -240, 0)):
+    """One gloss-black glass plate across the front, just behind the rubber rim: openings for each lens and the
+    status light, so the face reads as a single clean surface."""
+    g = rbox(px0, px1, y, y + 0.7, pz0, pz1, r)
+    for (x, z, rr) in holes:
+        g = g.cut(ycyl(x, z, y - 1, y + 2, rr))
+    if slot:
+        x, z, l, h = slot
+        g = g.cut(rbox(x - l / 2 - 0.4, x + l / 2 + 0.4, y - 1, y + 2, z - h / 2 - 0.4, z + h / 2 + 0.4, min(h / 2 + 0.4, 1.0)))
+    add("front_glass", g, EXT, ex, mat="glass_black", color=(0.01, 0.01, 0.012), density=2.5, label="Front glass, gloss black, toughened")
+    # clear windows flush in the same glass: one continuous gloss surface, the lenses sit quietly underneath
+    for i, (x, z, rr) in enumerate(holes):
+        add(f"front_window_{i}", ycyl(x, z, y, y + 0.7, rr), EXT, ex, mat="cover_glass", color=(0.3, 0.32, 0.33), mass=0.0, label="Lens window, AR-coated")
 
 
 def etch_text(txt, size, x, z, y, kind="bold"):
@@ -547,9 +562,11 @@ def build_ms():
     for sx in (-1, 1):
         for zz in (7.0, H - 7.0):
             screw(f"front_screw_{sx}_{int(zz)}", sx * (Wd / 2 - 4.2), zz, -13.7, 16.0, 1.3, EXT, EXF, "M3 x 16, stainless, hood and front shell", toward=1)
-    mk = lockup(cx, 19.5, recess, 5.0, "M S", 2.6)
+    GY = -12.9
+    front_glass(px0 + 0.3, px1 - 0.3, pz0 + 0.3, pz1 - 0.3, GY, 6.0, [(cx, cz, 21.4)] + [(x, z, 9.6) for (x, z, *_r) in MIRA], BAR)
+    mk = lockup(cx, 19.5, GY, 5.0, "M S", 2.6)
     for (x, z, band, _t) in MIRA:
-        mk = mk.union(etch_text(band.split()[0], 1.7, -15.0, z, recess))
+        mk = mk.union(etch_text(band.split()[0], 1.7, -15.0, z, GY))
     add("markings", mk, EXT, EXF, mat="etch", color=(0.7, 0.71, 0.73), mass=0.0, label="Laser-etched markings")
     add("gasket", W(cq.Solid.makeLoft([rr_wire(Wd - 1.2, H - 1.2, 14.4, FT - 0.25, H / 2), rr_wire(Wd - 1.2, H - 1.2, 14.4, FT + 0.25, H / 2)], True))
         .cut(W(cq.Solid.makeLoft([rr_wire(Wd - 2.6, H - 2.6, 13.7, FT - 1, H / 2), rr_wire(Wd - 2.6, H - 2.6, 13.7, FT + 1, H / 2)], True))),
@@ -560,7 +577,7 @@ def build_ms():
     for i, (x, z, band, tint) in enumerate(MIRA):
         oring(f"mira{i}_oring", x, z, recess - 0.3, 8.6, 0.6, OPT, E(-225))
         lens_ring(f"mira{i}", x, z, -10.0, recess, 20.0, 15.6, OPT, E(-190))
-        add(f"mira{i}_retainer", yring(x, z, -10.3, -9.7, 7.6, 6.2), OPT, E(-196), mat="satin", color=(0.2, 0.2, 0.21), mass=0.1, label="Filter retaining ring")
+        add(f"mira{i}_retainer", yring(x, z, -10.3, -9.7, 7.6, 6.2), OPT, E(-196), mat="satin", color=(0.035, 0.035, 0.038), mass=0.1, label="Filter retaining ring")
         m12_lens(f"mira{i}", x, z, -9.0, 25.0, OPT, E(-165), (0.10, 0.22, 0.20), "M12 lens, 6 mm, 25 mm long", filt=(band, tint))
         m12_holder(f"mira{i}_holder", x, z, 8.5, 17.0, OPT, E(-120))
     oring("imx_oring", cx, cz, recess - 0.3, 18.6, 0.7, OPT, E(-225))
@@ -574,7 +591,7 @@ def build_ms():
     LE = E(-165)
     add("imx_barrel", cb, OPT, LE, mat="anodised", color=(0.015, 0.015, 0.018), mass=45.0, label="C-mount lens, 16 mm, 1.1-inch, compact")
     lens_stack("imx", cx, cz, -11.8, 11.0, OPT, LE, (0.10, 0.24, 0.20), depth=12.0)
-    add("imx_retainer", yring(cx, cz, -11.6, -10.9, 12.6, 11.4), OPT, LE, mat="satin", color=(0.25, 0.25, 0.26), mass=0.0, label="Retaining ring")
+    add("imx_retainer", yring(cx, cz, -11.6, -10.9, 12.6, 11.4), OPT, LE, mat="satin", color=(0.035, 0.035, 0.038), mass=0.0, label="Retaining ring")
     LP0, LP1 = recess + wall, recess + wall + 2.0
     lp = rbox(px0 + 1, px1 - 1, LP0, LP1, pz0 + 1, pz1 - 1, 4.0)
     for (x, z, *_r) in MIRA:
@@ -716,6 +733,8 @@ def build_duos():
         panel = panel.cut(ycyl(x, z, -1, 5, 7.2))
     panel = light_bar(panel, (0.0, 26.0, 10.0, 0.9), recess, EXF)
     add("panel", panel, EXT, EXF, finish="panel", density=PA12CF, label="Front panel")
+    front_glass(px0 + 0.3, px1 - 0.3, pz0 + 0.3, pz1 - 0.3, -6.9, 2.4, [(-B / 2, 15.0, 9.6), (B / 2, 15.0, 9.6)], (0.0, 26.0, 10.0, 0.9))
+    add("glass_name", etch_text("DUOS", 1.5, 0.0, 4.6, -6.9), EXT, (0, -240, 0), mat="etch", color=(0.7, 0.71, 0.73), mass=0.0, label="Name, etched on the glass")
     light_pipe(0.0, 26.0, 10.0, recess + 1.0, 6.5, EXT, E(-82))
     add("gasket", W(cq.Solid.makeLoft([rr_wire(Wd - 1.0, H - 1.0, 5.5, FT - 0.2, H / 2), rr_wire(Wd - 1.0, H - 1.0, 5.5, FT + 0.2, H / 2)], True))
         .cut(W(cq.Solid.makeLoft([rr_wire(Wd - 2.2, H - 2.2, 4.9, FT - 1, H / 2), rr_wire(Wd - 2.2, H - 2.2, 4.9, FT + 1, H / 2)], True))),

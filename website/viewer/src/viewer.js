@@ -40,6 +40,7 @@ function material(kind, c) {
     case 'gold': return S({color: new THREE.Color('#d9a544'), metalness: 1, roughness: 0.32});
     case 'lens': return Ph({color: new THREE.Color('#0a1414'), roughness: 0.02, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.0, iridescence: 0.8, iridescenceIOR: 1.45, transparent: true, opacity: 0.45, depthWrite: false});
     case 'lens_inner': return Ph({color: new THREE.Color('#141a18'), roughness: 0.03, metalness: 0.3, clearcoat: 1, iridescence: 0.6, iridescenceIOR: 1.7, transparent: true, opacity: 0.55, depthWrite: false});
+    case 'cover_glass': return Ph({color: new THREE.Color('#1a1f22'), roughness: 0.0, metalness: 0, clearcoat: 1, transparent: true, opacity: 0.35, depthWrite: false});
     case 'iris': return Ph({color: new THREE.Color('#121214'), roughness: 0.35, metalness: 0.7});
     case 'filterglass': return Ph({color: col.clone().multiplyScalar(0.5), roughness: 0.04, metalness: 0.6, clearcoat: 1, iridescence: 0.6});
     case 'led': return S({color: new THREE.Color('#ffd9a8'), emissive: new THREE.Color('#ff9a3c'), emissiveIntensity: 1.4});

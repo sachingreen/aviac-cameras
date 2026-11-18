@@ -28,8 +28,9 @@ scene.cycles.samples = samples
 scene.cycles.use_adaptive_sampling = True
 scene.cycles.adaptive_threshold = 0.02
 scene.cycles.use_denoising = False
-scene.cycles.max_bounces = 10
-scene.cycles.transmission_bounces = 10
+scene.cycles.max_bounces = 16
+scene.cycles.transmission_bounces = 16
+scene.cycles.transparent_max_bounces = 16
 scene.cycles.glossy_bounces = 6
 scene.cycles.caustics_reflective = False
 scene.cycles.caustics_refractive = False
@@ -152,11 +153,11 @@ def make_material(kind, color, name):
         # multi-coated glass reflects about 1 %: faint reflections whose colour runs from green through violet to
         # amber with the angle, and you look through it into the lens
         inner = kind == "lens_inner"
-        setp(b, color=(0.92, 0.95, 0.95), rough=0.0, trans=1.0, ior=1.58 if inner else 1.52, spec=0.22 if inner else 0.12,
-             coat=0.55 if not inner else 0.3, coat_rough=0.0)
+        setp(b, color=(0.92, 0.95, 0.95), rough=0.0, trans=1.0, ior=1.58 if inner else 1.52, spec=0.05 if inner else 0.12,
+             coat=0.55 if not inner else 0.08, coat_rough=0.0)
         lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.35
         cr = nt.nodes.new("ShaderNodeValToRGB"); el = cr.color_ramp.elements
-        stops = [(0.0, (0.25, 0.85, 0.55)), (0.45, (0.55, 0.35, 0.95)), (0.8, (0.95, 0.55, 0.25)), (1.0, (1.0, 0.8, 0.5))] if not inner else \
+        stops = [(0.0, (0.62, 0.62, 0.68)), (0.5, (0.55, 0.40, 0.88)), (0.85, (0.45, 0.78, 0.6)), (1.0, (0.95, 0.7, 0.4))] if not inner else \
                 [(0.0, (0.95, 0.6, 0.25)), (0.6, (0.4, 0.8, 0.5)), (1.0, (0.6, 0.4, 0.9))]
         el[0].position, el[0].color = stops[0][0], (*stops[0][1], 1); el[1].position, el[1].color = stops[-1][0], (*stops[-1][1], 1)
         for pos, col in stops[1:-1]:
@@ -166,6 +167,8 @@ def make_material(kind, color, name):
             nt.links.new(cr.outputs["Color"], b.inputs["Coat Tint"])
         if b.inputs.get("Specular Tint") is not None:
             nt.links.new(cr.outputs["Color"], b.inputs["Specular Tint"])
+    elif kind == "cover_glass":     # the clear part of the front glass: same gloss, lightly tinted, AR-coated
+        setp(b, color=(0.98, 0.99, 1.0), rough=0.0, trans=1.0, ior=1.05, spec=0.5, coat=0.5, coat_rough=0.0)
     elif kind == "iris":            # aperture blades: dark anodised steel with a soft sheen
         setp(b, color=(0.025, 0.025, 0.028), metal=0.7, rough=0.32)
     elif kind in ("die", "die_dark"):   # silicon pixel array: a diffraction rainbow that shifts with the viewing angle
@@ -517,8 +520,35 @@ def cine(center, size, back):
         pass
 
 
+BACKS = {"stone": (0.22, 0.21, 0.195), "sage": (0.030, 0.048, 0.040), "slate": (0.030, 0.036, 0.044)}
+
+
+def studio_look(center, size, back):
+    """Advertising-photo light: one large soft key high on the left, a narrow strip in front for a crisp highlight in
+    the glass, a hard rim from behind on the right, and a soft pool of light on a plain seamless backdrop."""
+    for l in lights:
+        bpy.data.objects.remove(l, do_unlink=True)
+    lights.clear()
+    cb = cyc.data.materials[0].node_tree.nodes["Principled BSDF"]
+    cb.inputs["Base Color"].default_value = (*BACKS[back], 1); cb.inputs["Roughness"].default_value = 0.95
+    bgn.inputs[1].default_value = 0.0
+    c, s = Vector(center), max(0.1, size.length)
+    k = s * s / 0.04
+    dark = back != "stone"
+    lights.append(area("key", c + Vector((-0.75, -0.85, 0.85)) * s, c, (14.0 if dark else 9.0) * k, 1.5 * s, (1.0, 0.975, 0.95), 1.0 * s))
+    lights.append(area("catch", c + Vector((-0.30, -1.9, 0.55)) * s, c, 2.2 * k, 0.55 * s, (1, 1, 1), 0.10 * s))
+    lights.append(area("rim", c + Vector((1.0, 0.85, 0.35)) * s, c, (16.0 if dark else 9.0) * k, 0.07 * s, (1, 1, 1), 1.6 * s))
+    lights.append(area("kick", c + Vector((-1.0, 0.6, 0.05)) * s, c, 3.0 * k, 0.06 * s, (1, 1, 1), 1.0 * s))
+    lights.append(area("pool", c + Vector((0.15, 1.2, 1.1)) * s, c + Vector((0.1, 3.0 * s, 0)), (5.0 if dark else 7.0) * k, 1.6 * s, (1, 1, 1)))
+    scene.view_settings.exposure = -0.45 if not dark else -0.15
+    try:
+        scene.view_settings.look = "AgX - Medium High Contrast"
+    except Exception:
+        pass
+
+
 def cshoot(name, target, size, az, el, lens, fill, fstop, focus, back):
-    mood(back == "green")
+    mood(back in ("green", "sage", "slate"))
     cam_d.lens = lens
     t = Vector(target)
     r = size.length / 2
@@ -531,7 +561,10 @@ def cshoot(name, target, size, az, el, lens, fill, fstop, focus, back):
     cam_d.dof.use_dof = fstop is not None
     if fstop:
         cam_d.dof.aperture_fstop = fstop; cam_d.dof.focus_distance = (Vector(focus) - loc).length
-    cine(target, size, back)
+    if back in BACKS:
+        studio_look(target, size, back)
+    else:
+        cine(target, size, back)
     if os.environ.get("CINE_EXP"):
         scene.view_settings.exposure = float(os.environ["CINE_EXP"])
     scene.render.filepath = os.path.join(outdir, name + ".png")
@@ -637,6 +670,16 @@ for s in shots:
             cshoot(tag + "lens_closeup", f + Vector((0.004, 0, 0)), Vector((0.05, 0.05, 0.03)), -112, 6, 135, 0.78, 5.6, f, "green")
         else:
             cshoot(tag + "exploded", c, size, -140, 16, 70, 0.86, None, c, "light")
+    elif s in ("studio_light", "studio_dark", "studio_close"):
+        tag = os.environ.get("TAG", "")
+        c, size = pose(0, hide=("DLS puck",) + tuple(g for g in os.environ.get("HIDE", "").split(",") if g), rot=(0, 0, 0), lift=0.0)
+        f = world_of(os.environ.get("FOCUS", "imx_glass"))
+        if s == "studio_light":
+            cshoot(tag + "hero_light", c, size, -128, 7, 105, 0.72, float(os.environ.get("FSTOP", "9")), f, "stone")
+        elif s == "studio_dark":
+            cshoot(tag + "hero_green", c, size, -58, 9, 105, 0.72, float(os.environ.get("FSTOP", "9")), f, "sage")
+        else:
+            cshoot(tag + "lens_closeup", f + Vector((0.004, 0, 0)), Vector((0.05, 0.05, 0.03)), -116, 5, 135, 0.8, 5.6, f, "sage")
     elif s == "c_sensor":                     # one sensor board, studio close-up; SENSOR = the part-name prefix
         pre = os.environ.get("SENSOR", "mira0_pcb")
         keep = [n for n in objs if n.startswith(pre)]

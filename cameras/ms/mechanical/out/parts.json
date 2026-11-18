@@ -63,6 +63,41 @@
   "estimated": true
  },
  {
+  "name": "front_glass",
+  "label": "Front glass, gloss black, toughened",
+  "group": "Externals",
+  "mass": 7.14,
+  "estimated": false
+ },
+ {
+  "name": "front_window_0",
+  "label": "Lens window, AR-coated",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "front_window_1",
+  "label": "Lens window, AR-coated",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "front_window_2",
+  "label": "Lens window, AR-coated",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "front_window_3",
+  "label": "Lens window, AR-coated",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
   "name": "markings",
   "label": "Laser-etched markings",
   "group": "Externals",

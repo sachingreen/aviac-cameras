@@ -42,6 +42,34 @@
   "estimated": true
  },
  {
+  "name": "front_glass",
+  "label": "Front glass, gloss black, toughened",
+  "group": "Externals",
+  "mass": 2.17,
+  "estimated": false
+ },
+ {
+  "name": "front_window_0",
+  "label": "Lens window, AR-coated",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "front_window_1",
+  "label": "Lens window, AR-coated",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "glass_name",
+  "label": "Name, etched on the glass",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
   "name": "gasket",
   "label": "Silicone gasket",
   "group": "Externals",
@@ -129,7 +157,7 @@
   "name": "lwir_barrel",
   "label": "Germanium LWIR lens, 13 mm f/1.0",
   "group": "Optics",
-  "mass": 3.01,
+  "mass": 2.95,
   "estimated": false
  },
  {

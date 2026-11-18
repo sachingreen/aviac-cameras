@@ -42,6 +42,27 @@
   "estimated": true
  },
  {
+  "name": "front_glass",
+  "label": "Front glass, gloss black, toughened",
+  "group": "Externals",
+  "mass": 2.29,
+  "estimated": false
+ },
+ {
+  "name": "front_window_0",
+  "label": "Lens window, AR-coated",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "glass_name",
+  "label": "Name, etched on the glass",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
   "name": "gasket",
   "label": "Silicone gasket",
   "group": "Externals",
@@ -129,7 +150,7 @@
   "name": "swir_barrel",
   "label": "SWIR lens, 25 mm f/1.4, 0.9-1.7 um coating",
   "group": "Optics",
-  "mass": 5.36,
+  "mass": 4.77,
   "estimated": false
  },
  {
