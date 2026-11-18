@@ -304,6 +304,8 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .fly .fseg{display:flex;gap:2px;background:var(--sage-2);border-radius:999px;padding:2px}
 .fly .fctl label{display:flex;align-items:center;gap:8px;font:500 11px var(--mono);color:var(--mute);padding-right:8px}
 .fly .fctl input{accent-color:var(--forest);width:110px}
+.fly .ftag{position:absolute;left:0;top:0;white-space:nowrap;font:500 11px var(--mono);padding:5px 9px;border-radius:8px;background:rgba(19,32,26,.88);color:#fff;pointer-events:none;box-shadow:0 6px 16px -8px rgba(0,0,0,.5)}
+.fly .ftag::after{content:'';position:absolute;left:50%;bottom:-4px;width:8px;height:8px;margin-left:-4px;background:inherit;transform:rotate(45deg)}
 .fly.fly-off::after{content:'3D demo needs WebGL';position:absolute;inset:0;display:grid;place-items:center;color:var(--mute)}
 @media (max-width:900px){.fly{height:auto;min-height:0;aspect-ratio:auto}.fly .fly-c{position:relative;height:56vh}.fly .fly-hud{position:relative}
   .fly .fp{position:relative;top:auto;left:auto;right:auto;width:auto;margin:10px}.fly .fbands{position:relative;left:auto;transform:none;max-width:none;margin:10px;justify-content:flex-start}

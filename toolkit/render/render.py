@@ -148,14 +148,26 @@ def make_material(kind, color, name):
         wv.inputs["Scale"].default_value = 2100.0; wv.inputs["Distortion"].default_value = 0.0; wv.bands_direction = "Y"
         mix = nt.nodes.new("ShaderNodeMixRGB"); mix.inputs[1].default_value = (0.82, 0.35, 0.03, 1); mix.inputs[2].default_value = (0.58, 0.22, 0.02, 1)
         nt.links.new(tc.outputs["Object"], wv.inputs["Vector"]); nt.links.new(wv.outputs["Fac"], mix.inputs[0]); nt.links.new(mix.outputs[0], b.inputs["Base Color"])
-    elif kind == "lens":            # multi-coated glass: clear, dark through it, teal-green coating in the reflections
-        setp(b, color=(0.90, 0.96, 0.95), rough=0.0, trans=1.0, ior=1.72, coat=1.0, coat_rough=0.0)
-        tint = b.inputs.get("Coat Tint")
-        if tint is not None:
-            tint.default_value = (0.35, 0.95, 0.85, 1)
-        st = b.inputs.get("Specular Tint")
-        if st is not None:
-            st.default_value = (0.55, 0.95, 0.9, 1)
+    elif kind in ("lens", "lens_inner"):
+        # multi-coated glass reflects about 1 %: faint reflections whose colour runs from green through violet to
+        # amber with the angle, and you look through it into the lens
+        inner = kind == "lens_inner"
+        setp(b, color=(0.92, 0.95, 0.95), rough=0.0, trans=1.0, ior=1.58 if inner else 1.52, spec=0.22 if inner else 0.12,
+             coat=0.55 if not inner else 0.3, coat_rough=0.0)
+        lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.35
+        cr = nt.nodes.new("ShaderNodeValToRGB"); el = cr.color_ramp.elements
+        stops = [(0.0, (0.25, 0.85, 0.55)), (0.45, (0.55, 0.35, 0.95)), (0.8, (0.95, 0.55, 0.25)), (1.0, (1.0, 0.8, 0.5))] if not inner else \
+                [(0.0, (0.95, 0.6, 0.25)), (0.6, (0.4, 0.8, 0.5)), (1.0, (0.6, 0.4, 0.9))]
+        el[0].position, el[0].color = stops[0][0], (*stops[0][1], 1); el[1].position, el[1].color = stops[-1][0], (*stops[-1][1], 1)
+        for pos, col in stops[1:-1]:
+            e = el.new(pos); e.color = (*col, 1)
+        nt.links.new(lw.outputs["Facing"], cr.inputs["Fac"])
+        if b.inputs.get("Coat Tint") is not None:
+            nt.links.new(cr.outputs["Color"], b.inputs["Coat Tint"])
+        if b.inputs.get("Specular Tint") is not None:
+            nt.links.new(cr.outputs["Color"], b.inputs["Specular Tint"])
+    elif kind == "iris":            # aperture blades: dark anodised steel with a soft sheen
+        setp(b, color=(0.025, 0.025, 0.028), metal=0.7, rough=0.32)
     elif kind in ("die", "die_dark"):   # silicon pixel array: a diffraction rainbow that shifts with the viewing angle
         dark = kind == "die_dark"
         setp(b, color=(0.05, 0.05, 0.06), metal=0.6, rough=0.2 if not dark else 0.25, coat=1.0, coat_rough=0.02)

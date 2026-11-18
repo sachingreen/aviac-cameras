@@ -29,10 +29,13 @@ def big_lens(name, x, z, y_front, y_back, r, tint, label, glass_label, glass_mat
     for k in range(36):
         a = 2 * math.pi * k / 36
         barrel = barrel.cut(ycyl(x + (r + 0.95) * math.cos(a), z + (r + 0.95) * math.sin(a), y_front + 1.6, y_front + 5.4, 0.5))
-    barrel = barrel.cut(ycyl(x, z, y_front - 1, y_front + 2.6, r - 1.6)).cut(ycyl(x, z, y_front - 1, y_front + 4.0, r - 2.8))
+    barrel = barrel.cut(ycyl(x, z, y_front - 1, y_front + 2.6, r - 1.6)).cut(ycyl(x, z, y_front - 1, y_back - 1.0, r - 1.75))
     add(name + "_barrel", barrel, OPT, E(-60), mat="anodised", color=(0.015, 0.015, 0.018), density=ALU * 0.55, label=label)
-    add(name + "_inner", yring(x, z, y_front + 3.9, y_front + 5.0, r - 2.8, r - 5.5), OPT, E(-60), mat="black", color=(0, 0, 0), mass=0.0, label="Aperture")
-    add(name + "_glass", dome(x, z, y_front + 2.8, r - 1.7, 0.8), OPT, E(-60), mat=glass_mat, color=tint, mass=0.0, label=glass_label)
+    rc.lens_stack(name, x, z, y_front + 2.2, r - 1.7, OPT, E(-60), tint, depth=(r - 1.7) * 1.2)
+    if glass_mat != "lens":                                # germanium: opaque to the eye, dark grey with a DLC sheen
+        for p_ in rc.parts:
+            if p_["name"] == name + "_glass":
+                p_["mat"], p_["label"] = glass_mat, glass_label
 
 
 def body(Wd, H, D, lenses, word, bar_z):

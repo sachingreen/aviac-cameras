@@ -4,6 +4,8 @@
 // behind the camera footprint as the drone flies its lawnmower survey. The HUD numbers come from the same
 // geometry the scene uses: GSD = height x pixel / focal length, swath = GSD x pixels across.
 import * as THREE from 'three';
+import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 const R = (document.querySelector('script[data-root]')?.dataset.root) ?? '';
 const IMG = (n) => `${R}assets/img/demo/${n}.jpg`;
@@ -34,81 +36,128 @@ const SCENES = {
 };
 
 // ---------------------------------------------------------------- materials and aircraft (metres)
-const mat = (color, o = {}) => new THREE.MeshStandardMaterial({color, roughness: 0.45, metalness: 0.05, ...o});
+const phys = (color, o = {}) => new THREE.MeshPhysicalMaterial({color, roughness: 0.45, metalness: 0.05, ...o});
 const M = {
-  grey: mat(0x48515a, {roughness: 0.28, metalness: 0.15}), wing: mat(0x5e646a, {roughness: 0.32}), white: mat(0xe8e8e4, {roughness: 0.5}),
-  carbon: mat(0x1a1b1d, {roughness: 0.38, metalness: 0.3}), black: mat(0x0b0b0c, {roughness: 0.5}), steel: mat(0xb8bcc0, {roughness: 0.25, metalness: 0.9}),
-  ti: mat(0xa7a9ab, {roughness: 0.3, metalness: 0.8}), glass: mat(0x0d1a1a, {roughness: 0.05, metalness: 0.2}), amber: new THREE.MeshBasicMaterial({color: 0xffa040}),
-  blur: new THREE.MeshBasicMaterial({color: 0x222222, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false}),
+  grey: phys(0x434b53, {roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.06}), wing: phys(0x5a6067, {roughness: 0.34, clearcoat: 0.8, clearcoatRoughness: 0.1}),
+  white: phys(0xeceae6, {roughness: 0.38, clearcoat: 0.6, clearcoatRoughness: 0.12}), carbon: phys(0x18191b, {roughness: 0.3, metalness: 0.25, clearcoat: 0.8, clearcoatRoughness: 0.08}),
+  black: phys(0x0c0c0d, {roughness: 0.55}), satin: phys(0x1d1e20, {roughness: 0.38, metalness: 0.6}), steel: phys(0xc4c8cc, {roughness: 0.22, metalness: 1}),
+  ti: phys(0xb3b5b6, {roughness: 0.32, metalness: 0.85}), gunmetal: phys(0x3a3d41, {roughness: 0.34, metalness: 0.8}),
+  glass: phys(0x08100f, {roughness: 0.02, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0, iridescence: 1, iridescenceIOR: 1.45, iridescenceThicknessRange: [180, 520]}),
+  amber: new THREE.MeshBasicMaterial({color: 0xffa040}), orange: phys(0xd8692c, {roughness: 0.4}),
+  germ: phys(0x2a2c33, {roughness: 0.18, metalness: 0.75, iridescence: 0.6, iridescenceIOR: 1.8}),
 };
 const box = (w, h, d, m) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
-const cyl = (r, l, m, seg = 20) => new THREE.Mesh(new THREE.CylinderGeometry(r, r, l, seg), m);
+const rbox = (w, h, d, r, m) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, Math.min(r, w / 2, h / 2, d / 2) * 0.999), m);
+const cyl = (r, l, m, seg = 24, r2 = r) => new THREE.Mesh(new THREE.CylinderGeometry(r, r2, l, seg), m);
+
+function lensAssembly(r) {
+  // a lens as you see it: a satin barrel with a bright chamfer, a black bezel, a curved coated front element (lenses look along -z)
+  const g = new THREE.Group();
+  const barrel = cyl(r * 1.25, r * 1.1, M.satin, 32); barrel.rotation.x = Math.PI / 2; barrel.position.z = -r * 0.55; g.add(barrel);
+  const lip = new THREE.Mesh(new THREE.TorusGeometry(r * 1.2, r * 0.07, 8, 40), M.steel); lip.position.z = -r * 1.1; g.add(lip);
+  const bezel = new THREE.Mesh(new THREE.RingGeometry(r * 0.98, r * 1.18, 40), M.black); bezel.position.z = -r * 1.11; bezel.rotation.y = Math.PI; g.add(bezel);
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(r * 1.6, 32, 12, 0, Math.PI * 2, 0, Math.asin(1 / 1.6)), M.glass);
+  dome.rotation.x = -Math.PI / 2; dome.position.z = -r * 1.1 + r * 1.6 * Math.cos(Math.asin(1 / 1.6)) - r * 0.02 + 0.0001; dome.scale.set(1, 1, 1);
+  dome.position.z = -r * 1.1 + r * (1.6 * Math.cos(Math.asin(1 / 1.6))); g.add(dome);
+  return g;
+}
 
 function cameraHead(kind, finish) {
-  // a small family head, lenses toward -z of the group (the group is then pointed where the camera looks)
+  // a family head with its hood, lenses toward -z (the group is pointed where the camera looks)
   const g = new THREE.Group();
-  const size = {MS: [0.096, 0.09, 0.08], Duos: [0.05, 0.03, 0.028], TH: [0.06, 0.042, 0.036], SW: [0.058, 0.046, 0.044]}[kind];
-  const body = box(size[0], size[1], size[2], finish === 'white' ? M.white : finish === 'dark' ? M.carbon : M.ti); g.add(body);
-  const hood = box(size[0] * 1.04, size[1] * 1.04, 0.008, M.black); hood.position.z = -size[2] / 2; g.add(hood);
-  const lens = (x, y, r) => { const l = cyl(r, 0.012, M.glass); l.rotation.x = Math.PI / 2; l.position.set(x, y, -size[2] / 2 - 0.004); g.add(l);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(r, r * 0.18, 8, 24), M.black); ring.position.set(x, y, -size[2] / 2 - 0.01); g.add(ring); };
-  if (kind === 'MS') { lens(0.012, -0.004, 0.02); [0.028, 0, -0.028].forEach((y) => lens(-0.032, y, 0.008)); }
-  if (kind === 'Duos') { lens(-0.013, 0, 0.007); lens(0.013, 0, 0.007); }
-  if (kind === 'TH') { lens(-0.009, 0, 0.012); lens(0.018, 0, 0.007); }
-  if (kind === 'SW') lens(0, 0, 0.016);
-  const led = box(size[0] * 0.2, 0.002, 0.002, M.amber); led.position.set(0, size[1] * 0.4, -size[2] / 2 - 0.006); g.add(led);
+  const [w, h, d] = {MS: [0.096, 0.09, 0.08], Duos: [0.05, 0.03, 0.028], TH: [0.06, 0.042, 0.036], SW: [0.058, 0.046, 0.044]}[kind];
+  const bodyM = finish === 'white' ? M.white : finish === 'dark' ? M.gunmetal : M.ti;
+  g.add(rbox(w, h, d, Math.min(w, h) * 0.12, bodyM));
+  const hood = rbox(w * 1.06, h * 1.06, d * 0.16, Math.min(w, h) * 0.1, M.black); hood.position.z = -d / 2; g.add(hood);
+  const face = box(w * 0.9, h * 0.86, 0.001, M.black); face.position.z = -d / 2 - d * 0.03; g.add(face);
+  const at = (x, y, r) => { const l = lensAssembly(r); l.position.set(x, y, -d / 2 - d * 0.03); g.add(l); return l; };
+  if (kind === 'MS') { at(0.012, -0.004, 0.017); [0.028, 0, -0.028].forEach((y) => at(-0.032, y, 0.0075)); }
+  if (kind === 'Duos') { at(-0.013, 0, 0.0065); at(0.013, 0, 0.0065); }
+  if (kind === 'TH') { const l = at(-0.009, 0, 0.011); l.children[3].material = M.germ; at(0.018, 0, 0.0065); }
+  if (kind === 'SW') at(0, 0, 0.015);
+  const led = box(w * 0.2, 0.0018, 0.002, M.amber); led.position.set(0, h * 0.4, -d / 2 - d * 0.04); g.add(led);
   g.userData.led = led;
   return g;
 }
 
-function rotorDisc(r) {
-  const d = new THREE.Mesh(new THREE.CircleGeometry(r, 32), M.blur); d.rotation.x = -Math.PI / 2; return d;
+let BLUR = null;
+function rotor(r, blades = 2, bladeM = M.carbon) {
+  // a spinning propeller: thin tapered blades plus a soft radial blur disc
+  if (!BLUR) {
+    const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
+    const gr = x.createRadialGradient(64, 64, 6, 64, 64, 64); gr.addColorStop(0, 'rgba(30,30,30,0.0)'); gr.addColorStop(0.25, 'rgba(30,30,30,0.22)');
+    gr.addColorStop(0.92, 'rgba(30,30,30,0.16)'); gr.addColorStop(1, 'rgba(30,30,30,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128);
+    BLUR = new THREE.MeshBasicMaterial({map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, side: THREE.DoubleSide});
+  }
+  const g = new THREE.Group();
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(r, 40), BLUR); disc.rotation.x = -Math.PI / 2; g.add(disc);
+  const hub = cyl(r * 0.07, r * 0.08, M.steel, 16); g.add(hub);
+  const shape = new THREE.Shape(); shape.moveTo(0, -r * 0.05); shape.quadraticCurveTo(r * 0.5, -r * 0.09, r, -r * 0.02); shape.lineTo(r, r * 0.02);
+  shape.quadraticCurveTo(r * 0.5, r * 0.07, 0, r * 0.05); shape.lineTo(0, -r * 0.05);
+  const bg = new THREE.ExtrudeGeometry(shape, {depth: r * 0.012, bevelEnabled: false}); bg.rotateX(Math.PI / 2);
+  for (let k = 0; k < blades; k++) { const b = new THREE.Mesh(bg, bladeM); b.rotation.y = (k / blades) * Math.PI * 2; b.material.transparent = true; b.material.opacity = 0.55; g.add(b); }
+  return g;
+}
+
+function airfoilWing(span, chord, thick, m) {
+  // a straight wing with an aerofoil section and rounded tips
+  const s = new THREE.Shape();
+  const N = 24;
+  for (let i = 0; i <= N; i++) { const t = i / N, x = chord * (1 - t), y = 5 * thick * (0.2969 * Math.sqrt(1 - t) - 0.126 * (1 - t) - 0.3516 * (1 - t) ** 2 + 0.2843 * (1 - t) ** 3 - 0.1015 * (1 - t) ** 4); s.lineTo(x - chord / 2, y); }
+  for (let i = 0; i <= N; i++) { const t = i / N, x = chord * t, y = -5 * thick * 0.6 * (0.2969 * Math.sqrt(t) - 0.126 * t - 0.3516 * t ** 2 + 0.2843 * t ** 3 - 0.1015 * t ** 4); s.lineTo(x - chord / 2, y); }
+  const geo = new THREE.ExtrudeGeometry(s, {depth: span, bevelEnabled: true, bevelThickness: chord * 0.06, bevelSize: thick * 0.4, bevelSegments: 4, curveSegments: 4});
+  geo.translate(0, 0, -span / 2); geo.rotateY(Math.PI / 2);         // span along x, chord along z, nose to -z
+  return new THREE.Mesh(geo, m);
 }
 
 function buildVTOL(kind) {
   // the user's grey VTOL: gloss slate pod, nose tractor prop, straight wing, carbon booms with four lift motors, white legs
   const g = new THREE.Group();
   const prof = [];
-  for (let i = 0; i <= 24; i++) { const t = i / 24; prof.push(new THREE.Vector2(Math.max(0.004, 0.095 * Math.pow(Math.sin(Math.PI * Math.pow(t, 0.8)), 0.7)), (t - 0.5) * 1.1)); }
-  const fus = new THREE.Mesh(new THREE.LatheGeometry(prof, 28), M.grey); fus.rotation.x = Math.PI / 2; fus.scale.set(1, 1, 0.88); g.add(fus);
-  const hatch = box(0.08, 0.004, 0.14, M.black); hatch.position.set(0, 0.085, -0.25); g.add(hatch);
-  const wing = box(2.1, 0.026, 0.22, M.wing); wing.position.set(0, 0.09, 0.0); g.add(wing);
-  for (const s of [-1, 1]) for (let k = 0; k < 4; k++) { const st = box(0.008, 0.002, 0.06, M.white); st.position.set(s * (0.15 + k * 0.022), 0.104, 0.0); g.add(st); }
+  for (let i = 0; i <= 40; i++) { const t = i / 40; prof.push(new THREE.Vector2(Math.max(0.003, 0.096 * Math.pow(Math.sin(Math.PI * Math.pow(t, 0.78)), 0.62)), (t - 0.5) * 1.1)); }
+  const fus = new THREE.Mesh(new THREE.LatheGeometry(prof, 48), M.grey); fus.rotation.x = Math.PI / 2; fus.scale.set(1, 1, 0.9); g.add(fus);
+  for (const [z, l] of [[-0.3, 0.13], [0.04, 0.11]]) { const h = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, l, 6, 16), M.black); h.rotation.x = Math.PI / 2; h.scale.set(1, 0.12, 1); h.position.set(0, 0.083, z); g.add(h); }
+  const wing = airfoilWing(2.1, 0.22, 0.026, M.wing); wing.position.set(0, 0.092, -0.02); g.add(wing);
+  for (const s of [-1, 1]) for (let k = 0; k < 4; k++) { const st = box(0.009, 0.002, 0.07, M.white); st.position.set(s * (0.15 + k * 0.022), 0.107, -0.02); g.add(st); }
   const spin = [];
   for (const s of [-1, 1]) {
     const x = s * 0.33;
-    const boom = cyl(0.011, 0.98, M.carbon, 12); boom.rotation.x = Math.PI / 2; boom.position.set(x, 0.07, -0.07); g.add(boom);
-    for (const z of [-0.56, 0.42]) {
-      const mt = cyl(0.02, 0.03, M.black); mt.position.set(x, 0.1, z); g.add(mt);
-      const mm = box(0.018, 0.03, 0.06, M.white); mm.position.set(x, 0.078, z); g.add(mm);
-      const p = box(0.36, 0.004, 0.026, M.carbon); p.position.set(x, 0.12, z); p.rotation.y = s * 0.6 + z; g.add(p);   // lift props parked in cruise
+    const boom = cyl(0.012, 1.0, M.carbon, 16); boom.rotation.x = Math.PI / 2; boom.position.set(x, 0.07, -0.07); g.add(boom);
+    const clamp = rbox(0.045, 0.035, 0.08, 0.01, M.white); clamp.position.set(x, 0.083, -0.03); g.add(clamp);
+    for (const z of [-0.57, 0.43]) {
+      const mount = rbox(0.03, 0.03, 0.07, 0.008, M.white); mount.position.set(x, 0.08, z); g.add(mount);
+      const bell = cyl(0.022, 0.03, M.black, 24); bell.position.set(x, 0.108, z); g.add(bell);
+      const cap = cyl(0.015, 0.006, M.steel, 20); cap.position.set(x, 0.126, z); g.add(cap);
+      const p = rotor(0.18); p.children[0].visible = false; p.position.set(x, 0.13, z); p.rotation.y = s * 0.5 + z; g.add(p);   // lift props parked in cruise
+      p.children.slice(2).forEach((b) => { b.material = M.carbon; });
     }
-    const pod = cyl(0.02, 0.15, M.black, 12); pod.rotation.x = Math.PI / 2; pod.position.set(x, 0.06, 0.48); g.add(pod);
-    const leg = box(0.018, 0.32, 0.06, M.white); leg.position.set(x + s * 0.035, -0.1, -0.29); leg.rotation.z = s * 0.22; g.add(leg);
-    const foot = box(0.05, 0.006, 0.08, M.white); foot.position.set(x + s * 0.07, -0.26, -0.26); g.add(foot);
+    const pod = new THREE.Mesh(new THREE.CapsuleGeometry(0.02, 0.12, 6, 16), M.black); pod.rotation.x = Math.PI / 2; pod.position.set(x, 0.065, 0.5); g.add(pod);
+    for (const zz of [-0.32, -0.24]) { const leg = rbox(0.016, 0.33, 0.022, 0.006, M.white); leg.position.set(x + s * 0.035, -0.1, zz); leg.rotation.z = s * 0.22; g.add(leg); }
+    const foot = rbox(0.05, 0.008, 0.12, 0.003, M.white); foot.position.set(x + s * 0.07, -0.265, -0.28); g.add(foot);
   }
-  const spinner = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.05, 20), M.steel); spinner.rotation.x = -Math.PI / 2; spinner.position.set(0, 0, -0.575); g.add(spinner);
-  const prop = rotorDisc(0.16); prop.rotation.set(0, 0, 0); prop.position.set(0, 0, -0.565); g.add(prop); spin.push(prop);
-  const cam = cameraHead(kind, 'ti');
+  const spinner = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.06, 32), M.steel); spinner.rotation.x = -Math.PI / 2; spinner.position.set(0, 0, -0.585); g.add(spinner);
+  const prop = rotor(0.17); prop.rotation.x = Math.PI / 2; prop.position.set(0, 0, -0.57); g.add(prop); spin.push(prop);
+  const cam = cameraHead(kind, kind === 'MS' ? 'ti' : 'white');
   cam.rotation.x = -Math.PI / 2;                    // lenses straight down (nadir), back face up against the belly
-  cam.position.set(0, -0.085 - 0.045, -0.15); g.add(cam);
-  const hanger = box(0.1, 0.012, 0.09, M.black); hanger.position.set(0, -0.084, -0.15); g.add(hanger);
-  g.userData = {spin, spinAxis: 'z', cam, camLook: new THREE.Vector3(0, -1, 0), span: 2.1};
+  cam.position.set(0, -0.084 - 0.05, -0.15); g.add(cam);
+  for (const s of [-1, 1]) { const ch = rbox(0.004, 0.06, 0.07, 0.002, M.black); ch.position.set(s * 0.05, -0.1, -0.15); g.add(ch); }
+  g.userData = {spin, spinAxis: 'y', cam, camLook: new THREE.Vector3(0, -1, 0), span: 2.1};
   return g;
 }
 
 function buildHex() {
   // a six-rotor spray drone: white shell, carbon arms, tank, boom with nozzles; Duos on a yoke at the rear, facing aft-down
   const g = new THREE.Group();
-  const shell = new THREE.Mesh(new THREE.SphereGeometry(0.32, 28, 16), M.white); shell.scale.set(1, 0.42, 1.25); shell.position.y = 0.12; g.add(shell);
-  const tank = cyl(0.2, 0.32, M.white); tank.position.y = -0.12; g.add(tank);
+  const shell = new THREE.Mesh(new THREE.SphereGeometry(0.32, 40, 24), M.white); shell.scale.set(1, 0.42, 1.25); shell.position.y = 0.12; g.add(shell);
+  const tank = cyl(0.2, 0.32, M.white, 40); const band = cyl(0.203, 0.03, M.orange, 40); band.position.y = -0.04; g.add(band); tank.position.y = -0.12; g.add(tank);
   const plate = box(0.5, 0.02, 0.6, M.carbon); plate.position.y = 0.04; g.add(plate);
   const spin = [];
   for (let k = 0; k < 6; k++) {
     const a = (k / 6) * Math.PI * 2 + Math.PI / 6;
     const arm = cyl(0.022, 0.95, M.carbon, 10); arm.rotation.z = Math.PI / 2; arm.rotation.y = -a; arm.position.set(Math.cos(a) * 0.5, 0.05, Math.sin(a) * 0.5); g.add(arm);
     const mt = cyl(0.04, 0.06, M.black); mt.position.set(Math.cos(a) * 0.98, 0.09, Math.sin(a) * 0.98); g.add(mt);
-    const d = rotorDisc(0.42); d.position.set(Math.cos(a) * 0.98, 0.13, Math.sin(a) * 0.98); g.add(d); spin.push(d);
+    const d = rotor(0.42); d.position.set(Math.cos(a) * 0.98, 0.13, Math.sin(a) * 0.98); g.add(d); spin.push(d);
+    const cap = cyl(0.03, 0.01, M.steel); cap.position.set(Math.cos(a) * 0.98, 0.125, Math.sin(a) * 0.98); g.add(cap);
   }
   for (const s of [-1, 1]) { const sk = cyl(0.015, 0.9, M.carbon, 8); sk.rotation.x = Math.PI / 2; sk.position.set(s * 0.32, -0.45, 0); g.add(sk);
     const lg = box(0.02, 0.45, 0.02, M.carbon); lg.position.set(s * 0.3, -0.24, 0); g.add(lg); }
@@ -116,7 +165,7 @@ function buildHex() {
   const nozzles = [];
   for (let i = 0; i < 6; i++) { const n = cyl(0.014, 0.04, M.black, 8); n.position.set(-0.85 + i * 0.34, -0.35, -0.05); g.add(n); nozzles.push(n.position.clone()); }
   const yoke = box(0.012, 0.06, 0.03, M.black); yoke.position.set(-0.03, -0.02, 0.62); g.add(yoke);
-  const cam = cameraHead('Duos', 'white'); cam.position.set(0, -0.04, 0.64);
+  const cam = cameraHead('Duos', 'white'); cam.position.set(0, -0.045, 0.66);
   cam.rotation.set(-0.85, Math.PI, 0);              // facing aft and down at the spray that just landed
   g.add(cam);
   g.userData = {spin, spinAxis: 'y', cam, camLook: new THREE.Vector3(0, -Math.sin(0.85), Math.cos(0.85)), nozzles, span: 2.8};
@@ -126,13 +175,13 @@ function buildHex() {
 function buildQuad(kind, tint) {
   const g = new THREE.Group();
   const bodyM = tint === 0x2b2d31 ? M.grey : M.white;
-  const body = box(0.26, 0.09, 0.36, bodyM); g.add(body);
-  const top = box(0.2, 0.03, 0.26, M.carbon); top.position.y = 0.06; g.add(top);
+  const body = rbox(0.26, 0.1, 0.38, 0.04, bodyM); g.add(body);
+  const top = rbox(0.2, 0.03, 0.26, 0.012, M.carbon); top.position.y = 0.06; g.add(top);
   const spin = [];
   for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
     const arm = box(0.04, 0.03, 0.42, M.carbon); arm.position.set(sx * 0.22, 0.02, sz * 0.2); arm.rotation.y = sx * sz * 0.8; g.add(arm);
     const mt = cyl(0.03, 0.05, M.black); mt.position.set(sx * 0.36, 0.05, sz * 0.36); g.add(mt);
-    const d = rotorDisc(0.22); d.position.set(sx * 0.36, 0.09, sz * 0.36); g.add(d); spin.push(d);
+    const d = rotor(0.22); d.position.set(sx * 0.36, 0.09, sz * 0.36); g.add(d); spin.push(d);
     const lg = box(0.015, 0.2, 0.015, M.carbon); lg.position.set(sx * 0.1, -0.13, sz * 0.12); g.add(lg);
   }
   const cam = cameraHead(kind, tint === 0x2b2d31 ? 'dark' : 'white');
@@ -170,17 +219,24 @@ function mount(el) {
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
   const scene = new THREE.Scene();
-  const sky = new THREE.Color(0xe9efeb); scene.background = sky; scene.fog = new THREE.Fog(sky, W * 0.9, W * 2.6);
+  const sky = new THREE.Color(0xe4ebe7); scene.fog = new THREE.Fog(sky, W * 1.1, W * 3.2);
+  const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.55;
+  {
+    const c = document.createElement('canvas'); c.width = 2; c.height = 256; const x = c.getContext('2d');
+    const gr = x.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#c9dbe6'); gr.addColorStop(0.55, '#e6eeec'); gr.addColorStop(1, '#eef2ef');
+    x.fillStyle = gr; x.fillRect(0, 0, 2, 256); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; scene.background = t;
+  }
   const cam = new THREE.PerspectiveCamera(40, 1, 0.05, W * 6);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a9a8c, 1.6));
-  const sun = new THREE.DirectionalLight(0xfff4e2, 2.4); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a9a8c, 1.0));
+  const sun = new THREE.DirectionalLight(0xfff4e2, 2.2); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024); sun.shadow.radius = 3; sun.shadow.bias = -0.0004;
   scene.add(sun, sun.target);
 
   // ground: demo image at true size, a wide neutral surround, and the analysed layer painted in behind the footprint
   const loader = new THREE.TextureLoader();
   const gTex = loader.load(IMG(S.ground)); gTex.colorSpace = THREE.SRGBColorSpace; gTex.anisotropy = 8;
   const lTex = loader.load(IMG(S.layer)); lTex.colorSpace = THREE.SRGBColorSpace; lTex.anisotropy = 8;
-  const surround = new THREE.Mesh(new THREE.PlaneGeometry(W * 8, W * 8), new THREE.MeshStandardMaterial({color: S.ground.startsWith('field') ? 0x6f7d4c : 0x8d8f8a, roughness: 1}));
+  const sTex = loader.load(IMG(S.ground)); sTex.colorSpace = THREE.SRGBColorSpace; sTex.wrapS = sTex.wrapT = THREE.MirroredRepeatWrapping; sTex.repeat.set(8, 8);
+  const surround = new THREE.Mesh(new THREE.PlaneGeometry(W * 8, W * 8), new THREE.MeshStandardMaterial({map: S.ground.startsWith('field') ? sTex : null, color: S.ground.startsWith('field') ? 0xc8ccc0 : 0x9a9c96, roughness: 1}));
   surround.rotation.x = -Math.PI / 2; surround.position.y = -Math.max(0.3, W / 800); surround.receiveShadow = true; scene.add(surround);
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshStandardMaterial({map: gTex, roughness: 0.95}));
   ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
@@ -217,12 +273,13 @@ function mount(el) {
     const p = new THREE.Vector3((px / 100 - 0.5) * W, 0, (py / 100 - 0.5) * H);
     const m = new THREE.Group();
     const s = Math.max(1.2, W / 90);
-    const ring = new THREE.Mesh(new THREE.RingGeometry(s * 0.7, s, 32), new THREE.MeshBasicMaterial({color: 0xd7301f, transparent: true, opacity: 0.9, depthWrite: false}));
+    const ring = new THREE.Mesh(new THREE.RingGeometry(s * 0.8, s, 48), new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.95, depthWrite: false}));
     ring.rotation.x = -Math.PI / 2; ring.position.y = 0.1; m.add(ring);
     const stem = cyl(s * 0.06, s * 3, new THREE.MeshBasicMaterial({color: 0xd7301f})); stem.position.y = s * 1.5; m.add(stem);
     const head = new THREE.Mesh(new THREE.SphereGeometry(s * 0.35, 16, 12), new THREE.MeshBasicMaterial({color: 0xd7301f})); head.position.y = s * 3; m.add(head);
     m.position.copy(p); m.visible = false; scene.add(m);
-    return {p, label, m, found: false};
+    const tag = document.createElement('div'); tag.className = 'ftag'; tag.textContent = label; tag.hidden = true; el.querySelector('.fly-hud').appendChild(tag);
+    return {p, label, m, found: false, tag, top: s * 3.4};
   });
 
   // ---- survey plan (re-planned when the height changes)
@@ -247,9 +304,9 @@ function mount(el) {
     const realTime = len / S.speed;
     plan = {o, pts, cum, len, timex: Math.max(1, realTime / 75), sp};
     mctx.clearRect(0, 0, 512, 384); mTex.needsUpdate = true;
-    finds.forEach((f) => { f.found = false; f.m.visible = false; });
+    finds.forEach((f) => { f.found = false; f.m.visible = false; f.tag.hidden = true; });
     $('finds').innerHTML = ''; $('nf').textContent = '0';
-    dist = 0; frames = 0;
+    dist = 12; frames = 0;
   };
   let dist = 0, frames = 0, playing = true, view = 'drone', auto = true, lastSwitch = 0;
   replan();
@@ -297,7 +354,7 @@ function mount(el) {
     drone.position.set(p.x, flyAlt, p.z);
     const heading = Math.atan2(-dir.x, -dir.z);
     drone.rotation.set(S.drone === 'vtol' ? 0 : -0.08, heading, Math.sin(simT * 0.7) * 0.02);
-    ud.spin.forEach((s, i) => { s.rotation[ud.spinAxis === 'z' ? 'z' : 'z'] += dt * 40 * (i % 2 ? 1 : -1); });
+    ud.spin.forEach((s, i) => { s.rotateY(dt * 38 * (i % 2 ? 1 : -1)); });
     ud.cam.userData.led.material.color.setHex(Math.floor(simT * 2) % 2 ? 0xffa040 : 0x7a4a20);
 
     // footprint centre on the ground (aft for Duos), oriented with the flight
@@ -353,9 +410,9 @@ function mount(el) {
     if (auto && simT - lastSwitch > 9) { lastSwitch = simT; view = view === 'drone' ? 'survey' : view === 'survey' ? 'map' : 'drone'; el.querySelectorAll('[data-v]').forEach((x) => x.classList.toggle('on', x.dataset.v === view)); }
     const span = ud.span;
     if (view === 'drone') {
-      const back = dir.clone().multiplyScalar(-span * 2.6).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.7 + yaw);
-      camPos.copy(drone.position).add(back).add(new THREE.Vector3(0, span * (1.3 + pitch * 2), 0));
-      camTgt.copy(drone.position).add(new THREE.Vector3(0, -span * 0.9, 0));
+      const back = dir.clone().multiplyScalar(-span * 1.35).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.9 + yaw);
+      camPos.copy(drone.position).add(back).add(new THREE.Vector3(0, span * (0.12 + pitch), 0));
+      camTgt.copy(drone.position).add(new THREE.Vector3(0, -span * 0.12, 0));
     } else if (view === 'survey') {
       const r = Math.max(alt * 1.7, o.swathCam * 3);
       camPos.copy(drone.position).add(new THREE.Vector3(Math.sin(0.9 + yaw) * r, alt * (0.5 + pitch), Math.cos(0.9 + yaw) * r));
@@ -375,6 +432,14 @@ function mount(el) {
     sun.target.position.copy(drone.position); sun.target.position.y = 0;
     const sc = sun.shadow.camera, half = Math.max(4, span * 3, alt * 0.3); sc.left = -half; sc.right = half; sc.top = half; sc.bottom = -half; sc.far = alt * 6 + 200; sc.updateProjectionMatrix();
     renderer.render(scene, cam);
+    const cw = el.clientWidth, chh = el.clientHeight;
+    for (const f of finds) {
+      if (!f.found) continue;
+      tmp.copy(f.p); tmp.y = f.top; tmp.project(cam);
+      const on = tmp.z < 1 && Math.abs(tmp.x) < 1.05 && Math.abs(tmp.y) < 1.05;
+      f.tag.hidden = !on;
+      if (on) f.tag.style.transform = `translate(${(tmp.x * 0.5 + 0.5) * cw}px, ${(-tmp.y * 0.5 + 0.5) * chh}px) translate(-50%, -120%)`;
+    }
 
     // HUD, a few times a second is enough
     if ((hudT += dt) > 0.2) {

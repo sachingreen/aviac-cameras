@@ -119,15 +119,36 @@
   "estimated": true
  },
  {
-  "name": "mira0_inner",
-  "label": "Aperture",
+  "name": "mira0_glass",
+  "label": "Front element, multi-coated",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "mira0_glass",
-  "label": "Front element, multi-coated",
+  "name": "mira0_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_iris",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_back",
+  "label": "Rear group",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -182,15 +203,36 @@
   "estimated": true
  },
  {
-  "name": "mira1_inner",
-  "label": "Aperture",
+  "name": "mira1_glass",
+  "label": "Front element, multi-coated",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "mira1_glass",
-  "label": "Front element, multi-coated",
+  "name": "mira1_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_iris",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_back",
+  "label": "Rear group",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -245,15 +287,36 @@
   "estimated": true
  },
  {
-  "name": "mira2_inner",
-  "label": "Aperture",
+  "name": "mira2_glass",
+  "label": "Front element, multi-coated",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "mira2_glass",
-  "label": "Front element, multi-coated",
+  "name": "mira2_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_iris",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_back",
+  "label": "Rear group",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -301,13 +364,6 @@
   "estimated": true
  },
  {
-  "name": "imx_inner",
-  "label": "Lens interior",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
   "name": "imx_glass",
   "label": "Front element, multi-coated",
   "group": "Optics",
@@ -315,8 +371,29 @@
   "estimated": true
  },
  {
+  "name": "imx_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
   "name": "imx_iris",
-  "label": "Aperture",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_back",
+  "label": "Rear group",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true

@@ -129,19 +129,40 @@
   "name": "lwir_barrel",
   "label": "Germanium LWIR lens, 13 mm f/1.0",
   "group": "Optics",
-  "mass": 6.45,
+  "mass": 3.01,
   "estimated": false
  },
  {
-  "name": "lwir_inner",
-  "label": "Aperture",
+  "name": "lwir_glass",
+  "label": "Germanium window, DLC-coated",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "lwir_glass",
-  "label": "Germanium window, DLC-coated",
+  "name": "lwir_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lwir_iris",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lwir_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lwir_back",
+  "label": "Rear group",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -168,15 +189,36 @@
   "estimated": true
  },
  {
-  "name": "rgb_inner",
-  "label": "Aperture",
+  "name": "rgb_glass",
+  "label": "Front element, multi-coated",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "rgb_glass",
-  "label": "Front element, multi-coated",
+  "name": "rgb_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "rgb_iris",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "rgb_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "rgb_back",
+  "label": "Rear group",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true

@@ -129,19 +129,40 @@
   "name": "swir_barrel",
   "label": "SWIR lens, 25 mm f/1.4, 0.9-1.7 um coating",
   "group": "Optics",
-  "mass": 15.29,
+  "mass": 5.36,
   "estimated": false
  },
  {
-  "name": "swir_inner",
-  "label": "Aperture",
+  "name": "swir_glass",
+  "label": "Front element, multi-coated",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "swir_glass",
-  "label": "Front element, SWIR AR coating",
+  "name": "swir_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_iris",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_back",
+  "label": "Rear group",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true

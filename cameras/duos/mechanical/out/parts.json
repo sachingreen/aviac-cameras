@@ -77,15 +77,36 @@
   "estimated": true
  },
  {
-  "name": "cam0_inner",
-  "label": "Aperture",
+  "name": "cam0_glass",
+  "label": "Front element, multi-coated",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "cam0_glass",
-  "label": "Front element, multi-coated",
+  "name": "cam0_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam0_iris",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam0_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam0_back",
+  "label": "Rear group",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -119,15 +140,36 @@
   "estimated": true
  },
  {
-  "name": "cam1_inner",
-  "label": "Aperture",
+  "name": "cam1_glass",
+  "label": "Front element, multi-coated",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "cam1_glass",
-  "label": "Front element, multi-coated",
+  "name": "cam1_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam1_iris",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam1_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam1_back",
+  "label": "Rear group",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true

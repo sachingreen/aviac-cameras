@@ -216,12 +216,28 @@ def m12_lens(name, x, z, y_front, length, group, ex, tint, label, filt=None):
     for k in range(24):
         a = 2 * math.pi * k / 24
         barrel = barrel.cut(ycyl(x + 7.75 * math.cos(a), z + 7.75 * math.sin(a), y_front + 1.4, y_front + 4.4, 0.42))
-    barrel = barrel.cut(ycyl(x, z, y_front - 1, y_front + 2.2, 5.4)).cut(ycyl(x, z, y_front - 1, y_front + 3.4, 4.4))
+    barrel = barrel.cut(ycyl(x, z, y_front - 1, y_front + 2.2, 5.4)).cut(ycyl(x, z, y_front - 1, y_front + 8.0, 4.4))
     add(name + "_barrel", barrel, group, ex, mat="anodised", color=(0.015, 0.015, 0.018), mass=3.0 if length > 15 else 1.8, label=label)
-    add(name + "_inner", yring(x, z, y_front + 3.3, y_front + 4.2, 4.4, 2.2), group, ex, mat="black", color=(0, 0, 0), mass=0.0, label="Aperture")
-    add(name + "_glass", dome(x, z, y_front + 2.4, 4.3, 0.9), group, ex, mat="lens", color=tint, mass=0.0, label="Front element, multi-coated")
+    lens_stack(name, x, z, y_front + 1.9, 4.3, group, ex, tint, depth=4.5)
     if filt:
         add(name + "_filter", ycyl(x, z, y_front - 0.6, y_front - 0.1, 6.9), group, ex, mat="filterglass", color=filt[1], mass=0.4, label=f"Band-pass filter, {filt[0]}")
+
+
+def lens_stack(name, x, z, y_front, r, group, ex, tint=(0.10, 0.22, 0.20), depth=None):
+    """What you see looking into a real lens: a steeply curved, low-reflection front element, an inner element a
+    little deeper, then iris blades around a small opening and a dark barrel interior. r is the clear radius."""
+    depth = depth or r * 1.1
+    sag = r * 0.30
+    add(name + "_glass", dome(x, z, y_front, r, sag), group, ex, mat="lens", color=tint, mass=0.0, label="Front element, multi-coated")
+    add(name + "_element2", dome(x, z, y_front + sag + depth * 0.25, r * 0.78, r * 0.18), group, ex, mat="lens_inner", color=tint, mass=0.0, label="Inner element")
+    blades = yring(x, z, y_front + sag + depth * 0.55, y_front + sag + depth * 0.55 + max(0.2, r * 0.03), r * 0.86, r * 0.30)
+    for k in range(9):                                  # blade edges: nine shallow notches round the opening
+        a = 2 * math.pi * k / 9
+        blades = blades.cut(box(x + r * 0.30 * math.cos(a) - r * 0.02, x + r * 0.30 * math.cos(a) + r * 0.02, y_front, y_front + depth * 2,
+                                z + r * 0.30 * math.sin(a) - r * 0.02, z + r * 0.30 * math.sin(a) + r * 0.02))
+    add(name + "_iris", blades, group, ex, mat="iris", color=(0.03, 0.03, 0.03), mass=0.0, label="Iris blades")
+    add(name + "_inner", yring(x, z, y_front + sag * 0.6, y_front + sag + depth, r * 1.04, r * 0.9), group, ex, mat="black", color=(0, 0, 0), mass=0.0, label="Lens interior")
+    add(name + "_back", ycyl(x, z, y_front + sag + depth, y_front + sag + depth + 0.2, r * 0.9), group, ex, mat="black", color=(0, 0, 0), mass=0.0, label="Rear group")
 
 
 def etch_text(txt, size, x, z, y, kind="bold"):
@@ -549,7 +565,7 @@ def build_ms():
         m12_holder(f"mira{i}_holder", x, z, 8.5, 17.0, OPT, E(-120))
     oring("imx_oring", cx, cz, recess - 0.3, 18.6, 0.7, OPT, E(-225))
     lens_ring("imx", cx, cz, -12.0, recess, 44.0, 34.0, OPT, E(-190))
-    cb = ycyl(cx, cz, -12.0, 18.0, 15.5).cut(ycyl(cx, cz, -13, -9.5, 11.5))
+    cb = ycyl(cx, cz, -12.0, 18.0, 15.5).cut(ycyl(cx, cz, -13, 6.0, 11.5))
     for (ya, yb) in ((-8.0, -3.0), (0.0, 4.5)):
         for k in range(36):
             a = 2 * math.pi * k / 36
@@ -557,9 +573,7 @@ def build_ms():
     cb = cb.union(ycyl(cx, cz, 18.0, 22.0, 12.7))                                               # C-mount thread
     LE = E(-165)
     add("imx_barrel", cb, OPT, LE, mat="anodised", color=(0.015, 0.015, 0.018), mass=45.0, label="C-mount lens, 16 mm, 1.1-inch, compact")
-    add("imx_inner", yring(cx, cz, -9.6, -4.0, 11.5, 7.5).union(yring(cx, cz, -4.0, -3.0, 11.5, 5.0)), OPT, LE, mat="black", color=(0, 0, 0), mass=0.0, label="Lens interior")
-    add("imx_glass", dome(cx, cz, -11.3, 11.4, 2.2), OPT, LE, mat="lens", color=(0.10, 0.24, 0.20), mass=0.0, label="Front element, multi-coated")
-    add("imx_iris", yring(cx, cz, -6.0, -5.4, 11.5, 2.6).union(ycyl(cx, cz, -3.2, -2.8, 11.5)), OPT, LE, mat="black", color=(0, 0, 0), mass=0.0, label="Aperture")
+    lens_stack("imx", cx, cz, -11.8, 11.0, OPT, LE, (0.10, 0.24, 0.20), depth=12.0)
     add("imx_retainer", yring(cx, cz, -11.6, -10.9, 12.6, 11.4), OPT, LE, mat="satin", color=(0.25, 0.25, 0.26), mass=0.0, label="Retaining ring")
     LP0, LP1 = recess + wall, recess + wall + 2.0
     lp = rbox(px0 + 1, px1 - 1, LP0, LP1, pz0 + 1, pz1 - 1, 4.0)
