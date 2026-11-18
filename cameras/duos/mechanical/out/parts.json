@@ -1,0 +1,156 @@
+[
+ {
+  "name": "front_shell",
+  "label": "Front shell, PA12-CF, 1.5 mm walls",
+  "group": "Externals",
+  "mass": 1.59,
+  "estimated": false
+ },
+ {
+  "name": "bumpers_front",
+  "label": "Corner bumpers, overmoulded TPU",
+  "group": "Externals",
+  "mass": 1.76,
+  "estimated": false
+ },
+ {
+  "name": "bumpers_rear",
+  "label": "Corner bumpers, overmoulded TPU",
+  "group": "Externals",
+  "mass": 1.99,
+  "estimated": false
+ },
+ {
+  "name": "panel",
+  "label": "Front panel",
+  "group": "Externals",
+  "mass": 1.59,
+  "estimated": false
+ },
+ {
+  "name": "front_plate",
+  "label": "Aluminium front plate: holds the 26 mm baseline",
+  "group": "Optics",
+  "mass": 2.55,
+  "estimated": false
+ },
+ {
+  "name": "led",
+  "label": "Status LED, amber",
+  "group": "Externals",
+  "mass": 0.05,
+  "estimated": true
+ },
+ {
+  "name": "cam0_ring",
+  "label": "Lens ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam0_lip",
+  "label": "Ring lip",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam0_barrel",
+  "label": "M12 lens, 25 mm long",
+  "group": "Optics",
+  "mass": 3.5,
+  "estimated": true
+ },
+ {
+  "name": "cam0_glass",
+  "label": "Front element, AR coated",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam1_ring",
+  "label": "Lens ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam1_lip",
+  "label": "Ring lip",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam1_barrel",
+  "label": "M12 lens, 25 mm long",
+  "group": "Optics",
+  "mass": 3.5,
+  "estimated": true
+ },
+ {
+  "name": "cam1_glass",
+  "label": "Front element, AR coated",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board",
+  "label": "Shared sensor board, both Mira220 on one clock",
+  "group": "Baseboard + image sensors",
+  "mass": 4.0,
+  "estimated": true
+ },
+ {
+  "name": "cam0_sensor",
+  "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam1_sensor",
+  "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "iface",
+  "label": "Interface board: MIPI to USB-C / GMSL",
+  "group": "Processing board",
+  "mass": 3.0,
+  "estimated": true
+ },
+ {
+  "name": "iface_chip",
+  "label": "Bridge IC",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "usbc",
+  "label": "USB-C",
+  "group": "Processing board",
+  "mass": 0.6,
+  "estimated": true
+ },
+ {
+  "name": "rear_housing",
+  "label": "Rear housing, PA12-CF",
+  "group": "Externals",
+  "mass": 7.84,
+  "estimated": false
+ },
+ {
+  "name": "insert_14_20",
+  "label": "1/4\"-20 insert",
+  "group": "Externals",
+  "mass": 1.5,
+  "estimated": true
+ }
+]

@@ -14,3 +14,5 @@ route.ses
 **/showcase/assets/model.bin
 website/viewer/node_modules/
 **/out/render_front.log
+cameras/ms/mechanical/out/render.log
+cameras/duos/mechanical/out/render.log

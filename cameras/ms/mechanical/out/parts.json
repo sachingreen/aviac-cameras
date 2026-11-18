@@ -1,0 +1,394 @@
+[
+ {
+  "name": "front_shell",
+  "label": "Front shell, PA12-CF, 1.5 mm walls",
+  "group": "Externals",
+  "mass": 16.19,
+  "estimated": false
+ },
+ {
+  "name": "bumpers_front",
+  "label": "Corner bumpers, overmoulded TPU",
+  "group": "Externals",
+  "mass": 5.81,
+  "estimated": false
+ },
+ {
+  "name": "bumpers_rear",
+  "label": "Corner bumpers, overmoulded TPU",
+  "group": "Externals",
+  "mass": 5.29,
+  "estimated": false
+ },
+ {
+  "name": "panel",
+  "label": "Front panel",
+  "group": "Externals",
+  "mass": 8.55,
+  "estimated": false
+ },
+ {
+  "name": "led",
+  "label": "Status LED, amber",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
+  "name": "led_bezel",
+  "label": "LED bezel",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "front_screws",
+  "label": "4 x M3 stainless",
+  "group": "Externals",
+  "mass": 1.2,
+  "estimated": true
+ },
+ {
+  "name": "lens_plate",
+  "label": "Lens and filter plate, machined aluminium",
+  "group": "Optics",
+  "mass": 81.51,
+  "estimated": false
+ },
+ {
+  "name": "mira0_ring",
+  "label": "Lens ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_lip",
+  "label": "Ring lip",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_barrel",
+  "label": "M12 lens, 6 mm, 25 mm long",
+  "group": "Optics",
+  "mass": 3.5,
+  "estimated": true
+ },
+ {
+  "name": "mira0_glass",
+  "label": "Front element, AR coated",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_filter",
+  "label": "Band-pass filter, NIR+ 890",
+  "group": "Optics",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "mira1_ring",
+  "label": "Lens ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_lip",
+  "label": "Ring lip",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_barrel",
+  "label": "M12 lens, 6 mm, 25 mm long",
+  "group": "Optics",
+  "mass": 3.5,
+  "estimated": true
+ },
+ {
+  "name": "mira1_glass",
+  "label": "Front element, AR coated",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_filter",
+  "label": "Band-pass filter, NIR 840",
+  "group": "Optics",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "mira2_ring",
+  "label": "Lens ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_lip",
+  "label": "Ring lip",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_barrel",
+  "label": "M12 lens, 6 mm, 25 mm long",
+  "group": "Optics",
+  "mass": 3.5,
+  "estimated": true
+ },
+ {
+  "name": "mira2_glass",
+  "label": "Front element, AR coated",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_filter",
+  "label": "Band-pass filter, RE 723",
+  "group": "Optics",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "imx_ring",
+  "label": "Lens ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_lip",
+  "label": "Ring lip",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_barrel",
+  "label": "C-mount lens, 16 mm, 1.1-inch, compact",
+  "group": "Optics",
+  "mass": 58.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_glass",
+  "label": "Front element, AR coated",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_retainer",
+  "label": "Retaining ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_pcb",
+  "label": "Mira220 sensor board",
+  "group": "Baseboard + image sensors",
+  "mass": 2.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_sensor",
+  "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_fpc",
+  "label": "FPC to the baseboard",
+  "group": "Baseboard + image sensors",
+  "mass": 0.3,
+  "estimated": true
+ },
+ {
+  "name": "mira1_pcb",
+  "label": "Mira220 sensor board",
+  "group": "Baseboard + image sensors",
+  "mass": 2.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_sensor",
+  "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_fpc",
+  "label": "FPC to the baseboard",
+  "group": "Baseboard + image sensors",
+  "mass": 0.3,
+  "estimated": true
+ },
+ {
+  "name": "mira2_pcb",
+  "label": "Mira220 sensor board",
+  "group": "Baseboard + image sensors",
+  "mass": 2.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_sensor",
+  "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_fpc",
+  "label": "FPC to the baseboard",
+  "group": "Baseboard + image sensors",
+  "mass": 0.3,
+  "estimated": true
+ },
+ {
+  "name": "imx_pcb",
+  "label": "IMX565 sensor board, 59 x 63 mm",
+  "group": "Baseboard + image sensors",
+  "mass": 9.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_sensor",
+  "label": "Sony IMX565, 12.4 MP global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_b2b",
+  "label": "Board-to-board connector",
+  "group": "Baseboard + image sensors",
+  "mass": 0.5,
+  "estimated": true
+ },
+ {
+  "name": "baseboard",
+  "label": "Sensor baseboard: sync, power, 4 x 2-lane MIPI",
+  "group": "Baseboard + image sensors",
+  "mass": 14.0,
+  "estimated": true
+ },
+ {
+  "name": "carrier",
+  "label": "Jetson carrier, 87 x 52 mm",
+  "group": "Processing board",
+  "mass": 16.0,
+  "estimated": true
+ },
+ {
+  "name": "sodimm",
+  "label": "260-pin SO-DIMM socket",
+  "group": "Processing board",
+  "mass": 3.0,
+  "estimated": true
+ },
+ {
+  "name": "jetson",
+  "label": "Jetson Orin NX / Nano module",
+  "group": "Processing board",
+  "mass": 60.0,
+  "estimated": true
+ },
+ {
+  "name": "jetson_soc",
+  "label": "Orin SoC",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "thermal_block",
+  "label": "Thermal block to the rear heatsink",
+  "group": "Processing board",
+  "mass": 30.58,
+  "estimated": false
+ },
+ {
+  "name": "rear_housing",
+  "label": "Rear housing, PA12-CF",
+  "group": "Externals",
+  "mass": 38.71,
+  "estimated": false
+ },
+ {
+  "name": "fan",
+  "label": "30 mm fan",
+  "group": "Externals",
+  "mass": 8.0,
+  "estimated": true
+ },
+ {
+  "name": "rear_cap",
+  "label": "Finned aluminium rear plate: the heatsink",
+  "group": "Externals",
+  "mass": 140.54,
+  "estimated": false
+ },
+ {
+  "name": "xt30",
+  "label": "Power in, XT30, 3S-6S",
+  "group": "Externals",
+  "mass": 2.0,
+  "estimated": true
+ },
+ {
+  "name": "eth",
+  "label": "Ethernet",
+  "group": "Externals",
+  "mass": 1.0,
+  "estimated": true
+ },
+ {
+  "name": "usb",
+  "label": "USB-C",
+  "group": "Externals",
+  "mass": 0.5,
+  "estimated": true
+ },
+ {
+  "name": "gps",
+  "label": "GPS / PPS connector",
+  "group": "Externals",
+  "mass": 1.0,
+  "estimated": true
+ },
+ {
+  "name": "dls_ring",
+  "label": "DLS ring",
+  "group": "Externals",
+  "mass": 1.0,
+  "estimated": true
+ },
+ {
+  "name": "dls_dome",
+  "label": "Downwelling light sensor, opal diffuser",
+  "group": "Externals",
+  "mass": 3.0,
+  "estimated": true
+ },
+ {
+  "name": "mount",
+  "label": "Drone bracket, 4 x M3",
+  "group": "Mount",
+  "mass": 28.77,
+  "estimated": false
+ }
+]

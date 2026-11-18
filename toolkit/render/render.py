@@ -16,6 +16,7 @@ RW, RH = (int(argv[5]), int(argv[6])) if len(argv) > 6 else (1920, 1200)
 os.makedirs(outdir, exist_ok=True)
 U = 0.001
 frame = json.load(open(os.path.join(os.path.dirname(src), "frame.json")))
+FINISH = json.load(open(os.path.join(os.path.dirname(src), "finishes.json")))[os.environ["FINISH"]] if os.environ.get("FINISH") else None
 BO = frame["board_origin"]          # model mm of board (0,0) top-left corner, underside
 
 meta = json.loads(open(src).read()[len("window.AVIAC_MODEL="):-1])
@@ -107,6 +108,16 @@ def make_material(kind, color, name):
         bump(nt, b, 7000.0, 0.10, 0.00003, detail=2.0)
     elif kind == "etch":            # laser-etched through the anodise: matte light grey
         setp(b, color=(0.74, 0.75, 0.77), metal=0.55, rough=0.6)
+    elif kind == "powder":          # fine-texture powder coat / bead-blasted PA12-CF
+        setp(b, color=c, rough=0.66, spec=0.32)
+        bump(nt, b, 5200.0, 0.14, 0.00006, detail=3.0)
+    elif kind == "satin":           # satin anodised metal in any colour
+        setp(b, color=c, metal=0.9, rough=0.34)
+        bump(nt, b, 1400.0, 0.05, 0.00002, detail=1.0)
+    elif kind == "led":
+        setp(b, color=c, emit=9.0, emit_color=c, rough=0.2)
+    elif kind == "dome":            # opal diffuser
+        setp(b, color=(0.95, 0.95, 0.93), rough=0.35, sss=0.6)
     elif kind == "steel_brushed":
         setp(b, color=(0.70, 0.71, 0.72), metal=1.0, rough=0.30)
         bump(nt, b, 900.0, 0.06, 0.00002, detail=1.0)
@@ -176,13 +187,15 @@ for m in meta:
         pass
     me.update()
     ob = bpy.data.objects.new(m["name"], me); scene.collection.objects.link(ob); ob.parent = rig
+    if FINISH and m.get("finish") in FINISH:            # colourway: the part's role picks its colour and material
+        m["mat"], m["color"] = FINISH[m["finish"]]["mat"], FINISH[m["finish"]]["color"]
     key = (m["mat"], tuple(round(c, 3) for c in m["color"]))
     if key not in matcache:
         matcache[key] = make_material(m["mat"], m["color"], m["mat"] + "_" + str(len(matcache)))
     ob.data.materials.append(matcache[key])
     # CAD meshes have long thin triangles across flat faces; weighting normals by face area keeps flat faces flat
     wn = ob.modifiers.new("wnormal", "WEIGHTED_NORMAL"); wn.mode = "FACE_AREA"; wn.keep_sharp = True
-    if m["mat"] in ("shell", "hardcoat", "steel_brushed", "anodised", "pcb", "plastic_gloss", "ic", "steel", "accent", "cfrp"):
+    if m["mat"] in ("shell", "powder", "satin", "hardcoat", "steel_brushed", "anodised", "pcb", "plastic_gloss", "ic", "steel", "accent", "cfrp"):
         bv = ob.modifiers.new("bevel", "BEVEL"); bv.width = 0.00022 if m["mat"] == "shell" else 0.00010
         bv.segments = 2; bv.limit_method = "ANGLE"; bv.angle_limit = math.radians(40)
     ob["explode"] = m["explode"]; ob["group"] = m["group"]; ob["proxy"] = bool(m.get("proxy"))
@@ -190,7 +203,8 @@ for m in meta:
 
 # ---- the real carrier board from KiCad
 before = set(bpy.data.objects)
-bpy.ops.import_scene.gltf(filepath=glb)
+if glb != "none":                     # models with no KiCad board pass "none"
+    bpy.ops.import_scene.gltf(filepath=glb)
 imported = [o for o in bpy.data.objects if o not in before]
 board_root = bpy.data.objects.new("board_root", None); scene.collection.objects.link(board_root); board_root.parent = rig
 # glTF import is already converted to Blender's Z-up; KiCad page coords: x right, y down (negated on export)
@@ -453,6 +467,13 @@ for s in shots:
     elif s == "front_mount":
         c, size = pose(0, hide=("Drone", TOPU), rot=(math.pi / 2, 0, 0), lift=0.004)
         shoot("13_front_with_mount", c, size, az=40, el=20, lens=85, fill=0.68, dark=True)
+    # ---- product shots for the lens-forward models (front faces -Y, Z up)
+    elif s == "p_hero":
+        c, size = pose(0, rot=(0, 0, 0), lift=0.002)
+        shoot(os.environ.get("TAG", "") + "assembled", c, size, az=-118, el=16, lens=85, fill=0.66, dark=os.environ.get("DARK") == "1")
+    elif s == "p_exploded":
+        c, size = pose(1.0, rot=(0, 0, 0), lift=0.002)
+        shoot(os.environ.get("TAG", "") + "exploded", c, size, az=-162, el=18, lens=70, fill=0.74, dark=os.environ.get("DARK") == "1")
     elif s == "top_unit":
         c, size = pose(0.5, show_only=(TOPU,), rot=(0, 0, 0), board=False)
         shoot("09_top_unit_exploded", c, size, az=-55, el=24, lens=100, fill=0.7)
