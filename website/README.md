@@ -1,24 +1,25 @@
-# Aviac Technologies website (demo)
+# Aviac Technologies website
 
-A static site on the structure of aviac.in (Home, Analytics, Sensors, Contact; the Terrain platform),
-with the Aviac MS and Aviac Duo built in: 3D product viewers and the two flying showcases.
+Static site, light "Field Glass" theme taken from the Aviac dashboard.
 
     website/
-      src/               page templates: index.html, analytics/, sensors/, contact/, assets/site.css + site.js
-                         ({{HEAD}}, {{NAV}}, {{FOOT}}, {{CARD}}, {{VIEWER}} are filled in by build.py)
-      viewer/            source of the 3D product viewer (node build.mjs writes src/viewer.js)
-      build.py           assembles public/ from the repo: brand files, renders, the two showcases
-      vercel.json        trailing slashes on, caching for the models and images
-      public/            the deployable site (generated; committed so Vercel needs no build)
+      src/index.html                      home: hero, the problem, the systems, in the field, research, company, contact
+      src/product/multispectral/          Aviac MS: 3D viewer with colourways, scroll-driven teardown
+      src/product/duos/                   Aviac Duos: the same
+      src/assets/                         site.css, site.js, web-sized renders
+      src/models/                         packed CAD models (tools/pack_models.py)
+      viewer/                             source of the 3D viewer (node build.mjs writes src/viewer.js)
+      build.py                            fills the templates and writes public/
+      public/                             the deployable site (committed, so Vercel needs no build)
 
 ## Rebuild
 
 ```bash
-cd cameras/6band/showcase && node build.mjs
+python3 website/tools/pack_models.py
 ```
 
 ```bash
-cd cameras/duo/showcase && node build.mjs
+cd website/viewer && npm install && node build.mjs
 ```
 
 ```bash
@@ -27,14 +28,4 @@ python3 website/build.py
 
 ## Deploy on Vercel
 
-1. vercel.com → Add New → Project → import `sachingreen/aviac-cameras`.
-2. Root Directory: `website/public`. Framework preset: Other. Build command: none. Output directory: leave empty.
-3. Deploy. The landing page is `/`, the showcases are `/ms/` and `/duo/`.
-
-Or from a terminal:
-
-```bash
-cd website/public && npx vercel --prod
-```
-
-The contact form opens the visitor's mail app addressed to aviactech@gmail.com (a static site has no server to receive forms).
+Import the repo, set Root Directory to `website/public`, framework Other, no build command.

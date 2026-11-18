@@ -1,151 +1,168 @@
-// Interactive product viewer for the website: the camera turned lens-first, studio-lit, slowly turning.
-// Drag to rotate, scroll or pinch to zoom, the slider explodes it. <div class="viewer" data-src="ms/"> loads
-// ms/parts.json, ms/model.txt and ms/board.png (the same assets as the showcase pages).
+// Aviac product viewer. <div class="viewer" data-src="models/ms/" data-finish="titanium"> gets a lens-forward 3D model
+// with studio light. window.Aviac.viewers[el.id] exposes setFinish(name), explode(k), focus(group|null), so the product
+// page can drive the teardown from the scroll position. Drag to turn, scroll the page (not the canvas) to move on.
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {toCreasedNormals} from 'three/addons/utils/BufferGeometryUtils.js';
 
-const ACCENT = '#ff6b2c';
+function knurlTexture() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const g = c.getContext('2d');
+  g.fillStyle = '#808080'; g.fillRect(0, 0, 64, 64);
+  g.strokeStyle = '#ffffff'; g.lineWidth = 3;
+  for (let i = -64; i < 128; i += 8) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i + 64, 64); g.stroke(); g.beginPath(); g.moveTo(i, 64); g.lineTo(i + 64, 0); g.stroke(); }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(30, 30);
+  return t;
+}
+let KNURL;
+
 function material(kind, c) {
   const col = new THREE.Color(c[0], c[1], c[2]);
-  const P = (o) => new THREE.MeshStandardMaterial({color: col, roughness: 0.5, metalness: 0, envMapIntensity: 0.6, ...o});
+  const S = (o) => new THREE.MeshStandardMaterial({color: col, roughness: 0.5, metalness: 0, ...o});
+  const Ph = (o) => new THREE.MeshPhysicalMaterial({color: col, roughness: 0.5, metalness: 0, ...o});
   switch (kind) {
-    case 'shell': return P({color: new THREE.Color(c[0] * 0.8, c[1] * 0.8, c[2] * 0.85), roughness: 0.6, envMapIntensity: 0.5});
-    case 'pcb': return P({roughness: 0.45, envMapIntensity: 0.5});
-    case 'ic': return P({color: new THREE.Color('#141416'), roughness: 0.5});
-    case 'ceramic': return P({roughness: 0.6});
-    case 'ceramic_dark': return P({roughness: 0.4});
-    case 'ferrite': return P({color: new THREE.Color('#232325'), roughness: 0.75});
-    case 'gold': return P({color: new THREE.Color('#d9a544'), metalness: 1, roughness: 0.35});
-    case 'accent': return P({color: new THREE.Color('#c8501c'), metalness: 0.9, roughness: 0.42, emissive: new THREE.Color(ACCENT), emissiveIntensity: 0});
-    case 'steel': return P({color: new THREE.Color('#c9cacc'), metalness: 1, roughness: 0.4});
-    case 'steel_black': return P({color: new THREE.Color('#1a1a1c'), metalness: 1, roughness: 0.45});
-    case 'alu': return P({color: new THREE.Color('#b9bcc0'), metalness: 1, roughness: 0.42, envMapIntensity: 0.9});
-    case 'hardcoat': return P({color: new THREE.Color('#44484e'), metalness: 0.85, roughness: 0.42, envMapIntensity: 0.9});
-    case 'steel_brushed': return P({color: new THREE.Color('#b4b6b9'), metalness: 1, roughness: 0.32});
-    case 'etch': return P({color: new THREE.Color('#a9adb3'), metalness: 0.5, roughness: 0.6});
-    case 'paper': return P({color: new THREE.Color('#f4f4f1'), roughness: 0.9});
-    case 'anodised': return P({color: new THREE.Color('#18181a'), metalness: 0.85, roughness: 0.5, envMapIntensity: 0.55});
-    case 'rubberised': return P({color: new THREE.Color('#111113'), roughness: 0.8});
-    case 'rubber': return P({roughness: 0.75});
-    case 'plastic_gloss': return P({roughness: 0.45});
-    case 'fpc': return P({color: new THREE.Color('#d06a12'), roughness: 0.45, side: THREE.DoubleSide});
-    case 'lens': return new THREE.MeshPhysicalMaterial({color: new THREE.Color(c[0] * 0.5 + 0.03, c[1] * 0.5 + 0.02, c[2] * 0.5 + 0.06), metalness: 0.85, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 1.1});
-    case 'window': return P({color: new THREE.Color('#dfeaf0'), transparent: true, opacity: 0.16, roughness: 0.05, depthWrite: false});
-    case 'bandpass': return new THREE.MeshPhysicalMaterial({color: new THREE.Color(c[0] * 0.55 + 0.02, c[1] * 0.4 + 0.01, c[2] * 0.5 + 0.02), metalness: 0.8, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.04});
-    case 'cfrp': return P({color: new THREE.Color('#161618'), roughness: 0.38, metalness: 0.2});
-    case 'emit': return P({emissive: col, emissiveIntensity: 1.0});
-    case 'sensor': return P({color: new THREE.Color('#1f6f62'), metalness: 1, roughness: 0.25});
-    case 'black': return P({color: new THREE.Color('#050506'), roughness: 0.9});
-    default: return P({});
+    case 'blast': return S({metalness: 1, roughness: 0.42});
+    case 'glass_black': return Ph({color: new THREE.Color('#050506'), roughness: 0.06, clearcoat: 1, clearcoatRoughness: 0.03});
+    case 'gloss_white': return Ph({roughness: 0.22, clearcoat: 0.7, clearcoatRoughness: 0.08});
+    case 'knurl': KNURL ??= knurlTexture(); return S({roughness: 0.62, bumpMap: KNURL, bumpScale: 1.2});
+    case 'powder': return S({roughness: 0.72});
+    case 'satin': return S({metalness: 0.85, roughness: 0.36});
+    case 'anodised': return S({color: new THREE.Color('#0d0d0f'), metalness: 0.8, roughness: 0.42});
+    case 'alu': return S({color: new THREE.Color('#b9bcc0'), metalness: 1, roughness: 0.36});
+    case 'steel': return S({color: new THREE.Color('#c9cacc'), metalness: 1, roughness: 0.3});
+    case 'steel_black': return S({color: new THREE.Color('#141416'), metalness: 1, roughness: 0.4});
+    case 'gold': return S({color: new THREE.Color('#d9a544'), metalness: 1, roughness: 0.32});
+    case 'lens': return Ph({color: new THREE.Color('#06100f'), roughness: 0.04, metalness: 0.5, clearcoat: 1, clearcoatRoughness: 0.0, iridescence: 0.5, iridescenceIOR: 1.6});
+    case 'filterglass': return Ph({color: col.clone().multiplyScalar(0.5), roughness: 0.04, metalness: 0.6, clearcoat: 1, iridescence: 0.6});
+    case 'led': return S({color: new THREE.Color('#ffd9a8'), emissive: new THREE.Color('#ff9a3c'), emissiveIntensity: 1.4});
+    case 'dome': return S({color: new THREE.Color('#f2f1ec'), roughness: 0.4});
+    case 'etch': return S({color: new THREE.Color('#b8bcc2'), metalness: 0.5, roughness: 0.55});
+    case 'pcb': return S({roughness: 0.45});
+    case 'fpc': return S({color: new THREE.Color('#d06a12'), roughness: 0.4, side: THREE.DoubleSide});
+    case 'ic': return S({color: new THREE.Color('#141416'), roughness: 0.5});
+    case 'ceramic': return S({roughness: 0.6});
+    case 'ceramic_dark': return S({roughness: 0.35});
+    case 'ferrite': return S({color: new THREE.Color('#232325'), roughness: 0.75});
+    case 'rubber': case 'rubberised': return S({roughness: 0.8});
+    case 'plastic_gloss': return S({roughness: 0.38});
+    case 'black': return S({color: new THREE.Color('#020203'), roughness: 0.95});
+    default: return S({});
   }
 }
 
-const HIDE = /^(Drone|DLS \+ GNSS top unit)$/;
+const ease = (x) => x * x * (3 - 2 * x);
 
 async function mount(el) {
   const base = el.dataset.src;
-  const W = () => el.clientWidth, H = () => el.clientHeight;
   const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, powerPreference: 'high-performance'});
   renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
-  renderer.setSize(W(), H());
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMapping = THREE.AgXToneMapping;
+  renderer.toneMappingExposure = 1.1;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.shadowMap.enabled = true;
   el.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
   const pm = new THREE.PMREMGenerator(renderer);
-  scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.75;
-  const key = new THREE.DirectionalLight('#ffffff', 2.2);
-  key.position.set(0.6, 1.2, 1.0);
-  key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
-  Object.assign(key.shadow.camera, {left: -0.2, right: 0.2, top: 0.2, bottom: -0.2, near: 0.1, far: 4});
-  key.shadow.radius = 6;
-  scene.add(key);
-  const rim = new THREE.DirectionalLight('#9fdcff', 1.2);
-  rim.position.set(-1, 0.4, -0.8);
-  scene.add(rim);
-  const camera = new THREE.PerspectiveCamera(28, W() / H(), 0.01, 20);
+  scene.environment = pm.fromScene(new RoomEnvironment(), 0.03).texture;
+  scene.environmentIntensity = 0.85;
+  const key = new THREE.DirectionalLight('#ffffff', 2.4); key.position.set(-0.6, 0.9, 1.0); scene.add(key);
+  const rimL = new THREE.DirectionalLight('#ffffff', 1.6); rimL.position.set(-1.2, 0.3, -1.0); scene.add(rimL);
+  const warm = new THREE.DirectionalLight('#ff9a52', 1.1); warm.position.set(1.2, -0.1, 0.4); scene.add(warm);
+  const camera = new THREE.PerspectiveCamera(26, 1, 0.005, 10);
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 0.9;
-  controls.enablePan = false;
+  Object.assign(controls, {enableDamping: true, enablePan: false, enableZoom: el.dataset.zoom === '1', autoRotate: el.dataset.spin === '1', autoRotateSpeed: 0.8});
 
-  const [data, txt, tex] = await Promise.all([
-    fetch(base + 'parts.json').then((r) => r.json()),
-    fetch(base + 'model.txt').then((r) => r.text()),
-    new THREE.TextureLoader().loadAsync(base + 'board.png'),
-  ]);
+  const [data, txt] = await Promise.all([fetch(base + 'parts.json').then((r) => r.json()), fetch(base + 'model.txt').then((r) => r.text())]);
   const raw = atob(txt), u8 = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) u8[i] = raw.charCodeAt(i);
-  const f32 = new Float32Array(u8.buffer);
-  // the model arrives in flight orientation (lenses down, y up); a quarter turn about x puts the lenses forward (+z)
-  const turn = new THREE.Group();
-  turn.rotation.x = -Math.PI / 2;
-  scene.add(turn);
+  const i16 = new Int16Array(u8.buffer);
+  const root = new THREE.Group();
+  scene.add(root);
   const parts = [];
   for (const p of data.parts) {
-    if (HIDE.test(p.g)) continue;
+    const pos = new Float32Array(p.k * 3);
+    for (let i = 0; i < p.k * 3; i++) pos[i] = i16[p.o * 3 + i] * 1e-5;              // 0.01 mm -> metres
     let geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(f32.subarray(p.o * 3, (p.o + p.k) * 3), 3));
-    geo = toCreasedNormals(geo, 0.62);
-    const mesh = new THREE.Mesh(geo, material(p.m, p.c));
-    mesh.castShadow = mesh.receiveShadow = !/window|lens|fpc/.test(p.m);
-    turn.add(mesh);
-    parts.push({mesh, e: p.e});
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo = toCreasedNormals(geo, 0.6);
+    const mesh = new THREE.Mesh(geo);
+    root.add(mesh);
+    parts.push({p, mesh, e: new THREE.Vector3(p.e[0], p.e[1], p.e[2]).multiplyScalar(0.001), dim: 1});
   }
-  const b = data.board;
-  tex.colorSpace = THREE.SRGBColorSpace;
-  const face = new THREE.Mesh(new THREE.PlaneGeometry(b.l, b.w), new THREE.MeshStandardMaterial({map: tex, roughness: 0.42, metalness: 0.05}));
-  face.rotation.x = b.flip ? Math.PI / 2 : -Math.PI / 2;
-  face.position.set(b.x0 + b.l / 2, b.y + (b.flip ? -0.00006 : 0.00006), b.z0 + b.w / 2);
-  turn.add(face);
-  const carrier = data.parts.find((p) => p.n === 'carrier_pcb');
-  // centre it
-  const box = new THREE.Box3().setFromObject(turn);
-  const ctr = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
-  turn.position.sub(ctr);
-  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShadowMaterial({opacity: 0.35}));
-  shadow.rotation.x = -Math.PI / 2;
-  shadow.position.y = -size.y / 2 - 0.001;
-  shadow.receiveShadow = true;
-  scene.add(shadow);
-  const R = size.length() / 2;
-  const home = new THREE.Vector3(0.55, 0.28, 1).normalize().multiplyScalar(R * 4.3);
-  camera.position.copy(home);
-  controls.minDistance = R * 1.6;
-  controls.maxDistance = R * 6;
-  controls.target.set(0, 0, 0);
-  controls.update();
+  const cache = {};
+  const setFinish = (name) => {
+    const F = data.finishes[name] || {};
+    for (const r of parts) {
+      const role = r.p.f && F[r.p.f];
+      const kind = role ? role.mat : r.p.m, col = role ? role.color : r.p.c;
+      const id = kind + col.join();
+      r.mesh.material = (cache[id] ??= material(kind, col)).clone();
+      r.mesh.material.transparent = true;
+    }
+    el.dataset.finish = name;
+  };
+  setFinish(el.dataset.finish || Object.keys(data.finishes)[0]);
 
-  // explode slider and reset button, if the page has them
-  const slider = el.parentElement.querySelector('input[type=range]');
-  let k = 0;
-  if (slider) slider.addEventListener('input', () => { k = +slider.value; controls.autoRotate = false; });
-  const reset = el.parentElement.querySelector('[data-reset]');
-  if (reset) reset.addEventListener('click', () => { camera.position.copy(home); k = 0; if (slider) slider.value = 0; controls.autoRotate = true; });
-  renderer.domElement.addEventListener('pointerdown', () => (controls.autoRotate = false));
-  let ek = 0;
+  const box = new THREE.Box3().setFromObject(root);
+  const ctr = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+  root.position.sub(ctr);
+  const R = size.length() / 2;
+  const home = new THREE.Vector3(0.62, 0.22, 1).normalize().multiplyScalar(R * (+el.dataset.dist || 3.4));
+  camera.position.copy(home);
+  controls.target.set(0, 0, 0);
+
+  let k = 0, kT = 0, focus = null;
+  const look = new THREE.Vector3(), lookT = new THREE.Vector3(), camT = home.clone();
+  const api = {
+    setFinish,
+    explode(v) { kT = v; },
+    focus(g, at) {
+      focus = g;
+      if (g) {
+        const b = new THREE.Box3();
+        for (const r of parts) if (r.p.g === g) b.expandByObject(r.mesh);
+        b.getCenter(lookT);
+      } else lookT.set(0, 0, 0);
+      if (at) camT.copy(at).multiplyScalar(R);
+    },
+    view(az, el2, d) { camT.set(Math.sin(az) * Math.cos(el2), Math.sin(el2), Math.cos(az) * Math.cos(el2)).multiplyScalar(R * d); },
+    driven: false,
+  };
+  (window.Aviac ??= {viewers: {}}).viewers[el.id || base] = api;
+
+  const resize = () => {
+    const w = el.clientWidth, h = el.clientHeight;
+    renderer.setSize(w, h); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix();
+  };
+  new ResizeObserver(resize).observe(el);
+  resize();
+  el.classList.add('ready');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const loop = () => {
-    ek += (k - ek) * 0.12;
-    for (const p of parts) p.mesh.position.set(p.e[0] * ek, p.e[1] * ek, p.e[2] * ek);
-    face.position.y = b.y + (b.flip ? -0.00006 : 0.00006) + (carrier ? carrier.e[1] * ek : 0);
+    const a = reduce ? 1 : 0.08;
+    k += (kT - k) * a;
+    for (const r of parts) {
+      r.mesh.position.copy(r.e).multiplyScalar(ease(Math.min(1, k)));
+      const want = !focus || r.p.g === focus ? 1 : 0.12;
+      r.dim += (want - r.dim) * a;
+      r.mesh.material.opacity = r.dim;
+      r.mesh.material.depthWrite = r.dim > 0.5;
+      r.mesh.visible = r.dim > 0.02;
+    }
+    if (api.driven) {
+      look.lerp(lookT, a); controls.target.copy(look);
+      camera.position.lerp(camT.clone().add(look), a);
+    }
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
   };
-  new ResizeObserver(() => { renderer.setSize(W(), H()); camera.aspect = W() / H(); camera.updateProjectionMatrix(); }).observe(el);
-  el.classList.add('ready');
   loop();
 }
 
-// start each viewer when it scrolls into view
 const io = new IntersectionObserver((es) => es.forEach((e) => {
   if (e.isIntersecting && !e.target.dataset.started) { e.target.dataset.started = '1'; mount(e.target).catch((err) => { e.target.classList.add('failed'); console.error(err); }); }
-}), {rootMargin: '200px'});
+}), {rootMargin: '300px'});
 document.querySelectorAll('.viewer[data-src]').forEach((v) => io.observe(v));
