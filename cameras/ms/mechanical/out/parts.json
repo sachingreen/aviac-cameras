@@ -1225,35 +1225,77 @@
   "estimated": true
  },
  {
-  "name": "hanger_plate",
-  "label": "Fixed mount plate",
+  "name": "hanger_cheek_-1",
+  "label": "Hanger cheek, carbon-filled nylon",
   "group": "Hanger",
-  "mass": 10.96,
+  "mass": 5.85,
   "estimated": false
  },
  {
-  "name": "hanger_iso_-1_-1",
+  "name": "hanger_screw_-1_20",
+  "label": "M3 screw, hanger to body",
+  "group": "Hanger",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "hanger_screw_-1_70",
+  "label": "M3 screw, hanger to body",
+  "group": "Hanger",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "hanger_cheek_1",
+  "label": "Hanger cheek, carbon-filled nylon",
+  "group": "Hanger",
+  "mass": 5.85,
+  "estimated": false
+ },
+ {
+  "name": "hanger_screw_1_20",
+  "label": "M3 screw, hanger to body",
+  "group": "Hanger",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "hanger_screw_1_70",
+  "label": "M3 screw, hanger to body",
+  "group": "Hanger",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "hanger_bridge",
+  "label": "Hanger bridge, open over fan and I/O",
+  "group": "Hanger",
+  "mass": 15.44,
+  "estimated": false
+ },
+ {
+  "name": "hanger_iso_-1_20",
   "label": "Rubber vibration isolator",
   "group": "Hanger",
   "mass": 0.8,
   "estimated": true
  },
  {
-  "name": "hanger_iso_-1_1",
+  "name": "hanger_iso_-1_70",
   "label": "Rubber vibration isolator",
   "group": "Hanger",
   "mass": 0.8,
   "estimated": true
  },
  {
-  "name": "hanger_iso_1_-1",
+  "name": "hanger_iso_1_20",
   "label": "Rubber vibration isolator",
   "group": "Hanger",
   "mass": 0.8,
   "estimated": true
  },
  {
-  "name": "hanger_iso_1_1",
+  "name": "hanger_iso_1_70",
   "label": "Rubber vibration isolator",
   "group": "Hanger",
   "mass": 0.8,
@@ -1261,9 +1303,9 @@
  },
  {
   "name": "hanger_top",
-  "label": "Airframe plate",
+  "label": "Airframe plate, lenses face down",
   "group": "Hanger",
-  "mass": 17.97,
+  "mass": 24.99,
   "estimated": false
  },
  {

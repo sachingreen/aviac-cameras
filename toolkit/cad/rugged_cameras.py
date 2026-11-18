@@ -335,6 +335,33 @@ def fixed_hanger(cx, cy, top_z, w, d, prefix="hanger"):
         color=(0.75, 0.76, 0.77), density=2.7, label="Airframe plate")
 
 
+
+def rear_hanger(Wd, H, D, prefix="hanger"):
+    """MS flies nadir, lenses straight down, like a downwelling-light setup: the back face goes up against the
+    airframe. An open frame keeps the rear fan and I/O clear: two cheeks clamp the sides of the body, a bridge with
+    a window spans the back, four rubber isolators and an airframe plate. Group 'Hanger'."""
+    G, ex = "Hanger", (0, 40, 0)
+    yb0, yb1 = D + 4.0, D + 7.0                  # bridge plate, 4 mm clear of the back face (airflow)
+    for sx in (-1, 1):
+        x0, x1 = (Wd / 2 + 0.2, Wd / 2 + 3.2) if sx > 0 else (-Wd / 2 - 3.2, -Wd / 2 - 0.2)
+        ch = rbox(x0, x1, D - 22.0, yb1, 14.0, H - 14.0, 3.0, "|X")
+        ch = ch.cut(rbox(x0 - 1, x1 + 1, D - 16.0, D - 4.0, 28.0, H - 28.0, 3.0, "|X"))
+        add(f"{prefix}_cheek_{sx}", ch, G, ex, mat="powder", color=(0.02, 0.02, 0.022), density=1.4, label="Hanger cheek, carbon-filled nylon")
+        for zz in (20.0, H - 20.0):
+            add(f"{prefix}_screw_{sx}_{int(zz)}", W(cq.Solid.makeCylinder(2.6, 1.6, V(sx * (Wd / 2 + 3.2), D - 10.0, zz), V(sx, 0, 0))), G, ex,
+                mat="steel", color=(0.6, 0.6, 0.62), mass=0.4, label="M3 screw, hanger to body")
+    br = rbox(-Wd / 2 - 3.2, Wd / 2 + 3.2, yb0, yb1, 14.0, H - 14.0, 4.0, "|Y")
+    br = br.cut(rbox(-24, 24, yb0 - 1, yb1 + 1, 36.0, H - 18.0, 5.0, "|Y"))     # window over the fan
+    br = br.cut(rbox(-40, 40, yb0 - 1, yb1 + 1, 18.0, 30.0, 3.0, "|Y"))        # cables out of the I/O board
+    add(prefix + "_bridge", br, G, ex, mat="powder", color=(0.02, 0.02, 0.022), density=1.4, label="Hanger bridge, open over fan and I/O")
+    for sx in (-1, 1):
+        for zz in (20.0, H - 20.0):
+            add(f"{prefix}_iso_{sx}_{int(zz)}", W(cq.Solid.makeSphere(4.2, V(sx * (Wd / 2 - 6.0), yb1 + 4.0, zz))), G, ex,
+                mat="rubber", color=(0.03, 0.03, 0.033), mass=0.8, label="Rubber vibration isolator")
+    tp = rbox(-Wd / 2 - 3.2, Wd / 2 + 3.2, yb1 + 8.0, yb1 + 10.0, 14.0, H - 14.0, 4.0, "|Y")
+    tp = tp.cut(rbox(-24, 24, yb1 + 7, yb1 + 11, 36.0, H - 18.0, 5.0, "|Y"))
+    add(prefix + "_top", tp, G, ex, mat="satin", color=(0.75, 0.76, 0.77), density=2.7, label="Airframe plate, lenses face down")
+
 # colourways: role -> material and colour (linear RGB)
 FINISHES = {
     "titanium": {"body": {"mat": "blast", "color": [0.30, 0.30, 0.31]}, "bumper": {"mat": "knurl", "color": [0.012, 0.012, 0.013]},
@@ -646,7 +673,7 @@ def build_ms():
         for sy in (28.0, 64.0):
             br = br.cut(zcyl(sx * 22, sy, -5, 1, 1.7)).cut(zcyl(sx * 22, sy, -5, -1.8, 3.0))
         br = br.cut(rbox(sx * 12 - 7, sx * 12 + 7, 34, 58, -5, 1, 3.0, "|Z"))
-    fixed_hanger(0.0, 40.0, H, 64.0, 52.0)
+    rear_hanger(Wd, H, D)
     add("mount", br, "Mount", E(150, -45), mat="satin", color=(0.05, 0.05, 0.055), density=PA12CF, label="Drone bracket, PA12-CF, 4 x M3")
     for sx in (-1, 1):
         for sy in (28.0, 64.0):

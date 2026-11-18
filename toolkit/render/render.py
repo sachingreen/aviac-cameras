@@ -694,6 +694,13 @@ for s in shots:
             lights.append(area("fill", Vector((-0.5, -0.9, -0.15)), Vector((0, 0, 0)), float(os.environ["FILL"]), 0.6, (1, 0.98, 0.95), 0.6))
         lights.append(area("rim", Vector((0.9, 0.9, 0.2)), Vector((0, 0, 0)), 18.0, 0.15, (0.85, 0.92, 1.0), 1.2))
         bgn.inputs[0].default_value = (0.78, 0.8, 0.82, 1); bgn.inputs[1].default_value = float(os.environ.get("WORLD", "0.55"))
+        if os.environ.get("STUDIO"):
+            # hovering in a dark grey studio, like a product shot on a seamless backdrop
+            fl.hide_render = True
+            bpy.ops.mesh.primitive_uv_sphere_add(radius=6, location=(0, 0, 0)); bd = bpy.context.active_object
+            bm_, bb_, bnt_ = principled("backdrop")
+            bb_.inputs["Base Color"].default_value = (0.16, 0.16, 0.165, 1); bb_.inputs["Roughness"].default_value = 1.0
+            bd.data.materials.append(bm_); bd.visible_shadow = False
         scene.view_settings.exposure = float(os.environ.get("CINE_EXP", "0"))
         try:
             scene.view_settings.look = "AgX - Medium High Contrast"
