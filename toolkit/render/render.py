@@ -687,9 +687,11 @@ for s in shots:
         lights.clear()
         sd = bpy.data.lights.new("sun", "SUN"); sd.energy = float(os.environ.get("SUN", "4.5")); sd.angle = math.radians(1.2)
         so = bpy.data.objects.new("sun", sd); scene.collection.objects.link(so)
-        so.rotation_euler = Euler((math.radians(52), 0, math.radians(float(os.environ.get("SUN_AZ", "-35")))), "XYZ")
+        so.rotation_euler = Euler((math.radians(90 - float(os.environ.get("SUN_EL", "38"))), 0, math.radians(float(os.environ.get("SUN_AZ", "-35")))), "XYZ")
         lights.append(so)
         lights.append(area("top", Vector((0, 0.3, 1.2)), Vector((0, 0, 0)), 30.0, 1.2, (1, 1, 1), 0.8))
+        if os.environ.get("FILL"):
+            lights.append(area("fill", Vector((-0.5, -0.9, -0.15)), Vector((0, 0, 0)), float(os.environ["FILL"]), 0.6, (1, 0.98, 0.95), 0.6))
         lights.append(area("rim", Vector((0.9, 0.9, 0.2)), Vector((0, 0, 0)), 18.0, 0.15, (0.85, 0.92, 1.0), 1.2))
         bgn.inputs[0].default_value = (0.78, 0.8, 0.82, 1); bgn.inputs[1].default_value = float(os.environ.get("WORLD", "0.55"))
         scene.view_settings.exposure = float(os.environ.get("CINE_EXP", "0"))

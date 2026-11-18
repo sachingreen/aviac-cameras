@@ -9,7 +9,7 @@ Parts in hidden groups (the DLS puck that lives on the drone) are left out.
 import base64, json, os, struct, sys
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-HIDE = {"DLS puck"}
+HIDE = {"DLS puck", "Mount"}   # Mount: the old bench bracket; MS now flies on its Hanger
 
 
 def pack(cam):
