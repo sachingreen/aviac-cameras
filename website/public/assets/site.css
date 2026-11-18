@@ -364,3 +364,4 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .bstats b{display:block;font:400 clamp(24px,2.4vw,34px) var(--serif)}
 .bstats span{font-size:13px;color:rgba(255,255,255,.72)}
 @media (max-width:960px){.band{aspect-ratio:4/5}.band>img{object-position:72% 50%}.bstats{width:auto;right:0;grid-template-columns:1fr 1fr;padding:0 18px 16px}.band::after{background:linear-gradient(180deg,rgba(6,12,9,0) 40%,rgba(6,12,9,.8))}.h2row{align-items:flex-start}}
+.band .chip{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.25)}
