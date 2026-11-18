@@ -1,0 +1,181 @@
+<title>Aviac Redesign Direction</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Schibsted+Grotesk:wght@500;700&family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: one reading column; option boards and reference strips break out to full width. Light-first, after the Aviac dashboard. */
+:root{
+  --bg:#f6f8f6; --surface:#ffffff; --ink:#13201a; --ink-2:#4b5a52; --mute:#7c8a82; --line:#dfe6e1;
+  --forest:#004c1e; --teal:#255052; --sage:#aac3b8; --sage-2:#e5ede8;
+  --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0e1411;--surface:#151d18;--ink:#e8efe9;--ink-2:#b4c2b9;--mute:#84948a;--line:#26322b;--forest:#7fc79a;--teal:#8fc4c4;--sage:#3c5a4e;--sage-2:#1b2620;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1411;--surface:#151d18;--ink:#e8efe9;--ink-2:#b4c2b9;--mute:#84948a;--line:#26322b;--forest:#7fc79a;--teal:#8fc4c4;--sage:#3c5a4e;--sage-2:#1b2620;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:56px 80px}
+h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h1{font-size:clamp(36px,5vw,56px);line-height:1.05}
+h2{font-size:clamp(26px,3.2vw,36px);line-height:1.15;margin-top:72px}
+h3{font-size:21px;line-height:1.25}
+p{max-width:68ch;color:var(--ink-2)}
+.lab{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.lede{font-size:18px}
+.refs{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-top:22px}
+.refs figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.refs img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.refs figcaption{padding:10px 12px;font-size:13px;color:var(--ink-2)}
+.refs .wide{grid-column:span 3}.refs .wide img{aspect-ratio:2000/1130}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+.tw{overflow-x:auto;margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:500;color:var(--ink);white-space:nowrap}
+ul.plain{padding-left:18px;color:var(--ink-2)}ul.plain li{margin:6px 0}
+/* option boards: each one renders in its own fixed palette, whatever the viewer's theme */
+.opts{display:grid;gap:22px;margin-top:22px}
+.opt{border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.opt .hdr{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline;padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--line)}
+.opt .hdr b{font:600 15px var(--sans)}.opt .hdr span{font-size:13px;color:var(--ink-2)}
+.rec{font:500 10.5px var(--mono);letter-spacing:.12em;color:var(--forest);border:1px solid var(--forest);border-radius:999px;padding:3px 9px;margin-left:8px}
+.board{display:grid;grid-template-columns:1.35fr 1fr;gap:0;min-height:300px}
+.board .hero{padding:30px 28px;display:flex;flex-direction:column;justify-content:space-between;gap:20px;min-width:0}
+.board .hero .t{font-size:clamp(28px,3.6vw,42px);line-height:1.05}
+.board .hero .s{font-size:14.5px;max-width:42ch;margin:12px 0 0}
+.board .btns{display:flex;gap:10px;flex-wrap:wrap}
+.board .btns i{font-style:normal;font:500 13px var(--sans);padding:9px 15px;border-radius:999px}
+.board .side{padding:22px;display:grid;gap:12px;align-content:start;min-width:0}
+.sw{display:flex;gap:8px;flex-wrap:wrap}
+.sw div{flex:1 1 60px;min-width:60px;border-radius:10px;height:54px;position:relative}
+.sw div em{position:absolute;left:7px;bottom:5px;font:500 9.5px var(--mono);font-style:normal}
+.card{border-radius:14px;padding:14px 16px}
+.card .k{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+.card .v{font-size:28px;line-height:1.1;margin-top:4px}
+.ramp{height:8px;border-radius:4px;background:linear-gradient(90deg,#965c3c,#d6aa46,#c4cd5a,#60aa4e,#16683a)}
+/* A Field Glass */
+.A .hero{background:#f7f9f7;color:#13201a}.A .t{font-family:'Newsreader',serif}.A .s{color:#4b5a52}
+.A .side{background:linear-gradient(160deg,#5b7d80,#aac3b8 55%,#e5ede8)}
+.A .card{background:rgba(255,255,255,.55);color:#13201a;backdrop-filter:blur(6px)}
+.A .b1{background:#004c1e;color:#fff}.A .b2{background:#fff;color:#13201a;border:1px solid #cfd9d3}
+/* B Soil & Instrument */
+.B .hero{background:#efede7;color:#211a15}.B .t{font-family:'Schibsted Grotesk',sans-serif;font-weight:700;letter-spacing:-.03em}.B .s{color:#5b4e44}
+.B .side{background:#5a4335}.B .card{background:#efe6d6;color:#211a15}
+.B .b1{background:#211a15;color:#efede7}.B .b2{background:#c9bb9b;color:#211a15}
+/* C Night Field */
+.C .hero{background:#0b0f0c;color:#e8efe9}.C .t{font-family:'Fraunces',serif;font-weight:400}.C .s{color:#a6b5ab}
+.C .side{background:#121a15}.C .card{background:#18221c;color:#e8efe9;border:1px solid #26322b}
+.C .b1{background:#e8efe9;color:#0b0f0c}.C .b2{background:transparent;color:#e8efe9;border:1px solid #33433a}
+.stages{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stage .lab{color:var(--forest)}
+.stage h3{font-size:19px;margin:6px 0 8px}
+.stage p{font-size:13.5px;margin:4px 0}
+.stage p b{color:var(--ink);font-weight:500}
+.q{counter-reset:q;display:grid;gap:12px;margin-top:20px}
+.q div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px 16px 52px;position:relative}
+.q div::before{counter-increment:q;content:counter(q);position:absolute;left:18px;top:15px;font:500 13px var(--mono);color:var(--forest)}
+.q b{display:block;font-weight:600;margin-bottom:4px}
+.q p{margin:0;font-size:14.5px}
+code{font:13px var(--mono);background:var(--sage-2);padding:1px 5px;border-radius:5px}
+@media (max-width:760px){.refs{grid-template-columns:1fr 1fr}.refs .wide{grid-column:span 2}.board{grid-template-columns:1fr}.stages{grid-template-columns:1fr 1fr}}
+@media (max-width:440px){.refs{grid-template-columns:1fr}.refs .wide{grid-column:auto}.stages{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+  <div class="lab">Aviac Technologies · website redesign · step 1 and 2 of 5</div>
+  <h1 style="margin-top:14px">A lighter, livelier Aviac</h1>
+  <p class="lede">What I read from your references, three design directions to choose from, and the decisions I need before building the 3D models. Nothing is built yet: the brief asks to stop here.</p>
+
+  <h2>The references</h2>
+  <div class="refs">
+    <figure class="wide"><img src="ref_dashboard.jpg" alt="Aviac dashboard: aerial field map with field outlines, calendar alerts, performance and quick actions"><figcaption>Your dashboard. White page, sage-to-teal frosted panels, deep forest green for the active state, aerial imagery full bleed, soft 24 px corners. This sets the site's mood.</figcaption></figure>
+    <figure style="grid-column:span 1"><img src="ref_colourways.jpg" alt="Six-camera design in four colourways"><figcaption>6-camera colourways: Stealth, Graphite, Chrome, Bronze.</figcaption></figure>
+    <figure><img src="ref_sand.jpg" alt="Duos concept in sand"><figcaption>Duos, sand.</figcaption></figure>
+    <figure><img src="ref_rugged.jpg" alt="Duos concept, rugged gunmetal"><figcaption>Duos, field rugged.</figcaption></figure>
+  </div>
+
+  <h2>Visual summary</h2>
+  <div class="tw"><table>
+    <tr><th>Reference</th><th>Form and construction</th><th>Materials and colour</th><th>Details</th></tr>
+    <tr><td>Multispectral, 6-cam</td><td>Two tiers. A deep upper housing whose top sweeps into a large radius at the rear. Below it a narrower, shallower lens strip, set back a few mm. The front is a recessed bezel plate inside a 3 mm frame.</td><td>Matte body; satin bezel a shade or two lighter than the body. Stealth #282421 body and #787677 bezel. Bronze is a deep brown body with a champagne bezel. Chrome is a mirror body with a gloss black bezel.</td><td>A ribbed rubber side pad on a wedge block near the top front, with about 8 ribs. Two tiny dots on the bezel, beside the centre lens. Lens rings are dark with a thin bright lip.</td></tr>
+    <tr><td>Duos, sand</td><td>Near-cube with large corner radii. Recessed front panel with a raised frame. A raised rail across the top. Feet notch at the base.</td><td>Fine bead-blast texture, beige (about #c2b7a4).</td><td>Two big lens rings side by side, an amber LED top right, an embossed "A" on the side, three vent slots below it.</td></tr>
+    <tr><td>Duos, rugged</td><td>Same cube with chamfered corner bumpers bolted on, and a gasket line around the front panel.</td><td>Dark gunmetal, textured (about #363934).</td><td>Four screws at the front corners. Lens rings get a second stepped ring.</td></tr>
+    <tr><td>Dashboard</td><td>Left icon rail, top bar with pill buttons, a big map, and three stacked frosted cards.</td><td>White ground #ffffff. Sage and teal glass #aac3b8 to #e5ede8, with darker panel heads #5b7d80. Forest #004c1e for selection, teal ink #255052 for icons.</td><td>Geometric sans type, white pins on the map, small isometric illustrations, "+8 % from yesterday" deltas.</td></tr>
+  </table></div>
+
+  <h3 style="margin-top:30px">What carries over</h3>
+  <ul class="plain">
+    <li><b>6-cam to the 4-cam Multispectral.</b> Keep the two tiers, the rear sweep, the recessed bezel, the side rib pads, the bezel dots and the four colourways. Change the lenses to 2 + 2 in a 2 × 2 grid at about 30 mm pitch: two in the upper bezel and two in the strip, all M12 at the same ring size. There is no big centre lens, so the bezel dots move to the gap between the upper pair.</li>
+    <li><b>Duos concepts to the final Duos.</b> Keep the cube, the recessed front panel, the amber LED, the top rail, the side vents and both finishes. At 50 × 30 × 28 mm the concept has to get wider and much flatter than the near-square renders: two 22 mm rings at 26 mm centres fill 48 of the 50 mm width.</li>
+    <li><b>One family.</b> Both use the same lens ring (dark ring, thin bright lip), the same recessed-bezel-in-a-frame front, the same fasteners and the same texture. The side rib pad is the Multispectral's signature; the vent slots are the Duos'.</li>
+  </ul>
+
+  <h2>Three directions</h2>
+  <p>All three keep the NDVI ramp only for data. A is drawn from your dashboard and follows your note to keep the site light, easy to scroll and lively. C is the dark base the brief describes, for comparison.</p>
+  <div class="opts">
+    <div class="opt A">
+      <div class="hdr"><div><b>A · Field Glass</b><span class="rec">RECOMMENDED</span></div><span>Light, from the dashboard. Newsreader headlines match your serif wordmark.</span></div>
+      <div class="board">
+        <div class="hero"><div><div class="t">See every acre<br>before it shows.</div><p class="s">Multispectral and stereo cameras with edge AI, for farms that cannot wait for a symptom.</p></div><div class="btns"><i class="b1">Explore the systems</i><i class="b2">Request a pilot</i></div></div>
+        <div class="side">
+          <div class="sw"><div style="background:#f7f9f7;border:1px solid #d5ded8"><em style="color:#13201a">#F7F9F7</em></div><div style="background:#aac3b8"><em style="color:#13201a">#AAC3B8</em></div><div style="background:#004c1e"><em style="color:#fff">#004C1E</em></div><div style="background:#255052"><em style="color:#fff">#255052</em></div></div>
+          <div class="card"><div class="k">Avg NDVI · field 3</div><div class="v" style="font-family:Newsreader,serif">0.71</div><div class="ramp" style="margin-top:10px"></div></div>
+          <div class="card"><div class="k">Area monitored</div><div class="v" style="font-family:Newsreader,serif">120 ac</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="opt B">
+      <div class="hdr"><b>B · Soil &amp; Instrument</b><span>Warm and earthy, from the Bronze and Sand colourways. A tight grotesk reads like equipment.</span></div>
+      <div class="board">
+        <div class="hero"><div><div class="t">See every acre<br>before it shows.</div><p class="s">Multispectral and stereo cameras with edge AI, for farms that cannot wait for a symptom.</p></div><div class="btns"><i class="b1">Explore the systems</i><i class="b2">Request a pilot</i></div></div>
+        <div class="side">
+          <div class="sw"><div style="background:#efede7;border:1px solid #d8d2c6"><em style="color:#211a15">#EFEDE7</em></div><div style="background:#5a4335"><em style="color:#efe6d6">#5A4335</em></div><div style="background:#c9bb9b"><em style="color:#211a15">#C9BB9B</em></div><div style="background:#3e7a3a"><em style="color:#fff">#3E7A3A</em></div></div>
+          <div class="card"><div class="k">Avg NDVI · field 3</div><div class="v" style="font-family:'Schibsted Grotesk',sans-serif;font-weight:700">0.71</div><div class="ramp" style="margin-top:10px"></div></div>
+          <div class="card"><div class="k">Area monitored</div><div class="v" style="font-family:'Schibsted Grotesk',sans-serif;font-weight:700">120 ac</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="opt C">
+      <div class="hdr"><b>C · Night Field</b><span>The brief's dark base. Calm and premium, but heavier to scroll: the feel you asked to move away from.</span></div>
+      <div class="board">
+        <div class="hero"><div><div class="t">See every acre<br>before it shows.</div><p class="s">Multispectral and stereo cameras with edge AI, for farms that cannot wait for a symptom.</p></div><div class="btns"><i class="b1">Explore the systems</i><i class="b2">Request a pilot</i></div></div>
+        <div class="side">
+          <div class="sw"><div style="background:#0b0f0c;border:1px solid #26322b"><em style="color:#e8efe9">#0B0F0C</em></div><div style="background:#18221c"><em style="color:#e8efe9">#18221C</em></div><div style="background:#7fb069"><em style="color:#0b0f0c">#7FB069</em></div><div style="background:#b29a7c"><em style="color:#0b0f0c">#B29A7C</em></div></div>
+          <div class="card"><div class="k">Avg NDVI · field 3</div><div class="v" style="font-family:Fraunces,serif">0.71</div><div class="ramp" style="margin-top:10px"></div></div>
+          <div class="card"><div class="k">Area monitored</div><div class="v" style="font-family:Fraunces,serif">120 ac</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:34px">Shared tokens, whichever direction you pick</h3>
+  <div class="tw"><table>
+    <tr><th>Token</th><th>Value</th></tr>
+    <tr><td>Type scale</td><td>12 · 14 · 16 · 18 · 22 · 28 · 36 · 48 · 64 · 88 px (about 1.25 ratio). Mono for specs, units and data labels.</td></tr>
+    <tr><td>Spacing</td><td>4 px base: 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128</td></tr>
+    <tr><td>Radius</td><td>8 controls · 16 cards · 24 panels (the dashboard's) · 999 pills</td></tr>
+    <tr><td>Motion</td><td>Ease <code>cubic-bezier(.22,1,.36,1)</code>; 240 ms for UI, 700 ms for reveals, 1200 ms for camera moves. No bounce. Off under reduced motion.</td></tr>
+    <tr><td>Data colour</td><td>NDVI ramp #965C3C → #D6AA46 → #C4CD5A → #60AA4E → #16683A, used only on maps and charts.</td></tr>
+  </table></div>
+
+  <h2>Product pages and teardown</h2>
+  <p>As you asked, the home page shows only the assembled cameras. The exploded side-scroll lives only on <code>/product/multispectral</code> and <code>/product/duos</code>. Both use your four stages:</p>
+  <div class="stages">
+    <div class="stage"><div class="lab">1 / 4</div><h3>Optics</h3><p><b>MS:</b> 4 × M12, 25 mm, band-pass filters, front plate.</p><p><b>Duos:</b> 2 × M12 at a 26 mm baseline, front plate.</p></div>
+    <div class="stage"><div class="lab">2 / 4</div><h3>Baseboard + image sensors</h3><p><b>MS:</b> four sensors on one interconnect board.</p><p><b>Duos:</b> 2 × Mira220, 1600 × 1400 global shutter, one shared board.</p></div>
+    <div class="stage"><div class="lab">3 / 4</div><h3>Processing board</h3><p><b>MS:</b> Jetson Orin NX / Nano on an 87 × 52 mm carrier, heat path to the rear.</p><p><b>Duos:</b> interface board only. See question 3.</p></div>
+    <div class="stage"><div class="lab">4 / 4</div><h3>Externals</h3><p><b>MS:</b> rear housing, finned heatsink, 30 mm fan, ports, DLS, mount.</p><p><b>Duos:</b> rear shell, connector, M2 holes, ¼"-20 thread.</p></div>
+  </div>
+
+  <h2>Before I build: decisions for you</h2>
+  <div class="q">
+    <div><b>Direction A, B or C?</b><p>I recommend A, since it matches your dashboard and your note. The hero 3D stage can still sit on a darker panel inside the light page for contrast.</p></div>
+    <div><b>Which four sensors in the Multispectral?</b><p>M12 lenses only cover small sensors. The current IMX565 is 1.1-inch and needs a C-mount, so it cannot stay. The likely design is 4 × Mira220: one RGB-IR, plus three mono with red, red-edge and NIR filters. That gives 5 bands instead of 6, and the "1.7 cm/px at 100 m" figure changes. With 6 mm lenses it becomes about 4.7 cm/px. Confirm, or name the sensors you want.</p></div>
+    <div><b>Duos "processing board".</b><p>The brief says the Duos has no Jetson and connects to external compute. Its stage 3 would then be the small interface board (USB-C or GMSL bridge). Is that right, or should the Duos gain onboard compute?</p></div>
+    <div><b>This replaces the current cameras on the site.</b><p>The new specs differ from the cameras in the repo. The Multispectral moves from a 112 mm machined-aluminium box with no fan to a 96 × 90 × 90 mm PA12-CF body with a fan. The Duos moves from a 108 mm box with a Jetson to a 50 mm stereo head. I'll model them new and keep the old ones in the repo. Tell me if the CAD and boards should change to match too, or only the website.</p></div>
+    <div><b>Side logo on the Duos.</b><p>The concepts show an "A" letterform. Your real mark is the wings. I suggest the wing mark, debossed.</p></div>
+    <div><b>Content I don't have.</b><p>For sections 5 and 6 I need: the PJTAU partnership details, other partners and pilots, the founder story, team names and photos, and your field or drone photos. I also need your permission to show the dashboard screenshot. Until then I'll use clearly marked placeholders.</p></div>
+  </div>
+  <p class="lab" style="margin-top:40px">Reference images are stored in the repo under references/. Tokens for the chosen direction will be written to design-system/.</p>
+</div>
