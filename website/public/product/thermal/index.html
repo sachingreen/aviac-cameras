@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TH Thermal · Aviac Technologies</title>
+<meta name="description" content="Aviac Technologies builds drone cameras with edge AI: multispectral crop monitoring, spray coverage, thermal solar inspection, SWIR industrial inspection and construction monitoring.">
+<meta name="theme-color" content="#f6f8f6">
+<link rel="icon" href="../../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/site.css?v=f806f305">
+</head>
+<body>
+<nav class="nav"><div class="wrap"><a class="brand" href="../../" aria-label="Aviac Technologies, home"><img class="m" src="../../img/mark.svg?v=f806f305" alt=""><img class="w" src="../../img/wordmark.svg?v=f806f305" alt=""></a><ul><li class="dd"><a href="../../#solutions" aria-haspopup="true">Solutions <span class="car">&#9662;</span></a><div class="menu"><a href="../../solutions/crop-monitoring/"><b>Crop monitoring</b><span>Multispectral · stress before it shows</span></a><a href="../../solutions/spraying/"><b>Spraying</b><span>Stereo · coverage on every pass</span></a><a href="../../solutions/solar/"><b>Solar inspection</b><span>Thermal · hotspots to repairs</span></a><a href="../../solutions/industrial/"><b>Industrial inspection</b><span>SWIR · moisture, leaks, haze</span></a><a href="../../solutions/construction/"><b>Construction monitoring</b><span>Weekly maps · progress and volumes</span></a></div></li><li class="dd"><a href="../../#systems" class=on aria-haspopup="true">Systems <span class="car">&#9662;</span></a><div class="menu"><a href="../../product/multispectral/"><b>MS</b><span>Agri Spectral · six bands</span></a><a href="../../product/duos/"><b>Duos</b><span>Stereo · spray drones</span></a><a href="../../product/thermal/" class=on><b>TH</b><span>Thermal · demo</span></a><a href="../../product/swir/"><b>SW</b><span>SWIR · demo</span></a></div></li><li><a href="../../#field">In the field</a></li><li><a href="../../#research">Partners</a></li><li><a href="../../#company">Company</a></li></ul><a class="btn p cta" href="../../#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>
+
+<header class="phero"><div class="wrap"><div class="grid">
+  <div class="reveal">
+    <div class="lab g">Thermal · solar and electrical inspection<span class="demo-tag">DEMO</span></div>
+    <h1 style="margin:14px 0 16px">TH <span style="color:var(--mute);font-size:.45em;letter-spacing:0">Thermal</span></h1>
+    <p style="font-size:18px;max-width:520px">A 640 × 512 thermal core and a colour camera side by side, in a sealed head on a two-axis gimbal. Built for solar arrays, substations and electrical rooms.</p>
+    <div class="pspecs"><div><span>Thermal core</span><b>640 × 512, 12 µm, uncooled (placeholder)</b></div><div><span>Thermal lens</span><b>13 mm f/1.0, germanium</b></div><div><span>Colour</span><b>Mira220, 1600 × 1400</b></div><div><span>Body</span><b>60 × 42 × 36 mm</b></div><div><span>Head</span><b>61 g</b></div><div><span>With gimbal</span><b>121 g</b></div></div>
+    <a class="btn p" href="#teardown">See inside <span class="a">&darr;</span></a> <a class="btn" href="../../solutions/solar/">See the use case</a>
+  </div>
+  <div class="stage3d reveal">
+    <div class="viewer" id="th-hero" data-src="../../models/th/" data-finish="arctic" data-spin="1" data-zoom="1" data-dist="4.4" role="img" aria-label="TH, interactive 3D model. Drag to turn."></div>
+    <span class="chip drag">Drag to turn</span>
+    <div class="swatches" data-for="#th-hero"><button class="on" data-finish="arctic" title="Arctic" style="background:#e9e9e6" aria-label="Arctic"></button><button data-finish="graphite" title="Graphite" style="background:#2b2d31" aria-label="Graphite"></button><button data-finish="sand" title="Sand" style="background:#c2b7a4" aria-label="Sand"></button><span>Arctic</span></div>
+  </div>
+</div></div></header>
+
+<section class="td" id="teardown" aria-label="Teardown" style="height:440vh"><div class="pin">
+  <div class="viewer" id="th-td" data-src="../../models/th/" data-finish="arctic" data-follow="th-hero" data-dist="3.6" aria-hidden="true"></div>
+  <div class="wrap top"><h2>Inside the TH</h2><div class="prog"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span>1 / 7</span></div></div>
+  <div class="track">
+    <article class="card on" data-view="0.9,0.22,4.6"><div class="n">TEARDOWN</div><h3>Concept hardware.</h3><p>Scroll to take it apart. Core and sensor choices are placeholders.</p></article>
+    <article class="card" data-group="Optics" data-view="0.55,0.25,6.5"><div class="n">1 / 5 · OPTICS</div><h3>Germanium and glass</h3><p>A germanium LWIR lens with a hard DLC-coated window, and an M12 colour lens beside it, both behind the protective hood.</p>
+      <ul><li><span>Thermal</span><b>13 mm f/1.0, germanium</b></li><li><span>Colour</span><b>M12, Mira220</b></li></ul></article>
+    <article class="card" data-group="Baseboard + image sensors" data-view="0.5,0.22,3.6"><div class="n">2 / 5 · BASEBOARD + IMAGE SENSORS</div><h3>Thermal core and colour sensor</h3><p>A machined thermal core module with its own window, and a Mira220 colour sensor on a small board beside it.</p>
+      <ul><li><span>Core</span><b>640 × 512, 12 µm</b></li><li><span>Colour</span><b>Mira220, global shutter</b></li></ul></article>
+    <article class="card" data-group="Processing board" data-view="1.0,0.3,6.5"><div class="n">3 / 5 · PROCESSING BOARD</div><h3>Thermal pipeline</h3><p>An FPGA board runs the thermal pipeline, syncs both cameras and sends the streams out over USB-C or Ethernet.</p>
+      <ul><li><span>Output</span><b>USB-C or Ethernet</b></li><li><span>Sync</span><b>Thermal and colour, one trigger</b></li></ul></article>
+    <article class="card" data-group="Externals" data-view="1.2,0.3,7.0"><div class="n">4 / 5 · EXTERNALS</div><h3>Sealed head</h3><p>The same family body as Duos: carbon-nylon shell, rubber hood, gasket and status light.</p>
+      <ul><li><span>Shell</span><b>PA12-CF</b></li><li><span>Seal</span><b>silicone gasket</b></li></ul></article>
+    <article class="card" data-group="Gimbal" data-view="1.1,0.3,7.5"><div class="n">5 / 5 · GIMBAL</div><h3>Gimbal yoke</h3><p>Pan and tilt on brushless motors, with rubber isolators under a quick-release plate.</p>
+      <ul><li><span>Axes</span><b>pan and tilt</b></li><li><span>Gimbal</span><b>60 g</b></li></ul></article>
+    <article class="card end" data-view="0.6,0.2,4.4"><div class="n" style="color:#cfe6d6">ASSEMBLED</div><h3>61 g of thermal.</h3><p>See what it finds.</p><a class="btn" href="../../solutions/solar/">See the use case <span class="a">&rarr;</span></a></article>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="head reveal"><h2>Same family, new band.</h2><p>The hood stands proud of the lens, so a hard landing hits rubber, not glass.</p></div>
+  <div class="gallery reveal"><img src="../../assets/img/th_arctic_hero_green.jpg" alt="TH camera"><div class="col"><img src="../../assets/img/th_arctic_hero_light.jpg" alt="TH camera on its gimbal"></div></div>
+</div></section>
+
+<footer><div class="wrap"><a class="brand" href="../../" aria-label="Aviac Technologies, home"><img class="m" src="../../img/mark.svg?v=f806f305" alt="" style="height:22px"><img class="w" src="../../img/wordmark.svg?v=f806f305" alt="Aviac Technologies" style="height:13px"></a><span>aviactech@gmail.com</span><span>&copy; Aviac Technologies 2024&ndash;26. Specifications are design figures.</span></div></footer>
+<script type="module" src="../../viewer.js?v=f806f305"></script>
+<script src="../../assets/site.js?v=f806f305"></script>
+</body>
+</html>

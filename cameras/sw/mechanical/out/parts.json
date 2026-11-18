@@ -1,0 +1,324 @@
+[
+ {
+  "name": "front_shell",
+  "label": "Front shell, PA12-CF: the lens tunnel",
+  "group": "Externals",
+  "mass": 3.27,
+  "estimated": false
+ },
+ {
+  "name": "hood",
+  "label": "Protective hood, overmoulded TPU: stands proud of every lens",
+  "group": "Externals",
+  "mass": 2.99,
+  "estimated": false
+ },
+ {
+  "name": "light_bezel",
+  "label": "Light bar bezel",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
+  "name": "light_bar",
+  "label": "Status light bar, amber: blinks while capturing",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
+  "name": "panel",
+  "label": "Front panel",
+  "group": "Externals",
+  "mass": 2.57,
+  "estimated": false
+ },
+ {
+  "name": "light_pipe",
+  "label": "Light pipe",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
+  "name": "gasket",
+  "label": "Silicone gasket",
+  "group": "Externals",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "front_plate",
+  "label": "Aluminium front plate",
+  "group": "Optics",
+  "mass": 4.92,
+  "estimated": false
+ },
+ {
+  "name": "rear_housing",
+  "label": "Rear housing, PA12-CF",
+  "group": "Externals",
+  "mass": 14.7,
+  "estimated": false
+ },
+ {
+  "name": "rear_screw_-1_6",
+  "label": "M2 x 10, rear",
+  "group": "Externals",
+  "mass": 0.27,
+  "estimated": true
+ },
+ {
+  "name": "rear_screw_-1_40",
+  "label": "M2 x 10, rear",
+  "group": "Externals",
+  "mass": 0.27,
+  "estimated": true
+ },
+ {
+  "name": "rear_screw_1_6",
+  "label": "M2 x 10, rear",
+  "group": "Externals",
+  "mass": 0.27,
+  "estimated": true
+ },
+ {
+  "name": "rear_screw_1_40",
+  "label": "M2 x 10, rear",
+  "group": "Externals",
+  "mass": 0.27,
+  "estimated": true
+ },
+ {
+  "name": "so-1",
+  "label": "Standoff",
+  "group": "Baseboard + image sensors",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "so1",
+  "label": "Standoff",
+  "group": "Baseboard + image sensors",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "swir_ring",
+  "label": "Lens ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_lip",
+  "label": "Ring chamfer",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_oring",
+  "label": "O-ring seal",
+  "group": "Optics",
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
+  "name": "swir_barrel",
+  "label": "SWIR lens, 25 mm f/1.4, 0.9-1.7 um coating",
+  "group": "Optics",
+  "mass": 15.29,
+  "estimated": false
+ },
+ {
+  "name": "swir_inner",
+  "label": "Aperture",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_glass",
+  "label": "Front element, SWIR AR coating",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_pkg",
+  "label": "InGaAs SWIR sensor, 640 x 512, 5 um pixels (placeholder)",
+  "group": "Baseboard + image sensors",
+  "mass": 2.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_frame",
+  "label": "Bond frame",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_die",
+  "label": "InGaAs pixel array",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "swir_window",
+  "label": "Sensor window",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "sensor_board",
+  "label": "Sensor board",
+  "group": "Baseboard + image sensors",
+  "mass": 5.0,
+  "estimated": true
+ },
+ {
+  "name": "sensor_board_passives",
+  "label": "Passives",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "sensor_board_c0",
+  "label": "TEC driver",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "sensor_board_c1",
+  "label": "ADC",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "tec",
+  "label": "Heat spreader for the sensor's cooler",
+  "group": "Baseboard + image sensors",
+  "mass": 3.5,
+  "estimated": false
+ },
+ {
+  "name": "proc",
+  "label": "Processing board: non-uniformity correction, sync, USB-C / Ethernet",
+  "group": "Processing board",
+  "mass": 6.0,
+  "estimated": true
+ },
+ {
+  "name": "proc_passives",
+  "label": "Passives",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "proc_c0",
+  "label": "FPGA, SWIR pipeline",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "proc_c1",
+  "label": "DDR",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "proc_c2",
+  "label": "Flash",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "proc_c3",
+  "label": "USB-C",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_tilt_motor",
+  "label": "Tilt motor, brushless, encoder",
+  "group": "Gimbal",
+  "mass": 14.0,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_tilt_cap",
+  "label": "Motor cap ring",
+  "group": "Gimbal",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_arm",
+  "label": "Gimbal arm, carbon-filled nylon",
+  "group": "Gimbal",
+  "mass": 9.17,
+  "estimated": false
+ },
+ {
+  "name": "gimbal_pan_motor",
+  "label": "Pan motor, brushless, slip ring",
+  "group": "Gimbal",
+  "mass": 16.0,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_plate",
+  "label": "Damper plate",
+  "group": "Gimbal",
+  "mass": 9.33,
+  "estimated": false
+ },
+ {
+  "name": "gimbal_iso_-1_-1",
+  "label": "Rubber vibration isolator",
+  "group": "Gimbal",
+  "mass": 0.6,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_iso_-1_1",
+  "label": "Rubber vibration isolator",
+  "group": "Gimbal",
+  "mass": 0.6,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_iso_1_-1",
+  "label": "Rubber vibration isolator",
+  "group": "Gimbal",
+  "mass": 0.6,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_iso_1_1",
+  "label": "Rubber vibration isolator",
+  "group": "Gimbal",
+  "mass": 0.6,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_top",
+  "label": "Airframe plate, quick-release",
+  "group": "Gimbal",
+  "mass": 9.33,
+  "estimated": false
+ }
+]

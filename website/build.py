@@ -16,8 +16,26 @@ SRC, OUT = os.path.join(HERE, "src"), os.path.join(HERE, "public")
 sys.path.insert(0, os.path.join(REPO, "toolkit", "brand"))
 from logo import svg_mark, svg_wordmark, GREEN, IVORY
 
-NAV = [("systems", "Systems", "#systems", [("ms", "MS", "product/multispectral/", "Agri Spectral · six bands"), ("duos", "Duos", "product/duos/", "Stereo · spray drones")]),
-       ("aircraft", "On the aircraft", "#aircraft", None), ("field", "In the field", "#field", None), ("research", "Research", "#research", None), ("company", "Company", "#company", None)]
+NAV = [("solutions", "Solutions", "#solutions", [("crop", "Crop monitoring", "solutions/crop-monitoring/", "Multispectral · stress before it shows"),
+                                                  ("spraying", "Spraying", "solutions/spraying/", "Stereo · coverage on every pass"),
+                                                  ("solar", "Solar inspection", "solutions/solar/", "Thermal · hotspots to repairs"),
+                                                  ("industrial", "Industrial inspection", "solutions/industrial/", "SWIR · moisture, leaks, haze"),
+                                                  ("construction", "Construction monitoring", "solutions/construction/", "Weekly maps · progress and volumes")]),
+       ("systems", "Systems", "#systems", [("ms", "MS", "product/multispectral/", "Agri Spectral · six bands"), ("duos", "Duos", "product/duos/", "Stereo · spray drones"),
+                                           ("th", "TH", "product/thermal/", "Thermal · demo"), ("sw", "SW", "product/swir/", "SWIR · demo")]),
+       ("field", "In the field", "#field", None), ("research", "Partners", "#research", None), ("company", "Company", "#company", None)]
+
+
+def _ver():
+    import hashlib
+    h = hashlib.sha1()
+    for f in ("assets/site.css", "assets/site.js"):
+        h.update(open(os.path.join(SRC, f), "rb").read())
+    h.update(svg_mark(GREEN).encode()); h.update(svg_wordmark(GREEN).encode())
+    return h.hexdigest()[:8]
+
+
+V = _ver()       # cache-buster: browsers keep img/ for a week, so a changed logo or stylesheet gets a new URL
 
 
 def render(text, R):
@@ -28,7 +46,7 @@ def render(text, R):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>{m.group(1)}</title>
-<meta name="description" content="Aviac Technologies builds multispectral and stereo drone cameras with edge AI for precision agriculture.">
+<meta name="description" content="Aviac Technologies builds drone cameras with edge AI: multispectral crop monitoring, spray coverage, thermal solar inspection, SWIR industrial inspection and construction monitoring.">
 <meta name="theme-color" content="#f6f8f6">
 <link rel="icon" href="{R}favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,16 +66,19 @@ def render(text, R):
                           f'<div class="menu">{links}</div></li>')
             else:
                 items += f'<li><a href="{home}{h}">{t}</a></li>'
-        return (f'<nav class="nav"><div class="wrap"><a class="brand" href="{R}" aria-label="Aviac Technologies, home"><img class="m" src="{R}img/mark.svg" alt="">'
+        return (f'<nav class="nav"><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac Technologies, home"><img class="m" src="{R}img/mark.svg" alt="">'
                 f'<img class="w" src="{R}img/wordmark.svg" alt=""></a><ul>{items}</ul>'
                 f'<a class="btn p cta" href="{home}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>')
 
-    foot = (f'<footer><div class="wrap"><a class="brand" href="{R}"><img class="m" src="{R}img/mark.svg" alt="" style="height:22px">'
+    foot = (f'<footer><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac Technologies, home"><img class="m" src="{R}img/mark.svg" alt="" style="height:22px">'
             f'<img class="w" src="{R}img/wordmark.svg" alt="Aviac Technologies" style="height:13px"></a>'
             f'<span>aviactech@gmail.com</span><span>&copy; Aviac Technologies 2024&ndash;26. Specifications are design figures.</span></div></footer>')
     text = re.sub(r"\{\{HEAD ([^}]*)\}\}", head, text)
     text = re.sub(r"\{\{NAV (\w+)\}\}", nav, text)
-    return text.replace("{{FOOT}}", foot).replace("{{R}}", R)
+    text = text.replace("{{FOOT}}", foot).replace("{{R}}", R)
+    for a in ("assets/site.css", "assets/site.js", "img/mark.svg", "img/wordmark.svg", "viewer.js"):
+        text = text.replace(a + '"', f'{a}?v={V}"')
+    return text
 
 
 if os.path.isdir(OUT):

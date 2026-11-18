@@ -1,0 +1,68 @@
+{{HEAD Crop monitoring · Aviac Technologies}}
+<body>
+{{NAV crop}}
+
+<header class="phero"><div class="wrap"><div class="grid">
+  <div class="reveal">
+    <div class="lab g">Agriculture · multispectral</div>
+    <h1 style="margin:14px 0 16px;font-size:clamp(42px,5.2vw,72px)">See crop stress <em>before it shows.</em></h1>
+    <p style="font-size:18px;max-width:540px">MS flies the field in six bands and flags stress in the red edge and near infrared days before it shows in colour. Scout the patch, not the whole farm.</p>
+    <div class="ctas" style="margin-top:22px"><a class="btn p" href="#demo">See the demo <span class="a">&darr;</span></a> <a class="btn" href="{{R}}#contact">Request a pilot</a></div>
+  </div>
+  <div class="pic reveal" style="border-radius:var(--r-lg);overflow:hidden"><img src="{{R}}assets/img/ms_titanium_hero_green.jpg" alt="MS Agri Spectral camera" style="width:100%;display:block"></div>
+</div></div></header>
+
+<section id="demo" style="padding-top:30px"><div class="wrap">
+  <div class="dgrid">
+    <div class="sample reveal">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="lab">Same field, two views · drag to compare</div><div class="tog"><button data-at="0">RGB</button><button data-at="1" class="on">NDVI</button></div></div>
+      <div class="cmpimg"><img src="{{R}}assets/img/demo/field_rgb.jpg" alt="Aerial view of crop fields in colour" width="1600" height="1200"><div class="ndvi"><img src="{{R}}assets/img/demo/field_ndvi.jpg" alt="The same fields as an NDVI map with two stressed patches" width="1600" height="1200"></div>
+        <div class="handle" role="slider" aria-label="Compare RGB and NDVI" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0"><span></span></div>
+        <span class="tag l">RGB</span><span class="tag r">NDVI</span><span class="pin lft" style="left:81.3%;top:33.0%"><i style="background:#d7301f"></i><b>Stress · 0.21 ac</b></span><span class="pin" style="left:33.7%;top:85.9%"><i style="background:#d7301f"></i><b>Stress · 0.08 ac</b></span></div>
+      <p class="note">Illustrative imagery generated for this demo, not a capture.</p>
+    </div>
+    <div class="sample reveal" style="justify-content:space-between">
+      <div><div class="lab">What the colour view misses</div><h3 style="font-size:28px;margin:10px 0 8px">Two patches, found early.</h3><p style="margin:0">In colour the stressed patches look like the rest of the field. In NDVI they are the first thing you see.</p></div>
+      <div class="stats"><div><b>0.71</b><span>Average NDVI</span></div><div><b>0.29 ac</b><span>Flagged for scouting</span></div><div><b>6</b><span>Bands per pixel</span></div><div><b>On board</b><span>Processed in flight</span></div></div>
+    </div>
+  </div>
+</div></section>
+
+<section style="padding-top:20px"><div class="wrap">
+  <div class="bands">
+    <div class="reveal">
+      <div class="lab">Why six bands</div>
+      <h2 style="font-size:clamp(32px,4vw,52px);margin:14px 0 18px">A stressed crop looks healthy until it is too late.</h2>
+      <div class="pts">
+        <div><b>Stress starts in the red edge.</b><p>Chlorophyll loss shifts reflectance between 700 and 740 nm days before leaves change colour.</p></div>
+        <div><b>Healthy leaves glow in near infrared.</b><p>Leaf structure reflects strongly at 800 to 900 nm. Damage, disease and water stress pull it down.</p></div>
+        <div><b>An RGB camera sees none of it.</b><p>By the time it shows in colour, the yield is already lost.</p></div>
+      </div>
+    </div>
+    <div class="spec reveal">
+      <div class="lab" style="margin-bottom:10px">Leaf reflectance · <span style="color:#16683a">healthy</span> · <span style="color:#c4862f">stressed</span></div>
+      <canvas data-spectrum aria-label="Reflectance of a healthy and a stressed leaf from 400 to 950 nm, with the six MS bands marked"></canvas>
+      <div class="legend"><span>Wavelength, nm</span><span>Shaded: MS bands</span></div>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="head reveal"><h2>How it works.</h2><p>From flight to a scouting task in four steps.</p></div>
+  <div class="steps reveal"><div class="step"><b>Fly</b><p>A fixed-wing or VTOL survey covers up to 1,000 acres in a flying day.</p></div><div class="step"><b>Capture</b><p>Six bands fire together: colour, red edge and near infrared.</p></div><div class="step"><b>Process</b><p>NDVI and red-edge indices are computed on board, on the Jetson.</p></div><div class="step"><b>Act</b><p>Stressed zones land in the dashboard as scouting tasks with a map pin.</p></div></div>
+</div></section>
+
+<section style="padding-top:10px"><div class="wrap">
+  <a class="cambox reveal" href="{{R}}product/multispectral/" style="text-decoration:none;color:inherit"><img src="{{R}}assets/img/ms_titanium_hero_light.jpg" alt="MS">
+    <div class="body"><div class="lab g">The camera</div><h3 style="font-size:40px;margin:10px 0 8px">MS <span style="color:var(--mute);font-size:.55em">Agri Spectral</span></h3><p>Sony IMX565 colour plus three Mira220 sensors for red edge and near infrared, fixed nadir under the wing.</p><span class="go" style="color:var(--forest);font-weight:500">See the camera <span class="a">&rarr;</span></span></div></a>
+</div></section>
+
+<section id="contact-cta" style="background:var(--bg-2)"><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap">
+  <div class="reveal"><div class="lab">Pilots</div><h2 style="font-size:clamp(32px,4vw,52px);margin:12px 0 0">Try it on your farm.</h2></div>
+  <a class="btn p reveal" href="{{R}}#contact">Request a pilot <span class="a">&rarr;</span></a>
+</div></section>
+
+{{FOOT}}
+<script src="{{R}}assets/site.js"></script>
+</body>
+</html>

@@ -37,5 +37,5 @@ def pack(cam):
     print(cam, len(parts), "parts", off, "verts", round(len(buf) * 4 / 3 / 1e6, 2), "MB")
 
 
-for cam in (sys.argv[1:] or ["ms", "duos"]):
+for cam in (sys.argv[1:] or ["ms", "duos", "th", "sw"]):
     pack(cam)

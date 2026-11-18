@@ -50,6 +50,7 @@ $$('.cmpimg').forEach((box) => {
     box.style.setProperty('--x', `${cur * 100}%`);
     h.setAttribute('aria-valuenow', Math.round(cur * 100));
     box.classList.toggle('show-flag', cur < 0.6);
+    $$('.pin', box).forEach((p) => p.classList.toggle('on', parseFloat(p.style.left) > cur * 100 + 1));
     $$('.tog button', card).forEach((b) => b.classList.toggle('on', (+b.dataset.at === 1) === (cur < 0.5)));
   };
   const at = (e) => { const r = box.getBoundingClientRect(); return (e.clientX - r.left) / r.width; };
