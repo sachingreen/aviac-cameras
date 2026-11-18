@@ -562,7 +562,7 @@ def cshoot(name, target, size, az, el, lens, fill, fstop, focus, back):
     if fstop:
         cam_d.dof.aperture_fstop = fstop; cam_d.dof.focus_distance = (Vector(focus) - loc).length
     if back in BACKS:
-        studio_look(target, size, back)
+        studio_look(globals().get("LIGHT_AT") or target, size, back)
     else:
         cine(target, size, back)
     if os.environ.get("CINE_EXP"):
@@ -670,11 +670,15 @@ for s in shots:
             cshoot(tag + "lens_closeup", f + Vector((0.004, 0, 0)), Vector((0.05, 0.05, 0.03)), -112, 6, 135, 0.78, 5.6, f, "green")
         else:
             cshoot(tag + "exploded", c, size, -140, 16, 70, 0.86, None, c, "light")
-    elif s in ("studio_light", "studio_dark", "studio_close"):
+    elif s in ("studio_light", "studio_dark", "studio_close", "studio_wide"):
         tag = os.environ.get("TAG", "")
         c, size = pose(0, hide=("DLS puck",) + tuple(g for g in os.environ.get("HIDE", "").split(",") if g), rot=(0, 0, 0), lift=0.0)
         f = world_of(os.environ.get("FOCUS", "imx_glass"))
-        if s == "studio_light":
+        if s == "studio_wide":                 # a wide banner: the camera small and right of centre, room for type on the left
+            off = Vector((float(os.environ.get("WIDE_X", "-1.05")) * size.x, float(os.environ.get("WIDE_Y", "0.6")) * size.y, 0.12 * size.z))
+            globals()["LIGHT_AT"] = c
+            cshoot(tag + "hero_wide", c + off, size, -62, 8, 85, float(os.environ.get("WIDE_FILL", "0.36")), 11.0, f, "sage")
+        elif s == "studio_light":
             cshoot(tag + "hero_light", c, size, -128, 7, 105, 0.72, float(os.environ.get("FSTOP", "9")), f, "stone")
         elif s == "studio_dark":
             cshoot(tag + "hero_green", c, size, -58, 9, 105, 0.72, float(os.environ.get("FSTOP", "9")), f, "sage")
