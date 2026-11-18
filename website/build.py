@@ -76,7 +76,7 @@ def render(text, R):
     text = re.sub(r"\{\{HEAD ([^}]*)\}\}", head, text)
     text = re.sub(r"\{\{NAV (\w+)\}\}", nav, text)
     text = text.replace("{{FOOT}}", foot).replace("{{R}}", R)
-    for a in ("assets/site.css", "assets/site.js", "img/mark.svg", "img/wordmark.svg", "viewer.js"):
+    for a in ("assets/site.css", "assets/site.js", "img/mark.svg", "img/wordmark.svg", "viewer.js", "flight.js"):
         text = text.replace(a + '"', f'{a}?v={V}"')
     return text
 

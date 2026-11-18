@@ -53,7 +53,7 @@ SOL = [
     dict(key="solar", slug="solar", name="Solar inspection", lab="Solar · thermal", cams=["TH"],
          h1="Find the hot cell. <em>Close the repair.</em>",
          lead="TH flies the array with a thermal core and a colour camera side by side. Hotspot candidates become reviewed findings, repair jobs and a report the site owner signs off.",
-         hero="th_arctic_hero_green.jpg", hero_alt="Aviac TH thermal camera on its gimbal",
+         hero="th_arctic_hero_green.jpg", hero_alt="Aviac TH thermal camera",
          cmp=("solar_rgb", "solar_thermal", "RGB", "THERMAL", [(29.7, 25.2, "Hotspot candidate · one cell", "#ffe680"), (61.6, 52.7, "Substring warm", "#f0a020"),
                                                               (81.2, 34.2, "Module warm", "#f0a020"), (47.8, 79.3, "Half a table warm", "#f0a020"), (56.2, 14.2, "Soiling", "#c8a080")],
               "One array, two views", "Solar array from above in colour", "The same array in thermal with hotspot candidates"),
@@ -63,12 +63,12 @@ SOL = [
          steps=[("Schedule", "Pick the site and the purpose; the job records the aircraft, sensor and conditions."), ("Fly", "Colour and thermal capture the rows in one pass."),
                 ("Review", "Candidates are flagged; a qualified reviewer confirms or rejects each one."), ("Repair", "Confirmed findings become repair work orders with evidence."),
                 ("Verify", "A post-repair flight checks the fix."), ("Report", "A versioned report goes to the site owner for acceptance.")],
-         cam=("TH", "Thermal", "th_arctic_hero_light.jpg", "product/thermal/", "A 640 × 512 uncooled LWIR core behind a germanium lens, with a colour camera beside it, on a two-axis gimbal."),
+         cam=("TH", "Thermal", "th_arctic_hero_light.jpg", "product/thermal/", "A 640 × 512 uncooled LWIR core behind a germanium lens, with a colour camera beside it."),
          workspace=True, demo=True),
     dict(key="industrial", slug="industrial", name="Industrial inspection", lab="Industrial · SWIR", cams=["SW"],
          h1="Moisture, leaks and haze: <em>seen in SWIR.</em>",
          lead="Water absorbs strongly in the short-wave infrared, so wet insulation, ponding and leaks read dark, and haze that hides a site in daylight mostly drops away. SW brings that to roofs, pipe racks and plants.",
-         hero="sw_graphite_hero_green.jpg", hero_alt="Aviac SW SWIR camera on its gimbal",
+         hero="sw_graphite_hero_green.jpg", hero_alt="Aviac SW SWIR camera",
          cmp=("swir_visible", "swir_swir", "VISIBLE", "SWIR", [(70.0, 43.3, "Ponding", "#3a6ea5"), (26.2, 38.3, "Wet insulation", "#3a6ea5"), (53.8, 89.0, "Pipe leak", "#3a6ea5")],
               "One roof, two views", "Industrial roof in hazy daylight", "The same roof in SWIR, showing moisture and a leak"),
          side=("What SWIR shows", "Water you cannot see in daylight.",
@@ -76,7 +76,7 @@ SOL = [
                [("0.9–1.7 µm", "InGaAs band"), ("640 × 512", "SWIR resolution"), ("3", "Findings"), ("Through haze", "Better contrast")]),
          steps=[("Plan", "Roofs, pipe racks, tanks and conveyors on a repeatable route."), ("Fly", "SW captures in SWIR, on a gimbal for oblique views."),
                 ("Find", "Moisture, leaks and hidden damage stand out against dry material."), ("Track", "Findings go to the dashboard with location, evidence and a repair status.")],
-         cam=("SW", "SWIR", "sw_graphite_hero_light.jpg", "product/swir/", "An InGaAs SWIR sensor behind a SWIR-coated 25 mm lens, on a two-axis gimbal."),
+         cam=("SW", "SWIR", "sw_graphite_hero_light.jpg", "product/swir/", "An InGaAs SWIR sensor behind a SWIR-coated 25 mm lens."),
          demo=True),
     dict(key="construction", slug="construction", name="Construction monitoring", lab="Real estate · construction", cams=["MS", "Duos"],
          h1="Every week of the build, <em>on one map.</em>",
@@ -117,6 +117,12 @@ TEMPLATE = """{{{{HEAD {name} · Aviac Technologies}}}}
     </div>
   </div>
 </div></section>
+
+<section id="fly" style="padding-top:30px"><div class="wrap">
+  <div class="head reveal"><h2>Watch it fly.</h2><p>{fly_text}</p></div>
+  <div class="fly reveal" data-scene="{key}"></div>
+  <p class="note" style="margin-top:10px">Live simulation. Drag to look around; change the height to see the ground detail and swath change. Time runs faster than real flight.</p>
+</div></section>
 {extra}
 <section><div class="wrap">
   <div class="head reveal"><h2>How it works.</h2><p>{how}</p></div>
@@ -134,10 +140,17 @@ TEMPLATE = """{{{{HEAD {name} · Aviac Technologies}}}}
 </div></section>
 
 {{{{FOOT}}}}
+<script type="module" src="{{{{R}}}}flight.js" data-root="{{{{R}}}}"></script>
 <script src="{{{{R}}}}assets/site.js"></script>
 </body>
 </html>
 """
+
+FLY = {"crop": "MS rides fixed and nadir under the Aviac VTOL and flies a lawnmower survey. The NDVI map builds behind the footprint, and stressed zones are pinned as they pass under the camera.",
+       "spraying": "Duos rides at the back of the sprayer, looking aft at the spray that just landed. The coverage map builds lane by lane and flags the missed strip and the overlap.",
+       "solar": "TH flies the rows at 30 m with thermal and colour side by side. Hotspot candidates are pinned as the footprint passes over them, ready for review.",
+       "industrial": "SW scans the roof in short-wave infrared. Ponding, wet insulation and a pipe leak appear in the SWIR layer as it builds.",
+       "construction": "MS maps the site on the same route as every week. This week's map is laid over week 3, and every change is pinned."}
 
 PILOT = {"crop": "farm", "spraying": "farm", "solar": "site", "industrial": "plant", "construction": "project"}
 
@@ -198,7 +211,7 @@ for d in SOL:
     c = d["cam"]
     demo_tag = '<span class="demo-tag">DEMO</span>' if d.get("demo") else ""
     html = TEMPLATE.format(name=d["name"], key=d["key"], lab=d["lab"], demo_tag=demo_tag, h1=d["h1"], lead=d["lead"], hero=d["hero"], hero_alt=d["hero_alt"],
-                           compare=cmp, s0=s0, s1=s1, s2=s2, stats=stats, extra=extra, how=how, steps=steps, cam_href=c[3], cam_img=c[2], cam_name=c[0],
+                           compare=cmp, fly_text=FLY[d['key']], s0=s0, s1=s1, s2=s2, stats=stats, extra=extra, how=how, steps=steps, cam_href=c[3], cam_img=c[2], cam_name=c[0],
                            cam_sub=c[1], cam_text=c[4], pilot_word=PILOT[d["key"]])
     out = os.path.join(SRC, "solutions", d["slug"]); os.makedirs(out, exist_ok=True)
     open(os.path.join(out, "index.html"), "w").write(html)
@@ -207,9 +220,9 @@ for d in SOL:
 # ---------------- TH and SW product pages (same layout as Duos)
 PROD = [
     dict(key="th", slug="thermal", cam="th", name="TH", sub="Thermal", lab="Thermal · solar and electrical inspection", finish="arctic",
-         lead="A 640 × 512 thermal core and a colour camera side by side, in a sealed head on a two-axis gimbal. Built for solar arrays, substations and electrical rooms.",
+         lead="A 640 × 512 thermal core and a colour camera side by side, in a sealed head. Built for solar arrays, substations and electrical rooms.",
          specs=[("Thermal core", "640 × 512, 12 µm, uncooled (placeholder)"), ("Thermal lens", "13 mm f/1.0, germanium"), ("Colour", "Mira220, 1600 × 1400"),
-                ("Body", "60 × 42 × 36 mm"), ("Head", "61 g"), ("With gimbal", "121 g")],
+                ("Body", "60 × 42 × 36 mm"), ("Weight", "61 g"), ("Output", "USB-C or Ethernet")],
          cards=[("Optics", "Germanium and glass", "A germanium LWIR lens with a hard DLC-coated window, and an M12 colour lens beside it, both behind the protective hood.",
                  [("Thermal", "13 mm f/1.0, germanium"), ("Colour", "M12, Mira220")]),
                 ("Baseboard + image sensors", "Thermal core and colour sensor", "A machined thermal core module with its own window, and a Mira220 colour sensor on a small board beside it.",
@@ -220,9 +233,9 @@ PROD = [
                 ("Gimbal", "Gimbal yoke", "Pan and tilt on brushless motors, with rubber isolators under a quick-release plate.", [("Axes", "pan and tilt"), ("Gimbal", "60 g")])],
          end="61 g of thermal.", gal=("th_arctic_hero_light.jpg", "th_arctic_hero_green.jpg"), solution="solutions/solar/"),
     dict(key="sw", slug="swir", cam="sw", name="SW", sub="SWIR", lab="SWIR · industrial inspection", finish="graphite",
-         lead="An InGaAs short-wave infrared sensor behind a SWIR-coated lens, on a two-axis gimbal. Moisture, leaks and haze, on roofs, pipe racks and plants.",
+         lead="An InGaAs short-wave infrared sensor behind a SWIR-coated lens. Moisture, leaks and haze, on roofs, pipe racks and plants.",
          specs=[("Sensor", "InGaAs, 640 × 512, 5 µm (placeholder)"), ("Band", "about 0.9 to 1.7 µm"), ("Lens", "25 mm f/1.4, SWIR coated"),
-                ("Body", "58 × 46 × 44 mm"), ("Head", "63 g"), ("With gimbal", "123 g")],
+                ("Body", "58 × 46 × 44 mm"), ("Weight", "63 g"), ("Output", "USB-C or Ethernet")],
          cards=[("Optics", "SWIR lens", "A 25 mm f/1.4 lens with an anti-reflection coating for the short-wave infrared, behind the protective hood.", [("Lens", "25 mm f/1.4"), ("Coating", "0.9–1.7 µm")]),
                 ("Baseboard + image sensors", "InGaAs sensor", "An InGaAs sensor in a ceramic package, with a heat spreader behind it for its cooler.", [("Sensor", "InGaAs, 640 × 512"), ("Pixel", "5 µm")]),
                 ("Processing board", "SWIR pipeline", "An FPGA board corrects pixel non-uniformity, syncs capture and sends the stream out over USB-C or Ethernet.", [("Output", "USB-C or Ethernet")]),
@@ -250,7 +263,7 @@ for d in PROD:
     <h1 style="margin:14px 0 16px">{d['name']} <span style="color:var(--mute);font-size:.45em;letter-spacing:0">{d['sub']}</span></h1>
     <p style="font-size:18px;max-width:520px">{d['lead']}</p>
     <div class="pspecs">{specs}</div>
-    <a class="btn p" href="#teardown">See inside <span class="a">&darr;</span></a> <a class="btn" href="{{{{R}}}}{d['solution']}">See the use case</a>
+    <a class="btn p" href="{{{{R}}}}{d['solution']}">See it fly <span class="a">&rarr;</span></a> <a class="btn" href="{{{{R}}}}#contact">Request a pilot</a>
   </div>
   <div class="stage3d reveal">
     <div class="viewer" id="{d['cam']}-hero" data-src="{{{{R}}}}models/{d['cam']}/" data-finish="{d['finish']}" data-spin="1" data-zoom="1" data-dist="4.4" role="img" aria-label="{d['name']}, interactive 3D model. Drag to turn."></div>
@@ -259,18 +272,9 @@ for d in PROD:
   </div>
 </div></div></header>
 
-<section class="td" id="teardown" aria-label="Teardown" style="height:440vh"><div class="pin">
-  <div class="viewer" id="{d['cam']}-td" data-src="{{{{R}}}}models/{d['cam']}/" data-finish="{d['finish']}" data-follow="{d['cam']}-hero" data-dist="3.6" aria-hidden="true"></div>
-  <div class="wrap top"><h2>Inside the {d['name']}</h2><div class="prog">{dots}<span>1 / {n + 2}</span></div></div>
-  <div class="track">
-    <article class="card on" data-view="0.9,0.22,4.6"><div class="n">TEARDOWN</div><h3>Concept hardware.</h3><p>Scroll to take it apart. Core and sensor choices are placeholders.</p></article>
-{cards}    <article class="card end" data-view="0.6,0.2,4.4"><div class="n" style="color:#cfe6d6">ASSEMBLED</div><h3>{d['end']}</h3><p>See what it finds.</p><a class="btn" href="{{{{R}}}}{d['solution']}">See the use case <span class="a">&rarr;</span></a></article>
-  </div>
-</div></section>
-
 <section><div class="wrap">
   <div class="head reveal"><h2>Same family, new band.</h2><p>The hood stands proud of the lens, so a hard landing hits rubber, not glass.</p></div>
-  <div class="gallery reveal"><img src="{{{{R}}}}assets/img/{d['gal'][1]}" alt="{d['name']} camera"><div class="col"><img src="{{{{R}}}}assets/img/{d['gal'][0]}" alt="{d['name']} camera on its gimbal"></div></div>
+  <div class="gallery reveal"><img src="{{{{R}}}}assets/img/{d['gal'][1]}" alt="{d['name']} camera"><div class="col"><img src="{{{{R}}}}assets/img/{d['gal'][0]}" alt="{d['name']} camera"></div></div>
 </div></section>
 
 {{{{FOOT}}}}

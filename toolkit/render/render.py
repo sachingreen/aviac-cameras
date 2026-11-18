@@ -614,7 +614,7 @@ for s in shots:
     # ---- product-film shots
     elif s in ("c_light", "c_green", "c_close", "c_exploded"):
         tag = os.environ.get("TAG", "")
-        c, size = pose(1.0 if s == "c_exploded" else 0, hide=("DLS puck",), rot=(0, 0, 0), lift=0.06 if s == "c_exploded" else 0.0)
+        c, size = pose(1.0 if s == "c_exploded" else 0, hide=("DLS puck",) + tuple(g for g in os.environ.get("HIDE", "").split(",") if g), rot=(0, 0, 0), lift=0.06 if s == "c_exploded" else 0.0)
         front = c + Vector((0, -size.y * 0.5, 0))
         if s == "c_light":
             cshoot(tag + "hero_light", c, size, -124, 9, 110, 0.70, 9.0, front, "light")

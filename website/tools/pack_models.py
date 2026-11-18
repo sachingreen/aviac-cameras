@@ -20,7 +20,7 @@ def pack(cam):
     os.makedirs(out, exist_ok=True)
     buf, parts, off = bytearray(), [], 0
     for m in meta:
-        if m["group"] in HIDE:
+        if m["group"] in HIDE or (cam in ("th", "sw") and m["group"] == "Gimbal"):
             continue
         raw = base64.b64decode(m["pos"])
         f = struct.unpack(f"<{len(raw) // 4}f", raw)

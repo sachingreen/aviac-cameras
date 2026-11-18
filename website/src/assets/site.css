@@ -275,3 +275,36 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
   .card{scroll-snap-align:start}.card:not(.on){opacity:1;transform:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* flight demos */
+.fly{position:relative;height:min(78vh,680px);min-height:520px;border-radius:var(--r-lg);overflow:hidden;background:#e9efeb;border:1px solid var(--line);contain:paint;isolation:isolate}
+.fly-c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:grab}
+.fly-hud{position:absolute;inset:0;pointer-events:none;font-size:12.5px;color:var(--ink)}
+.fly .fp{position:absolute;top:14px;width:230px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.82);backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);border:1px solid rgba(255,255,255,.9);box-shadow:0 12px 30px -18px rgba(19,32,26,.35)}
+.fly .fp-l{left:14px}.fly .fp-r{right:14px}
+.fly .fh{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);display:flex;justify-content:space-between;gap:8px}
+.fly .fh b{color:var(--forest);font-weight:500}.fly .live{animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.35}}
+.fly .fbig{margin:6px 0 4px}.fly .fbig b{font:400 30px var(--serif)}.fly .fbig span{color:var(--mute);font-size:12px}
+.fly .fbar{height:4px;border-radius:2px;background:var(--sage-2);overflow:hidden;margin-bottom:8px}.fly .fbar i{display:block;height:100%;width:0;background:var(--forest)}
+.fly dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0}.fly dt{color:var(--mute)}.fly dd{margin:0;text-align:right;font:500 12px var(--mono)}
+.fly .fform{font:500 10.5px var(--mono);color:var(--forest);margin-bottom:8px}
+.fly .fmini{width:100%;height:auto;border-radius:8px;margin-top:10px;display:block}
+.fly .flab{font:500 10px var(--mono);color:var(--mute);margin-top:4px}
+.fly .ffind{list-style:none;margin:6px 0 0;padding:0;max-height:120px;overflow:hidden}
+.fly .ffind li{display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid var(--line);animation:pop .4s var(--ease)}
+.fly .ffind li i{width:8px;height:8px;border-radius:50%;background:#d7301f;flex:none}.fly .ffind li span{margin-left:auto;color:var(--mute);font:500 11px var(--mono)}
+@keyframes pop{from{opacity:0;transform:translateY(-4px)}}
+.fly .fbands{position:absolute;top:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:40%}
+.fly .fbands span{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.8);font:500 10.5px var(--mono);letter-spacing:.06em}
+.fly .fbands i{width:8px;height:8px;border-radius:50%}
+.fly .fctl{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);pointer-events:auto;box-shadow:0 10px 26px -16px rgba(19,32,26,.4)}
+.fly .fctl button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;font:500 11.5px var(--mono);color:var(--ink-2)}
+.fly .fctl button.on,.fly .fctl [data-a]{background:var(--forest);color:#fff}
+.fly .fseg{display:flex;gap:2px;background:var(--sage-2);border-radius:999px;padding:2px}
+.fly .fctl label{display:flex;align-items:center;gap:8px;font:500 11px var(--mono);color:var(--mute);padding-right:8px}
+.fly .fctl input{accent-color:var(--forest);width:110px}
+.fly.fly-off::after{content:'3D demo needs WebGL';position:absolute;inset:0;display:grid;place-items:center;color:var(--mute)}
+@media (max-width:900px){.fly{height:auto;min-height:0;aspect-ratio:auto}.fly .fly-c{position:relative;height:56vh}.fly .fly-hud{position:relative}
+  .fly .fp{position:relative;top:auto;left:auto;right:auto;width:auto;margin:10px}.fly .fbands{position:relative;left:auto;transform:none;max-width:none;margin:10px;justify-content:flex-start}
+  .fly .fctl{position:absolute;top:calc(56vh - 56px);bottom:auto}}
