@@ -2,10 +2,14 @@
 
 96 x 90 x 90 mm. One Sony IMX565 on a compact 16 mm C-mount lens (RGB), centred-right; three Mira220 on
 M12 lenses with band-pass filters (red edge 723, NIR 840, NIR+ 890) in a column on the left. Jetson Orin NX / Nano
-on an 87 x 52 mm carrier, thermal block to a finned aluminium rear plate with a 30 mm fan. Downwelling light
+on an 87 x 52 mm carrier; two 6 mm heat pipes carry the heat to a 1.5 mm finned aluminium insert in the rear
+wall, with a 30 mm fan. Downwelling light
 sensor on top, XT30 / Ethernet / USB-C / GPS-PPS on the rear, drone bracket with 4 x M3 underneath.
-PA12-CF shell with chamfered corner bumpers, gasket line, 4 front screws, amber status LED, side vents under the
-debossed Aviac wing mark. Calculated mass 553 g with the bracket.
+PA12-CF shell with chamfered corner bumpers, gasket line, 4 front screws, thin amber light bar that blinks while capturing,
+side vents under the debossed Aviac wing mark. Lens rings are 20 mm, shared with the Duos.
+
+Calculated mass 307 g, 314 g with the PA12-CF bracket (MicaSense RedEdge-P: 315 g, RedEdge-MX: 232 g, both without
+onboard compute). Heaviest items: C-mount lens 45 g (estimate), Jetson module 28 g, rear housing about 45 g.
 
 Teardown stages (groups in the model): Optics / Baseboard + image sensors / Processing board / Externals.
 Colourways: gunmetal (hero), sand, stealth, bronze (`out/finishes.json`).

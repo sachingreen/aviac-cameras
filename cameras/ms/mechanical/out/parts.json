@@ -17,29 +17,29 @@
   "name": "bumpers_rear",
   "label": "Corner bumpers, overmoulded TPU",
   "group": "Externals",
-  "mass": 5.29,
+  "mass": 5.81,
   "estimated": false
  },
  {
-  "name": "panel",
-  "label": "Front panel",
-  "group": "Externals",
-  "mass": 8.55,
-  "estimated": false
- },
- {
-  "name": "led",
-  "label": "Status LED, amber",
+  "name": "light_bezel",
+  "label": "Light bar bezel",
   "group": "Externals",
   "mass": 0.1,
   "estimated": true
  },
  {
-  "name": "led_bezel",
-  "label": "LED bezel",
+  "name": "light_bar",
+  "label": "Status light bar, amber: blinks while capturing",
   "group": "Externals",
-  "mass": 0.0,
+  "mass": 0.1,
   "estimated": true
+ },
+ {
+  "name": "panel",
+  "label": "Front panel",
+  "group": "Externals",
+  "mass": 8.62,
+  "estimated": false
  },
  {
   "name": "front_screws",
@@ -52,7 +52,7 @@
   "name": "lens_plate",
   "label": "Lens and filter plate, machined aluminium",
   "group": "Optics",
-  "mass": 81.51,
+  "mass": 29.88,
   "estimated": false
  },
  {
@@ -176,9 +176,9 @@
  },
  {
   "name": "imx_barrel",
-  "label": "C-mount lens, 16 mm, 1.1-inch, compact",
+  "label": "C-mount lens, 16 mm, 1.1-inch, compact (lightweight build)",
   "group": "Optics",
-  "mass": 58.0,
+  "mass": 45.0,
   "estimated": true
  },
  {
@@ -283,7 +283,7 @@
   "name": "baseboard",
   "label": "Sensor baseboard: sync, power, 4 x 2-lane MIPI",
   "group": "Baseboard + image sensors",
-  "mass": 14.0,
+  "mass": 11.0,
   "estimated": true
  },
  {
@@ -302,9 +302,9 @@
  },
  {
   "name": "jetson",
-  "label": "Jetson Orin NX / Nano module",
+  "label": "Jetson Orin NX / Nano module (bare; the case is the heatsink)",
   "group": "Processing board",
-  "mass": 60.0,
+  "mass": 28.0,
   "estimated": true
  },
  {
@@ -315,32 +315,39 @@
   "estimated": true
  },
  {
-  "name": "thermal_block",
-  "label": "Thermal block to the rear heatsink",
+  "name": "spreader",
+  "label": "Heat spreader on the SoC",
   "group": "Processing board",
-  "mass": 30.58,
+  "mass": 3.76,
+  "estimated": false
+ },
+ {
+  "name": "heat_pipe",
+  "label": "2 x 6 mm heat pipes to the rear heatsink",
+  "group": "Processing board",
+  "mass": 9.0,
+  "estimated": true
+ },
+ {
+  "name": "heatsink",
+  "label": "Finned aluminium heatsink insert, 1.5 mm base",
+  "group": "Externals",
+  "mass": 26.9,
   "estimated": false
  },
  {
   "name": "rear_housing",
   "label": "Rear housing, PA12-CF",
   "group": "Externals",
-  "mass": 38.71,
+  "mass": 53.75,
   "estimated": false
  },
  {
   "name": "fan",
   "label": "30 mm fan",
   "group": "Externals",
-  "mass": 8.0,
+  "mass": 6.0,
   "estimated": true
- },
- {
-  "name": "rear_cap",
-  "label": "Finned aluminium rear plate: the heatsink",
-  "group": "Externals",
-  "mass": 140.54,
-  "estimated": false
  },
  {
   "name": "xt30",
@@ -386,9 +393,9 @@
  },
  {
   "name": "mount",
-  "label": "Drone bracket, 4 x M3",
+  "label": "Drone bracket, PA12-CF, 4 x M3",
   "group": "Mount",
-  "mass": 28.77,
+  "mass": 7.41,
   "estimated": false
  }
 ]

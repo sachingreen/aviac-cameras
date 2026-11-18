@@ -21,10 +21,24 @@
   "estimated": false
  },
  {
+  "name": "light_bezel",
+  "label": "Light bar bezel",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
+  "name": "light_bar",
+  "label": "Status light bar, amber: blinks while capturing",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
   "name": "panel",
   "label": "Front panel",
   "group": "Externals",
-  "mass": 1.59,
+  "mass": 1.56,
   "estimated": false
  },
  {
@@ -33,13 +47,6 @@
   "group": "Optics",
   "mass": 2.55,
   "estimated": false
- },
- {
-  "name": "led",
-  "label": "Status LED, amber",
-  "group": "Externals",
-  "mass": 0.05,
-  "estimated": true
  },
  {
   "name": "cam0_ring",
@@ -57,7 +64,7 @@
  },
  {
   "name": "cam0_barrel",
-  "label": "M12 lens, 25 mm long",
+  "label": "Low-profile M12 lens, 12 mm long",
   "group": "Optics",
   "mass": 3.5,
   "estimated": true
@@ -85,7 +92,7 @@
  },
  {
   "name": "cam1_barrel",
-  "label": "M12 lens, 25 mm long",
+  "label": "Low-profile M12 lens, 12 mm long",
   "group": "Optics",
   "mass": 3.5,
   "estimated": true

@@ -177,6 +177,17 @@ def export(out, name, extra_frame=None):
         print(f"   {m:6.1f} g  {g}")
 
 
+def light_bar(panel, bar, recess, ex):
+    """Thin status light: a slot in the panel with a diffused bar that blinks while capturing."""
+    x, z, l, h = bar
+    panel = panel.cut(rbox(x - l / 2 - 0.6, x + l / 2 + 0.6, -1, recess + 3, z - h / 2 - 0.6, z + h / 2 + 0.6, min(h / 2 + 0.6, 1.2)))
+    add("light_bezel", rbox(x - l / 2 - 0.6, x + l / 2 + 0.6, recess - 0.4, recess + 1.5, z - h / 2 - 0.6, z + h / 2 + 0.6, min(h / 2 + 0.6, 1.2))
+        .cut(rbox(x - l / 2, x + l / 2, recess - 1, recess + 2, z - h / 2, z + h / 2, h / 2.01)), EXT, ex, mat="satin", color=(0.04, 0.04, 0.045), mass=0.1, label="Light bar bezel")
+    add("light_bar", rbox(x - l / 2, x + l / 2, recess - 0.2, recess + 1.4, z - h / 2, z + h / 2, h / 2.01), EXT, ex, mat="led", color=(1.0, 0.55, 0.12),
+        mass=0.1, label="Status light bar, amber: blinks while capturing")
+    return panel
+
+
 # colourways: role -> material and colour (linear RGB)
 FINISHES = {
     "gunmetal": {"body": {"mat": "powder", "color": [0.042, 0.045, 0.044]}, "bumper": {"mat": "powder", "color": [0.028, 0.03, 0.03]},
@@ -194,18 +205,16 @@ FINISHES = {
 def build_ms():
     Wd, H, D = 96.0, 90.0, 90.0
     FT, frame, recess, wall = 14.0, 6.0, 3.0, 1.5
-    CAP = 78.0                                                  # aluminium finned rear cap from here to D
     EXF, EXO, EXS, EXP, EXR = (0, -170, 0), (0, -112, 0), (0, -58, 0), (0, 0, 0), (0, 60, 0)
-    fs, panel, rh, (px0, px1, pz0, pz1), _ = rugged_body(Wd, H, D, 9.0, FT, frame, recess, wall, 5.0, EXF, EXR, cap=CAP, bump=1.2)
+    fs, panel, rh, (px0, px1, pz0, pz1), _ = rugged_body(Wd, H, D, 9.0, FT, frame, recess, wall, 5.0, EXF, EXR, bump=1.2)
     MIRA = [(-29.0, 21.0, "NIR+ 890", (0.16, 0.02, 0.10)), (-29.0, 45.0, "NIR 840", (0.33, 0.03, 0.12)), (-29.0, 69.0, "RE 723", (0.62, 0.05, 0.08))]
     IMX = (11.0, 45.0)
-    LED = (36.5, 77.0)
+    BAR = (32.0, 77.5, 16.0, 1.4)                                # light bar: centre x, z, length, height
     for (x, z, *_r) in MIRA:
-        panel = panel.cut(ycyl(x, z, -1, 10, 8.2))
-    panel = panel.cut(ycyl(IMX[0], IMX[1], -1, 10, 17.2)).cut(ycyl(LED[0], LED[1], -1, 10, 1.6))
+        panel = panel.cut(ycyl(x, z, -1, 10, 7.7))
+    panel = panel.cut(ycyl(IMX[0], IMX[1], -1, 10, 17.2))
+    panel, = light_bar(panel, BAR, recess, EXF),
     add("panel", panel, EXT, EXF, finish="panel", density=PA12CF, label="Front panel")
-    add("led", ycyl(LED[0], LED[1], recess - 0.6, recess + 1.5, 1.55), EXT, EXF, mat="led", color=(1.0, 0.55, 0.12), mass=0.1, label="Status LED, amber")
-    add("led_bezel", yring(LED[0], LED[1], recess - 0.7, recess + 0.2, 2.3, 1.55), EXT, EXF, mat="satin", color=(0.05, 0.05, 0.055), mass=0.0, label="LED bezel")
     screws = None
     for sx in (-1, 1):
         for zz in (7.0, H - 7.0):
@@ -214,14 +223,14 @@ def build_ms():
     add("front_screws", screws, EXT, EXF, mat="steel", color=(0.55, 0.56, 0.58), mass=1.2, label="4 x M3 stainless")
 
     # ---- optics: aluminium lens/filter plate, 3 x M12 lenses with band-pass filters, 1 x C-mount lens
-    LP0, LP1 = recess + wall, recess + wall + 6.0
+    LP0, LP1 = recess + wall, recess + wall + 2.0
     lp = rbox(px0 + 1, px1 - 1, LP0, LP1, pz0 + 1, pz1 - 1, 4.0)
     for (x, z, *_r) in MIRA:
         lp = lp.cut(ycyl(x, z, LP0 - 1, LP1 + 1, 6.2))
-    lp = lp.cut(ycyl(IMX[0], IMX[1], LP0 - 1, LP1 + 1, 16.2))
+    lp = lp.cut(ycyl(IMX[0], IMX[1], LP0 - 1, LP1 + 1, 16.2)).union(yring(IMX[0], IMX[1], LP1 - 0.01, LP1 + 4.0, 18.5, 16.2))   # 2 mm plate, C-mount boss
     add("lens_plate", lp, OPT, EXO, mat="satin", color=(0.55, 0.56, 0.58), density=ALU, label="Lens and filter plate, machined aluminium")
     for i, (x, z, band, tint) in enumerate(MIRA):
-        lens_ring(f"mira{i}", x, z, -10.0, recess, 22.0, 16.0, OPT, EXO)
+        lens_ring(f"mira{i}", x, z, -10.0, recess, 20.0, 15.6, OPT, EXO)
         m12_lens(f"mira{i}", x, z, -9.0, 25.0, OPT, EXO, tint, "M12 lens, 6 mm, 25 mm long")
         add(f"mira{i}_filter", ycyl(x, z, -9.6, -9.1, 6.6), OPT, EXO, mat="bandpass", color=tint, mass=0.4, label=f"Band-pass filter, {band}")
     # C-mount: compact 16 mm, 30 mm long, 12 mm proud; collar ring, focus and iris knurls
@@ -232,7 +241,7 @@ def build_ms():
         for k in range(36):
             a = 2 * math.pi * k / 36
             cb = cb.cut(ycyl(cx + 15.6 * math.cos(a), cz + 15.6 * math.sin(a), ya, yb, 0.55))
-    add("imx_barrel", cb, OPT, EXO, mat="anodised", color=(0.02, 0.02, 0.025), mass=58.0, label="C-mount lens, 16 mm, 1.1-inch, compact")
+    add("imx_barrel", cb, OPT, EXO, mat="anodised", color=(0.02, 0.02, 0.025), mass=45.0, label="C-mount lens, 16 mm, 1.1-inch, compact (lightweight build)")
     add("imx_glass", ycyl(cx, cz, -10.4, -9.6, 11.4), OPT, EXO, mat="lens", color=(0.20, 0.10, 0.32), mass=0.0, label="Front element, AR coated")
     add("imx_retainer", yring(cx, cz, -11.0, -10.3, 12.4, 11.4), OPT, EXO, mat="gold", color=(0.8, 0.6, 0.2), mass=0.0, label="Retaining ring")
 
@@ -247,14 +256,16 @@ def build_ms():
     add("imx_pcb", box(cx - 29.5, cx + 29.5, IB0, IB0 + 1.6, cz - 31.5, cz + 31.5), SEN, EXS, mat="pcb", color=(0.02, 0.03, 0.025), mass=9.0, label="IMX565 sensor board, 59 x 63 mm")
     add("imx_sensor", box(cx - 10, cx + 10, IB0 - 1.7, IB0, cz - 8.4, cz + 8.4), SEN, EXS, mat="ceramic_dark", color=(0.07, 0.07, 0.08), mass=0.0, label="Sony IMX565, 12.4 MP global shutter")
     add("imx_b2b", box(cx - 12, cx + 12, IB0 + 1.6, 40.0, cz + 20, cz + 26), SEN, EXS, mat="plastic_gloss", color=(0.80, 0.77, 0.68), mass=0.5, label="Board-to-board connector")
-    add("baseboard", box(-44, 44, 40.0, 41.6, 4.0, 86.0), SEN, EXS, mat="pcb", color=(0.02, 0.20, 0.10), mass=14.0, label="Sensor baseboard: sync, power, 4 x 2-lane MIPI")
+    add("baseboard", box(-44, 44, 40.0, 41.6, 4.0, 86.0), SEN, EXS, mat="pcb", color=(0.02, 0.20, 0.10), mass=11.0, label="Sensor baseboard: sync, power, 4 x 2-lane MIPI")
 
     # ---- processing: Jetson carrier 87 x 52 and module, thermal block to the rear cap
     add("carrier", box(-43.5, 43.5, 46.0, 47.6, 19.0, 71.0), PROC, EXP, mat="pcb", color=(0.02, 0.20, 0.10), mass=16.0, label="Jetson carrier, 87 x 52 mm")
     add("sodimm", box(-36, 36, 47.6, 51.0, 22.0, 30.0), PROC, EXP, mat="plastic_gloss", color=(0.08, 0.08, 0.09), mass=3.0, label="260-pin SO-DIMM socket")
-    add("jetson", box(-34.8, 34.8, 51.0, 52.2, 24.0, 69.0), PROC, EXP, mat="pcb", color=(0.02, 0.10, 0.06), mass=60.0, label="Jetson Orin NX / Nano module")
+    add("jetson", box(-34.8, 34.8, 51.0, 52.2, 24.0, 69.0), PROC, EXP, mat="pcb", color=(0.02, 0.10, 0.06), mass=28.0, label="Jetson Orin NX / Nano module (bare; the case is the heatsink)")
     add("jetson_soc", box(-12, 12, 52.2, 54.6, 40.0, 64.0), PROC, EXP, mat="alu", color=(0.6, 0.6, 0.62), mass=0.0, label="Orin SoC")
-    add("thermal_block", box(-11, 11, 54.6, CAP, 41.0, 63.0), PROC, EXP, mat="alu", color=(0.6, 0.6, 0.62), density=ALU, label="Thermal block to the rear heatsink")
+    add("spreader", box(-12, 12, 54.6, 56.6, 35.0, 64.0), PROC, EXP, mat="alu", color=(0.6, 0.6, 0.62), density=ALU, label="Heat spreader on the SoC")
+    add("heat_pipe", ycyl(-4, 38.5, 54.6, D - 7.5, 3.0).union(ycyl(4, 38.5, 54.6, D - 7.5, 3.0)), PROC, EXP, mat="gold", color=(0.75, 0.42, 0.25),
+        mass=9.0, label="2 x 6 mm heat pipes to the rear heatsink")
 
     # ---- externals: rear housing, fan, finned aluminium cap with ports, DLS, mount
     rh = rh.cut(box(Wd / 2 - 2, Wd / 2 + 2, 30, 60, 10, 22))                                   # vent slots under the mark
@@ -265,21 +276,26 @@ def build_ms():
     except Exception as e:
         print("mark skipped", e)
     rh = rh.cut(zcyl(0, 50.0, H - 3, H + 2, 13.0))                                                # DLS opening
+    # rear: a 1.5 mm finned aluminium insert sits in a window of the PA12 rear wall; ports go through the wall below
+    HX0, HX1, HZ0, HZ1 = -30.0, 30.0, 30.0, 84.0
+    rh = rh.cut(rbox(HX0, HX1, D - 3, D + 1, HZ0, HZ1, 4.0))
+    hs = rbox(HX0 - 2, HX1 + 2, D - 8.0, D - 6.5, HZ0 - 2, HZ1 + 2, 5.0)
+    for k in range(14):
+        x = HX0 + 2.0 + k * 4.0
+        hs = hs.union(box(x - 0.5, x + 0.5, D - 6.51, D - 0.3, HZ0 + 1.5, HZ1 - 1.5))
+    add("heatsink", hs, EXT, (0, 95, 0), mat="satin", color=(0.48, 0.49, 0.5), density=ALU, label="Finned aluminium heatsink insert, 1.5 mm base")
+    for (x, w, h, zc, kind) in ((-30, 16.0, 8.0, 15.0, "xt30"), (-8, 12.0, 9.5, 15.0, "eth"), (9, 9.0, 3.4, 15.0, "usb"), (28, 0, 0, 15.0, "gps")):
+        rh = rh.cut(ycyl(x, zc, D - 3, D + 1, 4.2) if kind == "gps" else box(x - w / 2, x + w / 2, D - 3, D + 1, zc - h / 2, zc + h / 2))
+    for k in range(5):                                            # fan exhaust slots beside the heatsink
+        for sx in (-1, 1):
+            rh = rh.cut(rbox(sx * 38 - 3, sx * 38 + 3, D - 3, D + 1, 40 + k * 7, 43 + k * 7, 1.2))
     add("rear_housing", rh, EXT, EXR, finish="body", density=PA12CF, label="Rear housing, PA12-CF")
-    add("fan", box(-15, 15, 66.0, 76.0, 52.0, 82.0).cut(ycyl(0, 67.0, 65, 77, 13.0)).union(ycyl(0, 67.0, 66.5, 75.5, 5.0)), EXT, EXR,
-        mat="plastic_gloss", color=(0.05, 0.05, 0.055), mass=8.0, label="30 mm fan")
-    capb = rbox(-Wd / 2, Wd / 2, CAP, CAP + 3.0, 0, H, 9.0)
-    for k in range(13):
-        x = -33 + k * 5.5
-        capb = capb.union(box(x - 0.8, x + 0.8, CAP + 2.9, D, 26.0, 84.0))
-    capb = capb.union(rbox(-Wd / 2 + 1, Wd / 2 - 1, CAP + 2.9, D, 3.0, 23.0, 4.0))               # port band
-    for (x, w, h, zc, kind) in ((-30, 16.0, 8.0, 13.0, "xt30"), (-8, 12.0, 9.5, 13.0, "eth"), (9, 9.0, 3.4, 13.0, "usb"), (28, 0, 0, 13.0, "gps")):
-        capb = capb.cut(zcyl(x, D, 0, 1, 1) if False else (ycyl(x, zc, D - 4, D + 1, 4.2) if kind == "gps" else box(x - w / 2, x + w / 2, D - 4, D + 1, zc - h / 2, zc + h / 2)))
-    add("rear_cap", capb, EXT, (0, 95, 0), mat="satin", color=(0.48, 0.49, 0.5), density=ALU, label="Finned aluminium rear plate: the heatsink")
-    add("xt30", box(-37, -23, D - 4.5, D - 0.6, 9.5, 16.5), EXT, (0, 95, 0), mat="plastic_gloss", color=(0.93, 0.74, 0.08), mass=2.0, label="Power in, XT30, 3S-6S")
-    add("eth", box(-13.5, -2.5, D - 4.5, D - 0.8, 8.8, 17.2), EXT, (0, 95, 0), mat="steel", color=(0.7, 0.7, 0.72), mass=1.0, label="Ethernet")
-    add("usb", box(5, 13, D - 4.2, D - 0.8, 11.5, 14.5), EXT, (0, 95, 0), mat="steel", color=(0.7, 0.7, 0.72), mass=0.5, label="USB-C")
-    add("gps", yring(28, 13.0, D - 4.6, D + 0.6, 4.1, 2.6), EXT, (0, 95, 0), mat="gold", color=(0.8, 0.6, 0.2), mass=1.0, label="GPS / PPS connector")
+    add("fan", box(-15, 15, 72.0, 79.0, 42.0, 72.0).cut(ycyl(0, 57.0, 71, 80, 13.0)).union(ycyl(0, 57.0, 72.5, 78.5, 5.0)), EXT, EXR,
+        mat="plastic_gloss", color=(0.05, 0.05, 0.055), mass=6.0, label="30 mm fan")
+    add("xt30", box(-37, -23, D - 4.5, D - 0.6, 11.5, 18.5), EXT, EXR, mat="plastic_gloss", color=(0.93, 0.74, 0.08), mass=2.0, label="Power in, XT30, 3S-6S")
+    add("eth", box(-13.5, -2.5, D - 4.5, D - 0.8, 10.8, 19.2), EXT, EXR, mat="steel", color=(0.7, 0.7, 0.72), mass=1.0, label="Ethernet")
+    add("usb", box(5, 13, D - 4.2, D - 0.8, 13.5, 16.5), EXT, EXR, mat="steel", color=(0.7, 0.7, 0.72), mass=0.5, label="USB-C")
+    add("gps", yring(28, 15.0, D - 4.6, D + 0.6, 4.1, 2.6), EXT, EXR, mat="gold", color=(0.8, 0.6, 0.2), mass=1.0, label="GPS / PPS connector")
     add("dls_ring", zcyl(0, 50.0, H - 0.6, H + 1.4, 14.0).cut(zcyl(0, 50.0, H - 1, H + 2, 11.0)), EXT, (0, 60, 40), mat="satin", color=(0.05, 0.05, 0.055), mass=1.0, label="DLS ring")
     dome = zcyl(0, 50.0, H - 1.0, H + 1.6, 11.0)
     try:
@@ -287,11 +303,12 @@ def build_ms():
     except Exception:
         pass
     add("dls_dome", dome, EXT, (0, 60, 40), mat="dome", color=(0.95, 0.95, 0.93), mass=3.0, label="Downwelling light sensor, opal diffuser")
-    br = rbox(-30, 30, 22.0, 70.0, -4.0, -0.2, 3.0, "|Z")
+    br = rbox(-30, 30, 22.0, 70.0, -3.2, -0.2, 3.0, "|Z")
     for sx in (-1, 1):
         for sy in (28.0, 64.0):
-            br = br.cut(zcyl(sx * 22, sy, -5, 1, 1.7)).cut(zcyl(sx * 22, sy, -5, -2.2, 3.0))
-    add("mount", br, "Mount", (0, 60, -40), mat="satin", color=(0.05, 0.05, 0.055), density=ALU, label="Drone bracket, 4 x M3")
+            br = br.cut(zcyl(sx * 22, sy, -5, 1, 1.7)).cut(zcyl(sx * 22, sy, -5, -1.8, 3.0))
+        br = br.cut(rbox(sx * 12 - 7, sx * 12 + 7, 34, 58, -5, 1, 3.0, "|Z"))         # lightening pockets
+    add("mount", br, "Mount", (0, 60, -40), mat="satin", color=(0.05, 0.05, 0.055), density=PA12CF, label="Drone bracket, PA12-CF, 4 x M3")
     export(os.path.join(REPO, "cameras", "ms", "mechanical", "out"), "aviac_ms")
 
 
@@ -300,20 +317,18 @@ def build_duos():
     Wd, H, D = 50.0, 30.0, 28.0
     FT, frame, recess, wall = 6.0, 1.6, 1.2, 1.5
     B = 26.0
-    EXF, EXO, EXS, EXP, EXR = (0, -78, 0), (0, -50, 0), (0, -22, 0), (0, 0, 0), (0, 22, 0)
+    EXF, EXO, EXS, EXP, EXR = (0, -62, 0), (0, -38, 0), (0, -16, 0), (0, 0, 0), (0, 22, 0)
     fs, panel, rh, (px0, px1, pz0, pz1), _ = rugged_body(Wd, H, D, 3.0, FT, frame, recess, wall, 2.2, EXF, EXR, bump=0.7)
     L = [(-B / 2, 15.0), (B / 2, 15.0)]
-    LED = (0.0, 25.6)
     for (x, z) in L:
         panel = panel.cut(ycyl(x, z, -1, 5, 7.2))
-    panel = panel.cut(ycyl(LED[0], LED[1], -1, 5, 0.9))
+    panel = light_bar(panel, (0.0, 26.0, 10.0, 0.9), recess, EXF)
     add("panel", panel, EXT, EXF, finish="panel", density=PA12CF, label="Front panel")
     add("front_plate", rbox(px0 + 0.5, px1 - 0.5, recess + wall, recess + wall + 1.0, pz0 + 0.5, pz1 - 0.5, 2.0).cut(ycyl(L[0][0], 15, 0, 5, 6.1)).cut(ycyl(L[1][0], 15, 0, 5, 6.1)),
         OPT, EXO, mat="satin", color=(0.55, 0.56, 0.58), density=ALU, label="Aluminium front plate: holds the 26 mm baseline")
-    add("led", ycyl(LED[0], LED[1], recess - 0.5, recess + 1.0, 0.85), EXT, EXF, mat="led", color=(1.0, 0.55, 0.12), mass=0.05, label="Status LED, amber")
     for i, (x, z) in enumerate(L):
-        lens_ring(f"cam{i}", x, z, -3.0, recess, 20.0, 15.0, OPT, EXO)
-        m12_lens(f"cam{i}", x, z, -20.0, 25.0, OPT, EXO, (0.12, 0.30, 0.28), "M12 lens, 25 mm long")
+        lens_ring(f"cam{i}", x, z, -3.5, recess, 20.0, 15.6, OPT, EXO)
+        m12_lens(f"cam{i}", x, z, -6.0, 12.0, OPT, EXO, (0.12, 0.30, 0.28), "Low-profile M12 lens, 12 mm long")
     add("board", box(-23.2, 23.2, 7.0, 8.6, 2.0, 28.0), SEN, EXS, mat="pcb", color=(0.02, 0.20, 0.10), mass=4.0, label="Shared sensor board, both Mira220 on one clock")
     for i, (x, z) in enumerate(L):
         add(f"cam{i}_sensor", box(x - 3.3, x + 3.3, 6.1, 7.0, z - 3.1, z + 3.1), SEN, EXS, mat="ceramic_dark", color=(0.06, 0.06, 0.07), mass=0.0, label="ams OSRAM Mira220, 1600 x 1400 global shutter")
