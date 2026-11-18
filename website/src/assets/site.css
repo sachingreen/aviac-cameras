@@ -96,6 +96,9 @@ section{padding:112px 0;position:relative}
 .facts div{padding:22px 22px 0 0}
 .facts b{display:block;font:400 32px var(--serif)}
 .facts span{font-size:13.5px;color:var(--mute)}
+.trust{display:flex;flex-wrap:wrap;align-items:center;gap:10px 28px;margin-top:34px;padding-top:20px;border-top:1px solid var(--line)}
+.trust span{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.trust b{font:400 19px var(--serif);color:var(--ink-2);opacity:.85}
 
 /* problem */
 .bands{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
