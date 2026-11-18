@@ -148,11 +148,32 @@ def make_material(kind, color, name):
         wv.inputs["Scale"].default_value = 2100.0; wv.inputs["Distortion"].default_value = 0.0; wv.bands_direction = "Y"
         mix = nt.nodes.new("ShaderNodeMixRGB"); mix.inputs[1].default_value = (0.82, 0.35, 0.03, 1); mix.inputs[2].default_value = (0.58, 0.22, 0.02, 1)
         nt.links.new(tc.outputs["Object"], wv.inputs["Vector"]); nt.links.new(wv.outputs["Fac"], mix.inputs[0]); nt.links.new(mix.outputs[0], b.inputs["Base Color"])
-    elif kind == "lens":
-        setp(b, color=(0.93, 0.95, 1.0), rough=0.0, trans=1.0, ior=1.62, coat=1.0, coat_rough=0.0)
+    elif kind == "lens":            # multi-coated glass: clear, dark through it, teal-green coating in the reflections
+        setp(b, color=(0.90, 0.96, 0.95), rough=0.0, trans=1.0, ior=1.72, coat=1.0, coat_rough=0.0)
         tint = b.inputs.get("Coat Tint")
         if tint is not None:
-            tint.default_value = (c[0] * 2.4 + 0.25, c[1] * 2.4 + 0.2, c[2] * 2.4 + 0.3, 1)
+            tint.default_value = (0.35, 0.95, 0.85, 1)
+        st = b.inputs.get("Specular Tint")
+        if st is not None:
+            st.default_value = (0.55, 0.95, 0.9, 1)
+    elif kind == "glass_black":     # gloss black glass front, like a phone back
+        setp(b, color=(0.004, 0.004, 0.005), rough=0.03, spec=0.5, coat=1.0, coat_rough=0.01)
+    elif kind == "blast":           # bead-blasted metal: fine even grain, soft sheen
+        setp(b, color=c, metal=1.0, rough=0.38)
+        bump(nt, b, 2600.0, 0.06, 0.00002, detail=2.0)
+    elif kind == "gloss_white":     # gloss white polymer, slightly translucent at the edges
+        setp(b, color=c, rough=0.16, spec=0.5, coat=0.6, coat_rough=0.05, sss=0.05)
+    elif kind == "knurl":           # diamond-knurled rubber: two crossed fine ridges
+        setp(b, color=c, rough=0.6, spec=0.35)
+        tc = nt.nodes.new("ShaderNodeTexCoord"); add_n = nt.nodes.new("ShaderNodeMath"); add_n.operation = "MINIMUM"
+        w1 = nt.nodes.new("ShaderNodeTexWave"); w2 = nt.nodes.new("ShaderNodeTexWave")
+        for w, rot in ((w1, 45), (w2, -45)):
+            w.wave_profile = "TRI"; w.inputs["Scale"].default_value = 900.0; w.inputs["Distortion"].default_value = 0.0
+            mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Rotation"].default_value = (math.radians(rot), math.radians(rot), math.radians(rot))
+            nt.links.new(tc.outputs["Object"], mp.inputs[0]); nt.links.new(mp.outputs[0], w.inputs["Vector"])
+        nt.links.new(w1.outputs["Fac"], add_n.inputs[0]); nt.links.new(w2.outputs["Fac"], add_n.inputs[1])
+        bp = nt.nodes.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.45; bp.inputs["Distance"].default_value = 0.0002
+        nt.links.new(add_n.outputs[0], bp.inputs["Height"]); nt.links.new(bp.outputs[0], b.inputs["Normal"])
     elif kind == "window":          # AR-coated: very little surface reflection
         setp(b, color=(0.98, 0.99, 1.0), rough=0.0, trans=1.0, ior=1.12)
     elif kind == "filter":
@@ -420,6 +441,52 @@ def product_lights(center, size):
     lights.append(area("card", c + Vector((-0.3, -1.4, 0.15)) * s, c, 0.5 * k, 0.9 * s, (1, 1, 1), 0.5 * s))
 
 
+def cine(center, size, back):
+    """Product-film lighting: a big soft key falling off into shadow, hard rim strips on both edges, a warm accent,
+    no front fill. back: 'light' (pale seamless) or 'green' (deep brand green)."""
+    for l in lights:
+        bpy.data.objects.remove(l, do_unlink=True)
+    lights.clear()
+    cb = cyc.data.materials[0].node_tree.nodes["Principled BSDF"]
+    col, wl = ((0.50, 0.50, 0.49), 0.0) if back == "light" else ((0.010, 0.028, 0.020), 0.0)
+    cb.inputs["Base Color"].default_value = (*col, 1); cb.inputs["Roughness"].default_value = 0.9
+    bgn.inputs[1].default_value = wl; bgn.inputs[0].default_value = (1, 1, 1, 1)
+    c, s = Vector(center), max(0.1, size.length)
+    k = s * s / 0.04
+    lights.append(area("key", c + Vector((-0.55, -0.75, 0.75)) * s, c, (7.0 if back == "light" else 12.0) * k, 1.1 * s, (1.0, 0.98, 0.96), 0.7 * s))
+    lights.append(area("catch", c + Vector((-0.15, -1.6, 0.45)) * s, c, 1.2 * k, 0.35 * s, (1, 1, 1), 0.06 * s))     # crisp catchlight in the glass
+    lights.append(area("rimL", c + Vector((-0.9, 0.75, 0.2)) * s, c, 9.0 * k, 0.08 * s, (1, 1, 1), 1.5 * s))
+    lights.append(area("rimR", c + Vector((0.9, 0.8, 0.25)) * s, c, 9.0 * k, 0.08 * s, (1, 1, 1), 1.5 * s))
+    lights.append(area("warm", c + Vector((0.95, -0.35, -0.15)) * s, c, 5.0 * k, 0.5 * s, (1.0, 0.52, 0.20), 0.35 * s))
+    lights.append(area("top", c + Vector((0.1, 0.2, 1.3)) * s, c, 3.5 * k, 0.9 * s, (1, 1, 1), 0.25 * s))
+    if back == "light":
+        lights.append(area("wash", c + Vector((0.0, 2.5, 0.9)) * s, c + Vector((0, 4 * s, 0)), 9.0 * k, 3.0 * s, (1, 1, 1)))
+    scene.view_settings.exposure = -0.7 if back == "light" else -0.2
+    try:
+        scene.view_settings.look = "AgX - Punchy" if back == "green" else "AgX - Medium High Contrast"
+    except Exception:
+        pass
+
+
+def cshoot(name, target, size, az, el, lens, fill, fstop, focus, back):
+    mood(back == "green")
+    cam_d.lens = lens
+    t = Vector(target)
+    r = size.length / 2
+    fov = 2 * math.atan(min(36.0, 36.0 * RH / RW) / (2 * lens))
+    dist = r / math.sin(fov / 2) / max(fill, 0.1) * 0.62
+    a, e = math.radians(az), math.radians(el)
+    loc = t + Vector((dist * math.cos(e) * math.cos(a), dist * math.cos(e) * math.sin(a), dist * math.sin(e)))
+    cam.location = loc
+    cam.rotation_euler = (t - loc).to_track_quat("-Z", "Y").to_euler()
+    cam_d.dof.use_dof = fstop is not None
+    if fstop:
+        cam_d.dof.aperture_fstop = fstop; cam_d.dof.focus_distance = (Vector(focus) - loc).length
+    cine(target, size, back)
+    scene.render.filepath = os.path.join(outdir, name + ".png")
+    bpy.ops.render.render(write_still=True)
+
+
 def world_of(name):
     ob = objs[name]
     lo, hi = Vector((1e9,) * 3), Vector((-1e9,) * 3)
@@ -505,6 +572,20 @@ for s in shots:
     elif s == "p_exploded":
         c, size = pose(1.0, hide=("DLS puck",), rot=(0, 0, 0), lift=0.06)
         shoot(os.environ.get("TAG", "") + "exploded", c, size, az=-142, el=20, lens=70, fill=0.84, dark=os.environ.get("DARK") == "1")
+    # ---- product-film shots
+    elif s in ("c_light", "c_green", "c_close", "c_exploded"):
+        tag = os.environ.get("TAG", "")
+        c, size = pose(1.0 if s == "c_exploded" else 0, hide=("DLS puck",), rot=(0, 0, 0), lift=0.06 if s == "c_exploded" else 0.0)
+        front = c + Vector((0, -size.y * 0.5, 0))
+        if s == "c_light":
+            cshoot(tag + "hero_light", c, size, -124, 9, 110, 0.70, 9.0, front, "light")
+        elif s == "c_green":
+            cshoot(tag + "hero_green", c, size, -58, 12, 110, 0.70, 9.0, front, "green")
+        elif s == "c_close":
+            f = world_of(os.environ.get("FOCUS", "imx_glass"))
+            cshoot(tag + "lens_closeup", f + Vector((0.004, 0, 0)), Vector((0.05, 0.05, 0.03)), -112, 6, 135, 0.78, 5.6, f, "green")
+        else:
+            cshoot(tag + "exploded", c, size, -140, 16, 70, 0.86, None, c, "light")
     elif s == "top_unit":
         c, size = pose(0.5, show_only=(TOPU,), rot=(0, 0, 0), board=False)
         shoot("09_top_unit_exploded", c, size, az=-55, el=24, lens=100, fill=0.7)

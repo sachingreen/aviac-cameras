@@ -1,4 +1,82 @@
 {
+ "titanium": {
+  "body": {
+   "mat": "blast",
+   "color": [
+    0.3,
+    0.3,
+    0.31
+   ]
+  },
+  "bumper": {
+   "mat": "knurl",
+   "color": [
+    0.012,
+    0.012,
+    0.013
+   ]
+  },
+  "panel": {
+   "mat": "glass_black",
+   "color": [
+    0.004,
+    0.004,
+    0.005
+   ]
+  }
+ },
+ "graphite": {
+  "body": {
+   "mat": "blast",
+   "color": [
+    0.06,
+    0.062,
+    0.066
+   ]
+  },
+  "bumper": {
+   "mat": "knurl",
+   "color": [
+    0.01,
+    0.01,
+    0.011
+   ]
+  },
+  "panel": {
+   "mat": "glass_black",
+   "color": [
+    0.004,
+    0.004,
+    0.005
+   ]
+  }
+ },
+ "arctic": {
+  "body": {
+   "mat": "gloss_white",
+   "color": [
+    0.8,
+    0.8,
+    0.79
+   ]
+  },
+  "bumper": {
+   "mat": "knurl",
+   "color": [
+    0.55,
+    0.55,
+    0.55
+   ]
+  },
+  "panel": {
+   "mat": "glass_black",
+   "color": [
+    0.004,
+    0.004,
+    0.005
+   ]
+  }
+ },
  "gunmetal": {
   "body": {
    "mat": "powder",

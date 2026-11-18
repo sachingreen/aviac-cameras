@@ -281,6 +281,12 @@ def light_bar(panel, bar, recess, ex):
 
 # colourways: role -> material and colour (linear RGB)
 FINISHES = {
+    "titanium": {"body": {"mat": "blast", "color": [0.30, 0.30, 0.31]}, "bumper": {"mat": "knurl", "color": [0.012, 0.012, 0.013]},
+                 "panel": {"mat": "glass_black", "color": [0.004, 0.004, 0.005]}},
+    "graphite": {"body": {"mat": "blast", "color": [0.06, 0.062, 0.066]}, "bumper": {"mat": "knurl", "color": [0.01, 0.01, 0.011]},
+                 "panel": {"mat": "glass_black", "color": [0.004, 0.004, 0.005]}},
+    "arctic": {"body": {"mat": "gloss_white", "color": [0.80, 0.80, 0.79]}, "bumper": {"mat": "knurl", "color": [0.55, 0.55, 0.55]},
+               "panel": {"mat": "glass_black", "color": [0.004, 0.004, 0.005]}},
     "gunmetal": {"body": {"mat": "powder", "color": [0.042, 0.045, 0.044]}, "bumper": {"mat": "powder", "color": [0.028, 0.03, 0.03]},
                  "panel": {"mat": "powder", "color": [0.034, 0.036, 0.035]}},
     "sand": {"body": {"mat": "powder", "color": [0.56, 0.49, 0.38]}, "bumper": {"mat": "powder", "color": [0.47, 0.41, 0.31]},
@@ -427,7 +433,7 @@ def build_ms():
     add("imx_barrel", cb, OPT, LE, mat="anodised", color=(0.015, 0.015, 0.018), mass=45.0, label="C-mount lens, 16 mm, 1.1-inch, compact")
     add("imx_inner", yring(cx, cz, -9.6, -4.0, 11.5, 7.5).union(yring(cx, cz, -4.0, -3.0, 11.5, 5.0)), OPT, LE, mat="black", color=(0, 0, 0), mass=0.0, label="Lens interior")
     add("imx_glass", dome(cx, cz, -11.3, 11.4, 2.2), OPT, LE, mat="lens", color=(0.10, 0.24, 0.20), mass=0.0, label="Front element, multi-coated")
-    add("imx_glass2", dome(cx, cz, -5.2, 7.4, 1.0), OPT, LE, mat="lens", color=(0.22, 0.12, 0.30), mass=0.0, label="Second element")
+    add("imx_iris", yring(cx, cz, -6.0, -5.4, 11.5, 2.6).union(ycyl(cx, cz, -3.2, -2.8, 11.5)), OPT, LE, mat="black", color=(0, 0, 0), mass=0.0, label="Aperture")
     add("imx_retainer", yring(cx, cz, -11.6, -10.9, 12.6, 11.4), OPT, LE, mat="satin", color=(0.25, 0.25, 0.26), mass=0.0, label="Retaining ring")
     LP0, LP1 = recess + wall, recess + wall + 2.0
     lp = rbox(px0 + 1, px1 - 1, LP0, LP1, pz0 + 1, pz1 - 1, 4.0)

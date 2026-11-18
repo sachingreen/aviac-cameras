@@ -315,8 +315,8 @@
   "estimated": true
  },
  {
-  "name": "imx_glass2",
-  "label": "Second element",
+  "name": "imx_iris",
+  "label": "Aperture",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
