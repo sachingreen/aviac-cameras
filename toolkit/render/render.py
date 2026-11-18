@@ -38,8 +38,10 @@ scene.cycles.sample_clamp_direct = 30.0
 scene.render.resolution_x, scene.render.resolution_y = RW, RH
 scene.render.image_settings.file_format = "PNG"
 scene.render.image_settings.color_depth = "16"
-scene.view_settings.view_transform = "Filmic"
-scene.view_settings.look = "Medium High Contrast"
+try:
+    scene.view_settings.view_transform = "AgX"; scene.view_settings.look = "AgX - Base Contrast"
+except Exception:
+    scene.view_settings.view_transform = "Filmic"; scene.view_settings.look = "Medium High Contrast"
 
 world = bpy.data.worlds.new("w"); scene.world = world; world.use_nodes = True
 bgn = world.node_tree.nodes["Background"]
@@ -108,14 +110,25 @@ def make_material(kind, color, name):
         bump(nt, b, 7000.0, 0.10, 0.00003, detail=2.0)
     elif kind == "etch":            # laser-etched through the anodise: matte light grey
         setp(b, color=(0.74, 0.75, 0.77), metal=0.55, rough=0.6)
-    elif kind == "powder":          # fine-texture powder coat / bead-blasted PA12-CF
-        setp(b, color=c, rough=0.66, spec=0.32)
-        bump(nt, b, 5200.0, 0.14, 0.00006, detail=3.0)
+    elif kind == "powder":          # fine-texture powder coat / bead-blasted PA12-CF: soft sheen, roughness that varies a little
+        setp(b, color=c, rough=0.7, spec=0.28)
+        tex = nt.nodes.new("ShaderNodeTexNoise"); tex.inputs["Scale"].default_value = 180.0; tex.inputs["Detail"].default_value = 6.0
+        mr = nt.nodes.new("ShaderNodeMapRange"); mr.inputs["To Min"].default_value = 0.62; mr.inputs["To Max"].default_value = 0.80
+        nt.links.new(tex.outputs[0], mr.inputs[0]); nt.links.new(mr.outputs[0], b.inputs["Roughness"])
+        bump(nt, b, 1500.0, 0.035, 0.00003, detail=2.0)
     elif kind == "satin":           # satin anodised metal in any colour
         setp(b, color=c, metal=0.9, rough=0.34)
         bump(nt, b, 1400.0, 0.05, 0.00002, detail=1.0)
+    elif kind == "filterglass":     # band-pass filter: clear dark glass, the coating shows its colour at an angle
+        setp(b, color=(0.86, 0.88, 0.9), rough=0.02, trans=1.0, ior=1.52, coat=1.0, coat_rough=0.02)
+        t = b.inputs.get("Coat Tint")
+        if t is not None:
+            t.default_value = (c[0] * 2.2 + 0.2, c[1] * 2.2 + 0.15, c[2] * 2.2 + 0.25, 1)
+        st = b.inputs.get("Specular Tint")
+        if st is not None:
+            st.default_value = (c[0] * 2.5 + 0.3, c[1] * 2.5 + 0.3, c[2] * 2.5 + 0.35, 1)
     elif kind == "led":
-        setp(b, color=c, emit=9.0, emit_color=c, rough=0.2)
+        setp(b, color=(1.0, 0.86, 0.66), emit=4.0, emit_color=c, rough=0.45, sss=0.3)
     elif kind == "dome":            # opal diffuser
         setp(b, color=(0.95, 0.95, 0.93), rough=0.35, sss=0.6)
     elif kind == "steel_brushed":
@@ -386,8 +399,25 @@ def shoot(name, center, size, az, el, lens, fill=0.80, fstop=None, focus=None, d
     else:
         cam_d.dof.use_dof = False
     studio(center, light_scale or max(0.45, min(1.0, size.length / 0.26)))
+    scene.view_settings.exposure = 0.0
+    if name.endswith(("assembled", "exploded")) and not os.environ.get("NOPL"):
+        product_lights(center, size)
+        for l in lights[:-4]:
+            l.data.energy *= 0.5                      # the base studio becomes fill; the strips and overhead do the shaping
+        scene.view_settings.exposure = -0.3
     scene.render.filepath = os.path.join(outdir, name + ".png")
     bpy.ops.render.render(write_still=True)
+
+
+def product_lights(center, size):
+    """Product photography: long strip softboxes behind each side draw clean highlights down every edge,
+    a big overhead box shapes the top, and a white card lifts the lens face."""
+    c, s = Vector(center), max(0.12, size.length)
+    k = s * s / 0.04
+    lights.append(area("stripL", c + Vector((-0.75, 1.0, 0.35)) * s, c, 2.2 * k, 0.10 * s, (1, 1, 1), 1.6 * s))
+    lights.append(area("stripR", c + Vector((0.85, 0.9, 0.35)) * s, c, 1.8 * k, 0.10 * s, (1, 0.98, 0.96), 1.6 * s))
+    lights.append(area("over", c + Vector((0.0, 0.3, 1.4)) * s, c, 1.4 * k, 1.2 * s, (1, 1, 1), 0.9 * s))
+    lights.append(area("card", c + Vector((-0.3, -1.4, 0.15)) * s, c, 0.5 * k, 0.9 * s, (1, 1, 1), 0.5 * s))
 
 
 def world_of(name):
@@ -469,11 +499,12 @@ for s in shots:
         shoot("13_front_with_mount", c, size, az=40, el=20, lens=85, fill=0.68, dark=True)
     # ---- product shots for the lens-forward models (front faces -Y, Z up)
     elif s == "p_hero":
-        c, size = pose(0, rot=(0, 0, 0), lift=0.002)
-        shoot(os.environ.get("TAG", "") + "assembled", c, size, az=-118, el=16, lens=85, fill=0.66, dark=os.environ.get("DARK") == "1")
+        c, size = pose(0, hide=("DLS puck",), rot=(0, 0, 0), lift=0.002)
+        shoot(os.environ.get("TAG", "") + "assembled", c, size, az=-122, el=14, lens=100, fill=0.66, fstop=11.0,
+              focus=c + Vector((0, -size.y * 0.5, 0)), dark=os.environ.get("DARK") == "1")
     elif s == "p_exploded":
-        c, size = pose(1.0, rot=(0, 0, 0), lift=0.002)
-        shoot(os.environ.get("TAG", "") + "exploded", c, size, az=-162, el=18, lens=70, fill=0.74, dark=os.environ.get("DARK") == "1")
+        c, size = pose(1.0, hide=("DLS puck",), rot=(0, 0, 0), lift=0.06)
+        shoot(os.environ.get("TAG", "") + "exploded", c, size, az=-142, el=20, lens=70, fill=0.84, dark=os.environ.get("DARK") == "1")
     elif s == "top_unit":
         c, size = pose(0.5, show_only=(TOPU,), rot=(0, 0, 0), board=False)
         shoot("09_top_unit_exploded", c, size, az=-55, el=24, lens=100, fill=0.7)

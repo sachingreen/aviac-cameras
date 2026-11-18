@@ -3,21 +3,21 @@
   "name": "front_shell",
   "label": "Front shell, PA12-CF, 1.5 mm walls",
   "group": "Externals",
-  "mass": 1.59,
+  "mass": 1.44,
   "estimated": false
  },
  {
   "name": "bumpers_front",
   "label": "Corner bumpers, overmoulded TPU",
   "group": "Externals",
-  "mass": 1.76,
+  "mass": 0.58,
   "estimated": false
  },
  {
   "name": "bumpers_rear",
   "label": "Corner bumpers, overmoulded TPU",
   "group": "Externals",
-  "mass": 1.99,
+  "mass": 0.58,
   "estimated": false
  },
  {
@@ -42,11 +42,25 @@
   "estimated": false
  },
  {
-  "name": "front_plate",
-  "label": "Aluminium front plate: holds the 26 mm baseline",
+  "name": "light_pipe",
+  "label": "Light pipe",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
+  "name": "gasket",
+  "label": "Silicone gasket",
+  "group": "Externals",
+  "mass": 0.3,
+  "estimated": true
+ },
+ {
+  "name": "cam0_oring",
+  "label": "O-ring seal",
   "group": "Optics",
-  "mass": 2.55,
-  "estimated": false
+  "mass": 0.1,
+  "estimated": true
  },
  {
   "name": "cam0_ring",
@@ -57,7 +71,7 @@
  },
  {
   "name": "cam0_lip",
-  "label": "Ring lip",
+  "label": "Ring chamfer",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -66,14 +80,28 @@
   "name": "cam0_barrel",
   "label": "Low-profile M12 lens, 12 mm long",
   "group": "Optics",
-  "mass": 3.5,
+  "mass": 1.8,
+  "estimated": true
+ },
+ {
+  "name": "cam0_inner",
+  "label": "Aperture",
+  "group": "Optics",
+  "mass": 0.0,
   "estimated": true
  },
  {
   "name": "cam0_glass",
-  "label": "Front element, AR coated",
+  "label": "Front element, multi-coated",
   "group": "Optics",
   "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "cam1_oring",
+  "label": "O-ring seal",
+  "group": "Optics",
+  "mass": 0.1,
   "estimated": true
  },
  {
@@ -85,7 +113,7 @@
  },
  {
   "name": "cam1_lip",
-  "label": "Ring lip",
+  "label": "Ring chamfer",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -94,33 +122,82 @@
   "name": "cam1_barrel",
   "label": "Low-profile M12 lens, 12 mm long",
   "group": "Optics",
-  "mass": 3.5,
+  "mass": 1.8,
   "estimated": true
  },
  {
-  "name": "cam1_glass",
-  "label": "Front element, AR coated",
+  "name": "cam1_inner",
+  "label": "Aperture",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "board",
-  "label": "Shared sensor board, both Mira220 on one clock",
-  "group": "Baseboard + image sensors",
-  "mass": 4.0,
+  "name": "cam1_glass",
+  "label": "Front element, multi-coated",
+  "group": "Optics",
+  "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "cam0_sensor",
-  "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "name": "front_plate",
+  "label": "Aluminium front plate: holds the 26 mm baseline",
+  "group": "Optics",
+  "mass": 2.55,
+  "estimated": false
+ },
+ {
+  "name": "cam0_holder",
+  "label": "M12 lens mount",
+  "group": "Optics",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "cam1_holder",
+  "label": "M12 lens mount",
+  "group": "Optics",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "board",
+  "label": "Shared sensor board: both Mira220 on one clock and one trigger",
+  "group": "Baseboard + image sensors",
+  "mass": 3.0,
+  "estimated": true
+ },
+ {
+  "name": "board_passives",
+  "label": "Passives",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "cam1_sensor",
-  "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "name": "board_c0",
+  "label": "Mira220, left",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board_c1",
+  "label": "Mira220, right",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board_c2",
+  "label": "Shared oscillator",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board_c3",
+  "label": "Board-to-board",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
@@ -129,29 +206,99 @@
   "name": "iface",
   "label": "Interface board: MIPI to USB-C / GMSL",
   "group": "Processing board",
-  "mass": 3.0,
+  "mass": 2.5,
   "estimated": true
  },
  {
-  "name": "iface_chip",
+  "name": "iface_passives",
+  "label": "Passives",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "iface_c0",
   "label": "Bridge IC",
   "group": "Processing board",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "usbc",
+  "name": "iface_c1",
+  "label": "Board-to-board",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "iface_c2",
+  "label": "Flash",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "iface_c3",
+  "label": "Oscillator",
+  "group": "Processing board",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "iface_c4",
   "label": "USB-C",
   "group": "Processing board",
-  "mass": 0.6,
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "so-1",
+  "label": "Standoff",
+  "group": "Baseboard + image sensors",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "so1",
+  "label": "Standoff",
+  "group": "Baseboard + image sensors",
+  "mass": 0.4,
   "estimated": true
  },
  {
   "name": "rear_housing",
   "label": "Rear housing, PA12-CF",
   "group": "Externals",
-  "mass": 7.84,
+  "mass": 7.6,
   "estimated": false
+ },
+ {
+  "name": "rear_screw_-1_6",
+  "label": "M1.6 x 10, rear",
+  "group": "Externals",
+  "mass": 0.24,
+  "estimated": true
+ },
+ {
+  "name": "rear_screw_-1_24",
+  "label": "M1.6 x 10, rear",
+  "group": "Externals",
+  "mass": 0.24,
+  "estimated": true
+ },
+ {
+  "name": "rear_screw_1_6",
+  "label": "M1.6 x 10, rear",
+  "group": "Externals",
+  "mass": 0.24,
+  "estimated": true
+ },
+ {
+  "name": "rear_screw_1_24",
+  "label": "M1.6 x 10, rear",
+  "group": "Externals",
+  "mass": 0.24,
+  "estimated": true
  },
  {
   "name": "insert_14_20",
