@@ -145,7 +145,7 @@ section{padding:112px 0;position:relative}
 .cmpimg{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:4/3;width:100%;max-width:100%;contain:paint;isolation:isolate;user-select:none;touch-action:pan-y;cursor:ew-resize}
 .cmpimg img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
 .cmpimg .ndvi{position:absolute;inset:0;clip-path:inset(0 0 0 var(--x,50%));transition:clip-path .5s var(--ease)}
-.cmpimg.drag .ndvi,.cmpimg.drag .handle{transition:none}
+.cmpimg.dragging .ndvi,.cmpimg.dragging .handle{transition:none}
 .cmpimg .handle{position:absolute;top:0;bottom:0;left:var(--x,50%);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.15);transition:left .5s var(--ease)}
 .cmpimg .handle span{position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 .cmpimg .handle span::before,.cmpimg .handle span::after{content:'';position:absolute;top:12px;width:7px;height:7px;border:solid var(--ink);border-width:0 0 2px 2px}
@@ -222,7 +222,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .swatches button{all:unset;cursor:pointer;width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line-2);transition:transform .3s var(--ease)}
 .swatches button.on{box-shadow:0 0 0 2px var(--forest);transform:scale(1.08)}
 .swatches span{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-left:6px}
-.drag{position:absolute;right:16px;top:14px}
+.chip.drag{position:absolute;right:16px;top:14px}
 .pspecs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface);margin:24px 0}
 .pspecs div{padding:14px 16px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
 .pspecs div:nth-child(2n){border-right:0}

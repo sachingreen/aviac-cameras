@@ -46,7 +46,7 @@ $$('.cmpimg').forEach((box) => {
   let cur = 0.5;
   const set = (k, anim) => {
     cur = clamp(k, 0, 1);
-    box.classList.toggle('drag', !anim);
+    box.classList.toggle('dragging', !anim);
     box.style.setProperty('--x', `${cur * 100}%`);
     h.setAttribute('aria-valuenow', Math.round(cur * 100));
     box.classList.toggle('show-flag', cur < 0.6);
