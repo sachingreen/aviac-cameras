@@ -140,6 +140,20 @@ section{padding:112px 0;position:relative}
 .stats span{font-size:12px;color:var(--mute)}
 .ramp{height:6px;border-radius:3px;background:var(--ndvi)}
 
+/* RGB / NDVI compare */
+.cmpimg{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1095/1140;width:100%;user-select:none;touch-action:pan-y;cursor:ew-resize}
+.cmpimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cmpimg .ndvi{position:absolute;inset:0;clip-path:inset(0 0 0 var(--x,50%));transition:clip-path .5s var(--ease)}
+.cmpimg.drag .ndvi,.cmpimg.drag .handle{transition:none}
+.cmpimg .handle{position:absolute;top:0;bottom:0;left:var(--x,50%);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.15);transition:left .5s var(--ease)}
+.cmpimg .handle span{position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.cmpimg .handle span::before,.cmpimg .handle span::after{content:'';position:absolute;top:12px;width:7px;height:7px;border:solid var(--ink);border-width:0 0 2px 2px}
+.cmpimg .handle span::before{left:9px;transform:rotate(45deg)}.cmpimg .handle span::after{right:9px;transform:rotate(-135deg)}
+.cmpimg .tag{position:absolute;top:12px;font:500 11px var(--mono);letter-spacing:.12em;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.85);color:var(--ink)}
+.cmpimg .tag.l{left:12px}.cmpimg .tag.r{right:12px}
+.cmpimg .flag{position:absolute;left:62%;top:33%;font:500 11.5px var(--mono);padding:6px 10px;border-radius:8px;background:rgba(19,32,26,.85);color:#fff;opacity:0;transition:opacity .4s}
+.cmpimg.show-flag .flag{opacity:1}
+
 /* research, company */
 .partners{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .partner{border:1px dashed var(--line-2);border-radius:var(--r);padding:22px;min-height:120px;display:flex;flex-direction:column;justify-content:space-between}

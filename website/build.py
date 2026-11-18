@@ -16,7 +16,7 @@ SRC, OUT = os.path.join(HERE, "src"), os.path.join(HERE, "public")
 sys.path.insert(0, os.path.join(REPO, "toolkit", "brand"))
 from logo import svg_mark, svg_wordmark, GREEN, IVORY
 
-NAV = [("systems", "Systems", "#systems", [("ms", "Aviac MS", "product/multispectral/", "Multispectral · six bands"), ("duos", "Aviac Duos", "product/duos/", "Stereo · spray drones")]),
+NAV = [("systems", "Systems", "#systems", [("ms", "MS", "product/multispectral/", "Agri Spectral · six bands"), ("duos", "Duos", "product/duos/", "Stereo · spray drones")]),
        ("hardware", "Hardware", "#hardware", None), ("field", "In the field", "#field", None), ("research", "Research", "#research", None), ("company", "Company", "#company", None)]
 
 

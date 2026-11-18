@@ -40,40 +40,27 @@ function spectrum(cv) {
 }
 $$('canvas[data-spectrum]').forEach(spectrum);
 
-// ---------- sample field: the same plots in true colour and in NDVI
-const h2 = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); };
-const vn = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), w = yf * yf * (3 - 2 * yf);
-  return (h2(xi, yi) * (1 - u) + h2(xi + 1, yi) * u) * (1 - w) + (h2(xi, yi + 1) * (1 - u) + h2(xi + 1, yi + 1) * u) * w; };
-const STOPS = [[0.1, [150, 92, 60]], [0.35, [214, 170, 70]], [0.55, [196, 205, 90]], [0.72, [96, 170, 78]], [0.92, [22, 104, 58]]];
-const ramp = (n) => { for (let i = 0; i < 4; i++) { const [a, ca] = STOPS[i], [b, cb] = STOPS[i + 1]; if (n <= b) { const k = Math.max(0, (n - a) / (b - a)); return ca.map((c, j) => c + (cb[j] - c) * k); } } return STOPS[4][1]; };
-function field(cv) {
-  const W = (cv.width = 480), H = (cv.height = 360), g = cv.getContext('2d');
-  const plots = [[0, 0, 210, 150], [214, 0, 266, 150], [0, 154, 150, 206], [154, 154, 170, 206], [328, 154, 152, 206]];
-  const n = new Float32Array(W * H);
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    let v = 0.3 + 0.6 * (vn(x / 70, y / 55) * 0.7 + vn(x / 18, y / 15) * 0.3);
-    v -= 0.45 * Math.max(0, 1 - Math.hypot(x - 300, y - 250) / 55);      // a stressed patch the eye cannot see yet
-    n[y * W + x] = Math.max(0.05, Math.min(0.92, v));
-  }
-  const draw = (mode) => {
-    const img = g.createImageData(W, H);
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const v = n[y * W + x], o = (y * W + x) * 4;
-      const inPlot = plots.some(([a, b, w, h]) => x > a + 2 && x < a + w - 2 && y > b + 2 && y < b + h - 2);
-      const row = 0.9 + 0.1 * Math.sin((x + y * 0.2) * 0.9);
-      let c = mode === 'ndvi' ? ramp(v) : [54 + 26 * (1 - Math.min(1, v + 0.25)), 92 + 34 * Math.min(1, v + 0.3), 44];
-      if (!inPlot) c = [118, 104, 80];
-      img.data[o] = c[0] * row; img.data[o + 1] = c[1] * row; img.data[o + 2] = c[2] * row; img.data[o + 3] = 255;
-    }
-    g.putImageData(img, 0, 0);
-    if (mode === 'ndvi') { g.strokeStyle = '#fff'; g.setLineDash([5, 4]); g.lineWidth = 2; g.beginPath(); g.arc(300, 250, 56, 0, 7); g.stroke(); g.setLineDash([]);
-      g.fillStyle = 'rgba(19,32,26,.8)'; g.fillRect(320, 300, 132, 24); g.fillStyle = '#fff'; g.font = '12px JetBrains Mono, monospace'; g.fillText('Stress · 0.21 ac', 328, 316); }
+// ---------- RGB / NDVI compare: drag the divider, or use the toggle
+$$('.cmpimg').forEach((box) => {
+  const card = box.closest('.sample'), h = $('.handle', box);
+  let cur = 0.5;
+  const set = (k, anim) => {
+    cur = clamp(k, 0, 1);
+    box.classList.toggle('drag', !anim);
+    box.style.setProperty('--x', `${cur * 100}%`);
+    h.setAttribute('aria-valuenow', Math.round(cur * 100));
+    box.classList.toggle('show-flag', cur < 0.6);
+    $$('.tog button', card).forEach((b) => b.classList.toggle('on', (+b.dataset.at === 1) === (cur < 0.5)));
   };
-  draw('ndvi');
-  const box = cv.closest('.sample');
-  $$('.tog button', box).forEach((b) => b.addEventListener('click', () => { $$('.tog button', box).forEach((x) => x.classList.toggle('on', x === b)); draw(b.dataset.mode); }));
-}
-$$('canvas[data-field]').forEach(field);
+  const at = (e) => { const r = box.getBoundingClientRect(); return (e.clientX - r.left) / r.width; };
+  let down = false;
+  box.addEventListener('pointerdown', (e) => { down = true; box.setPointerCapture(e.pointerId); set(at(e)); });
+  box.addEventListener('pointermove', (e) => down && set(at(e)));
+  box.addEventListener('pointerup', () => (down = false));
+  h.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') set(cur - 0.05, true); if (e.key === 'ArrowRight') set(cur + 0.05, true); });
+  $$('.tog button', card).forEach((b) => b.addEventListener('click', () => set(+b.dataset.at === 1 ? 0 : 1, true)));
+  set(0.5, true);
+});
 
 // ---------- colourway swatches on product pages
 $$('.swatches').forEach((sw) => {
