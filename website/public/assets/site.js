@@ -140,3 +140,14 @@ $$('form[data-mailto]').forEach((f) => f.addEventListener('submit', (e) => {
   location.href = `mailto:${f.dataset.mailto}?subject=${encodeURIComponent('Pilot request: ' + (v('org') || v('name')))}&body=${encodeURIComponent(body)}`;
   $('.sent', f).hidden = false;
 }));
+
+// ---------- home: solutions explorer, auto-advancing until someone picks a market
+$$('.explorer').forEach((ex) => {
+  const tabs = $$('.xt', ex), panes = $$('.xp', ex), bar = $('.xbar i', ex);
+  let i = 0, t0 = performance.now(), auto = true, seen = false;
+  const go = (k) => { i = k; tabs.forEach((t, j) => { t.classList.toggle('on', j === k); t.setAttribute('aria-selected', j === k); }); panes.forEach((p, j) => p.classList.toggle('on', j === k)); t0 = performance.now(); };
+  tabs.forEach((t, k) => { t.addEventListener('click', () => { auto = false; go(k); bar.style.width = '0'; }); t.addEventListener('mouseenter', () => { if (matchMedia('(hover:hover)').matches) { auto = false; go(k); bar.style.width = '0'; } }); });
+  new IntersectionObserver((es) => { seen = es[0].isIntersecting; t0 = performance.now(); }).observe(ex);
+  const tick = (now) => { if (auto && seen) { const k = (now - t0) / 6000; bar.style.width = `${Math.min(1, k) * 100}%`; if (k >= 1) go((i + 1) % panes.length); } requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+});
