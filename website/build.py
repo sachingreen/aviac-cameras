@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.join(REPO, "toolkit", "brand"))
 from logo import svg_mark, svg_wordmark, GREEN, IVORY
 
 NAV = [("systems", "Systems", "#systems", [("ms", "MS", "product/multispectral/", "Agri Spectral · six bands"), ("duos", "Duos", "product/duos/", "Stereo · spray drones")]),
-       ("hardware", "Hardware", "#hardware", None), ("field", "In the field", "#field", None), ("research", "Research", "#research", None), ("company", "Company", "#company", None)]
+       ("field", "In the field", "#field", None), ("research", "Research", "#research", None), ("company", "Company", "#company", None)]
 
 
 def render(text, R):
