@@ -137,6 +137,60 @@ def rugged_body(Wd, H, D, R, FT, frame, recess, wall, panel_r, ex_front, ex_rear
     return fs, panel, rh, (px0, px1, pz0, pz1), rear_end
 
 
+def rr_wire(w, h, r, y, zc, n=10):
+    """Rounded rectangle in the XZ plane at depth y, as a closed polygon (n points per corner)."""
+    r = max(0.3, min(r, w / 2 - 0.01, h / 2 - 0.01))
+    pts = []
+    for (cx, cz, a0) in ((w / 2 - r, zc + h / 2 - r, 0), (-w / 2 + r, zc + h / 2 - r, 90), (-w / 2 + r, zc - h / 2 + r, 180), (w / 2 - r, zc - h / 2 + r, 270)):
+        for i in range(n + 1):
+            a = math.radians(a0 + 90 * i / n)
+            pts.append(V(cx + r * math.cos(a), y, cz + r * math.sin(a)))
+    return cq.Wire.makePolygon(pts, close=True)
+
+
+def sculpted_body(Wd, H, y0, D, R, FT, frame, recess, wall, panel_r, ex_front, ex_rear, taper, r_rear, hd, b):
+    """A moulded body that tapers toward the back and rounds off at the rear, split at y = FT into a front shell and a
+    rear housing. The front is a deep tunnel around the recessed panel; a TPU hood rings it and stands proud of every
+    lens, so a fall lands on the hood, not the glass. Returns the panel rectangle and inset(y), the side inset at y."""
+    zc = H / 2
+
+    def inset(y):
+        t = taper * max(0.0, (y - FT) / (D - FT))
+        if y > D - r_rear:
+            u = y - (D - r_rear)
+            t += r_rear - math.sqrt(max(0.0, r_rear * r_rear - u * u))
+        return t
+
+    ys = [y0, FT] + [FT + (D - r_rear - FT) * i / 4 for i in range(1, 5)] + [D - r_rear + r_rear * math.sin(math.pi / 2 * i / 10) for i in range(1, 11)]
+    ys = sorted(set(round(v, 4) for v in ys))
+
+    def solid(off, ya, yb):
+        sec = [y for y in ys if ya < y < yb]
+        wires = [rr_wire(Wd - 2 * (inset(y) + off), H - 2 * (inset(y) + off), R - inset(y) - off, y, zc) for y in [ya] + sec + [yb]]
+        return W(cq.Solid.makeLoft(wires, True))
+
+    outer = solid(0.0, y0, D)
+    inner = solid(wall, recess + wall, D - wall)
+    px0, px1, pz0, pz1 = -Wd / 2 + frame, Wd / 2 - frame, frame, H - frame
+    shell = outer.cut(inner).cut(rbox(px0, px1, y0 - 1, recess + wall + 0.01, pz0, pz1, panel_r))
+    split = box(-Wd, Wd, FT, D + 5, -5, H + 5)
+    seam = solid(-2.0, FT - 0.3, FT + 0.3).cut(solid(0.5, FT - 0.4, FT + 0.4))
+    fs = shell.cut(split).cut(seam)
+    rh = shell.intersect(split).cut(seam)
+    add("front_shell", fs, EXT, ex_front, finish="body", density=PA12CF, label="Front shell, PA12-CF: the lens tunnel")
+    panel = rbox(px0, px1, recess, recess + wall, pz0, pz1, panel_r)
+    # hood: chamfered front edge, wraps the front 6 mm of the body, opening chamfered into the tunnel
+    hw = [rr_wire(Wd + 2 * b - 2.4, H + 2 * b - 2.4, R + b - 1.2, y0 - hd, zc), rr_wire(Wd + 2 * b, H + 2 * b, R + b, y0 - hd + 1.2, zc),
+          rr_wire(Wd + 2 * b, H + 2 * b, R + b, y0 + 6.0, zc)]
+    hood = W(cq.Solid.makeLoft(hw, True)).cut(outer)
+    ow = (px1 - px0, pz1 - pz0)
+    mouth = W(cq.Solid.makeLoft([rr_wire(ow[0] + 3.0, ow[1] + 3.0, panel_r + 1.5, y0 - hd - 0.01, zc), rr_wire(ow[0], ow[1], panel_r, y0 - hd + 1.5, zc),
+                                 rr_wire(ow[0], ow[1], panel_r, y0 + 1, zc)], True))
+    hood = hood.cut(mouth)
+    add("hood", hood, EXT, ex_front, finish="bumper", density=1.2, label="Protective hood, overmoulded TPU: stands proud of every lens")
+    return fs, panel, rh, (px0, px1, pz0, pz1), inset
+
+
 def lens_ring(name, x, z, y_front, y_panel, od, idia, group, ex):
     """The family lens ring: satin black, a stepped bezel, a fine bright chamfer on the front edge."""
     r = yring(x, z, y_front, y_panel, od / 2, idia / 2).union(yring(x, z, y_front + 1.2, y_panel, od / 2 + 0.8, od / 2 - 0.5))
@@ -243,10 +297,10 @@ import random
 GREEN, BLACKPCB = (0.02, 0.20, 0.10), (0.02, 0.03, 0.025)
 
 
-def pcb(name, x0, x1, z0, z1, y0, t, group, ex, label, mass, comps="front", seed=1, keep=(), color=GREEN, ics=()):
+def pcb(name, x0, x1, z0, z1, y0, t, group, ex, label, mass, comps="front", seed=1, keep=(), color=GREEN, ics=(), r=0.0):
     """A board lying in the XZ plane at y0..y0+t, with passives scattered on one or both faces and listed ICs.
     keep: rectangles (x0, x1, z0, z1) to leave clear; ics: (x, z, w, h, height, side, label, kind)."""
-    b = box(x0, x1, y0, y0 + t, z0, z1)
+    b = rbox(x0, x1, y0, y0 + t, z0, z1, r) if r else box(x0, x1, y0, y0 + t, z0, z1)
     add(name, b, group, ex, mat="pcb", color=color, mass=mass, label=label)
     rnd = random.Random(seed)
     pas = None
@@ -254,7 +308,7 @@ def pcb(name, x0, x1, z0, z1, y0, t, group, ex, label, mass, comps="front", seed
     n = int((x1 - x0) * (z1 - z0) / 26)
     for k in range(n):
         x, z = rnd.uniform(x0 + 1.5, x1 - 1.5), rnd.uniform(z0 + 1.5, z1 - 1.5)
-        if any(a <= x <= b2 and c <= z <= d for (a, b2, c, d) in keep):
+        if any(a <= x <= b2 and c <= z <= d for (a, b2, c, d) in keep) or (r and min(x - x0, x1 - x) < r and min(z - z0, z1 - z) < r):
             continue
         side = rnd.choice(sides)
         w, h = (1.0, 0.5) if rnd.random() < 0.7 else (1.6, 0.8)
@@ -332,7 +386,8 @@ def build_ms():
     FT, frame, recess, wall = 14.0, 6.0, 3.0, 1.5
     E = lambda y, z=0: (0, y, z)                                       # explode: along the depth, front parts toward the viewer
     EXF = E(-250)
-    fs, panel, rh, (px0, px1, pz0, pz1), _ = rugged_body(Wd, H, D, 9.0, FT, frame, recess, wall, 5.0, EXF, E(150), bump=1.2)
+    D = 80.0                                                            # rear stack moved 10 mm forward; the front tunnel starts at y = -10
+    fs, panel, rh, (px0, px1, pz0, pz1), inset = sculpted_body(Wd, H, -10.0, D, 15.0, FT, frame, recess, wall, 6.0, EXF, E(150), taper=3.0, r_rear=10.0, hd=4.0, b=1.6)
     MIRA = [(-29.0, 21.0, "NIR+ 890", (0.16, 0.02, 0.10)), (-29.0, 45.0, "NIR 840", (0.33, 0.03, 0.12)), (-29.0, 69.0, "RE 723", (0.62, 0.05, 0.08))]
     cx, cz = 11.0, 45.0
     BAR = (32.0, 77.5, 16.0, 1.4)
@@ -343,12 +398,13 @@ def build_ms():
     add("panel", panel, EXT, EXF, finish="panel", density=PA12CF, label="Front panel")
     for sx in (-1, 1):
         for zz in (7.0, H - 7.0):
-            screw(f"front_screw_{sx}_{int(zz)}", sx * (Wd / 2 - 6.6), zz, -1.4, 10.0, 1.5, EXT, EXF, "M3 x 10, stainless, front shell", toward=1)
+            screw(f"front_screw_{sx}_{int(zz)}", sx * (Wd / 2 - 4.2), zz, -13.7, 16.0, 1.3, EXT, EXF, "M3 x 16, stainless, hood and front shell", toward=1)
     mk = etch_text("AVIAC MS", 3.0, cx, 13.0, recess)
     for (x, z, band, _t) in MIRA:
         mk = mk.union(etch_text(band.split()[0], 1.7, -15.0, z, recess))
     add("markings", mk, EXT, EXF, mat="etch", color=(0.7, 0.71, 0.73), mass=0.0, label="Laser-etched markings")
-    add("gasket", soft_box(-Wd / 2 + 0.6, Wd / 2 - 0.6, FT - 0.25, FT + 0.25, 0.6, H - 0.6, 8.4, 0.2).cut(rbox(-Wd / 2 + 1.6, Wd / 2 - 1.6, FT - 1, FT + 1, 1.6, H - 1.6, 7.4)),
+    add("gasket", W(cq.Solid.makeLoft([rr_wire(Wd - 1.2, H - 1.2, 14.4, FT - 0.25, H / 2), rr_wire(Wd - 1.2, H - 1.2, 14.4, FT + 0.25, H / 2)], True))
+        .cut(W(cq.Solid.makeLoft([rr_wire(Wd - 2.6, H - 2.6, 13.7, FT - 1, H / 2), rr_wire(Wd - 2.6, H - 2.6, 13.7, FT + 1, H / 2)], True))),
         EXT, E(-200), mat="rubber", color=(0.85, 0.30, 0.08), mass=1.2, label="Silicone gasket, IP54 seal at the seam")
     light_pipe(BAR[0], BAR[1], BAR[2], recess + 1.4, 12.0, EXT, E(-215))
 
@@ -405,8 +461,8 @@ def build_ms():
         screw(f"imx_screw_{x}_{z}", x, z, 35.6, 5.0, 1.0, SEN, E(-36), "M2 x 5", toward=-1)
     for i, (x, z, *_r) in enumerate(MIRA):
         ribbon(f"mira{i}_fpc", [(x + 6, 19.5, z), (x + 6, 26.0, z), (x + 3, 38.5, z - 6 + i * 2), (x + 3, 40.0, z - 6 + i * 2)], 8.0, SEN, E(-30), "22-way FPC, 2-lane MIPI")
-    pcb("baseboard", -44, 44, 4.0, 86.0, 40.0, 1.6, SEN, E(-15), "Sensor baseboard: trigger sync, power, 4 x 2-lane MIPI to the carrier", 11.0, comps="both", seed=30,
-        keep=((-36, -18, 10, 80),),
+    pcb("baseboard", -43, 43, 4.0, 86.0, 40.0, 1.6, SEN, E(-15), "Sensor baseboard: trigger sync, power, 4 x 2-lane MIPI to the carrier", 11.0, comps="both", seed=30,
+        keep=((-36, -18, 10, 80),), r=11.0,
         ics=[(-26, 15, 6, 12, 1.5, -1, "FPC connector, NIR+", "conn"), (-26, 39, 6, 12, 1.5, -1, "FPC connector, NIR", "conn"), (-26, 63, 6, 12, 1.5, -1, "FPC connector, RE", "conn"),
              (cx + 20, cz + 23, 22, 3, 1.6, -1, "100-pin board-to-board", "conn"), (-36, 45, 5, 5, 1.0, 1, "Sync MCU", "ic"), (-30, 30, 3.2, 2.5, 0.8, 1, "TCXO", "xtal"),
              (20, 12, 5, 5, 3.0, 1, "Inductor", "ind"), (30, 12, 5, 5, 3.0, 1, "Inductor", "ind"), (-30, 80, 14, 4, 4.0, 1, "Board-to-carrier connector", "conn")])
@@ -435,16 +491,21 @@ def build_ms():
         mass=9.0, label="2 x 6 mm heat pipes to the rear heatsink")
 
     # ---- 4. externals: rear housing, heatsink, fan, I/O, mount, DLS puck
-    rh = rh.cut(box(Wd / 2 - 2, Wd / 2 + 2, 30, 60, 10, 22))
-    for k in range(3):
-        rh = rh.cut(rbox(Wd / 2 - 2.5, Wd / 2 + 2, 32.0, 58.0, 12.0 + k * 3.8, 14.0 + k * 3.8, 0.9, "|X"))
+    # ribbed rubber grips on both sides (the 6-camera design's signature) and the wing mark above them
+    for sx in (-1, 1):
+        xf = sx * (Wd / 2 - inset(40.0))
+        pad = rbox(min(xf - sx * 0.8, xf + sx * 0.4), max(xf - sx * 0.8, xf + sx * 0.4), 24.0, 56.0, 20.0, 54.0, 3.0, "|X")
+        for k in range(8):
+            yy = 26.5 + k * 3.9
+            pad = pad.union(rbox(min(xf, xf + sx * 1.8), max(xf, xf + sx * 1.8), yy - 1.0, yy + 1.0, 21.5, 52.5, 0.8, "|Y"))
+        add(f"grip_{sx}", pad, EXT, E(150), mat="rubberised", color=(0.015, 0.015, 0.017), density=1.2, label="Ribbed TPU grip")
     try:
-        rh = rh.cut(mark_on_side(22.0, 45.0, 56.0, Wd / 2, 0.6))
+        rh = rh.cut(mark_on_side(18.0, 40.0, 69.0, Wd / 2 - inset(40.0), 0.6))
     except Exception as e:
         print("mark skipped", e)
     HX0, HX1, HZ0, HZ1 = -30.0, 30.0, 30.0, 84.0
     rh = rh.cut(rbox(HX0, HX1, D - 3, D + 1, HZ0, HZ1, 4.0))
-    PORTS = ((-30, 16.0, 8.0, "xt30"), (-8, 12.0, 9.5, "eth"), (9, 9.0, 3.4, "usb"), (26, 0, 0, "gps"), (40, 0, 0, "dls"))
+    PORTS = ((-30, 16.0, 8.0, "xt30"), (-8, 12.0, 9.5, "eth"), (9, 9.0, 3.4, "usb"), (24, 0, 0, "gps"), (35, 0, 0, "dls"))
     for (x, w, h, kind) in PORTS:
         rh = rh.cut(ycyl(x, 15.0, D - 3, D + 1, 3.7 if kind == "dls" else 4.2) if kind in ("gps", "dls") else box(x - w / 2, x + w / 2, D - 3, D + 1, 15 - h / 2, 15 + h / 2))
     for k in range(5):
@@ -459,22 +520,22 @@ def build_ms():
     add("hs_pad", box(-9, 9, D - 8.5, D - 8.0, 34.0, 43.0), EXT, E(105), mat="rubber", color=(0.55, 0.60, 0.68), mass=0.3, label="Thermal pad, heat pipes to heatsink")
     for (x, z) in ((HX0 - 0.5, HZ0 - 0.5), (HX1 + 0.5, HZ0 - 0.5), (HX0 - 0.5, HZ1 + 0.5), (HX1 + 0.5, HZ1 + 0.5)):
         screw(f"hs_screw_{x}_{z}", x, z, D - 6.5, 4.0, 0.8, EXT, E(128), "M1.6 heatsink screw", toward=1)
-    fan = box(-15, 15, 72.0, 79.0, 42.0, 72.0).cut(ycyl(0, 57.0, 71, 80, 13.6))
-    hub = ycyl(0, 57.0, 72.5, 78.5, 5.0)
+    fan = box(-15, 15, D - 18.0, D - 11.0, 42.0, 72.0).cut(ycyl(0, 57.0, D - 19, D - 10, 13.6))
+    hub = ycyl(0, 57.0, D - 17.5, D - 11.5, 5.0)
     for k in range(7):
         a = 2 * math.pi * k / 7
-        bl = box(-1.0, 1.0, 73.5, 77.5, 0, 8.0).rotate((0, 0, 0), (0, 1, 0), math.degrees(a)).rotate((0, 75.5, 0), (0, 75.5, 1), 18).translate((0, 0, 57.0))
-        hub = hub.union(bl.intersect(ycyl(0, 57.0, 72, 79, 13.2)))
+        bl = box(-1.0, 1.0, D - 16.5, D - 12.5, 0, 8.0).rotate((0, 0, 0), (0, 1, 0), math.degrees(a)).rotate((0, D - 14.5, 0), (0, D - 14.5, 1), 18).translate((0, 0, 57.0))
+        hub = hub.union(bl.intersect(ycyl(0, 57.0, D - 18, D - 11, 13.2)))
     for (x, z) in ((-12.5, 44.5), (12.5, 44.5), (-12.5, 69.5), (12.5, 69.5)):
-        fan = fan.cut(ycyl(x, z, 71, 80, 1.2))
+        fan = fan.cut(ycyl(x, z, D - 19, D - 10, 1.2))
     add("fan", fan, EXT, E(85), mat="plastic_gloss", color=(0.05, 0.05, 0.055), mass=4.0, label="30 mm fan, 5 V")
     add("fan_rotor", hub, EXT, E(85), mat="plastic_gloss", color=(0.07, 0.07, 0.075), mass=2.0, label="Fan rotor")
     for (x, z) in ((-12.5, 44.5), (12.5, 44.5), (-12.5, 69.5), (12.5, 69.5)):
-        screw(f"fan_screw_{x}_{z}", x, z, 71.8, 9.0, 0.9, EXT, E(78), "Fan screw", toward=1)
-    pcb("io_board", -44, 44, 5.0, 26.0, 82.0, 1.6, EXT, E(100), "Rear I/O board", 4.0, comps="front", seed=50,
+        screw(f"fan_screw_{x}_{z}", x, z, D - 18.2, 9.0, 0.9, EXT, E(78), "Fan screw", toward=1)
+    pcb("io_board", -41, 41, 5.0, 26.0, D - 8.0, 1.6, EXT, E(100), "Rear I/O board", 4.0, comps="front", seed=50, r=9.0,
         ics=[(-30, 15, 14, 7, 6.0, 1, "XT30 power in, 3S-6S", "conn"), (-8, 15, 11, 9, 6.0, 1, "Ethernet", "steel"), (9, 15, 8.6, 3.2, 6.0, 1, "USB-C", "steel"),
-             (26, 15, 7.5, 7.5, 6.0, 1, "GPS / PPS, 8-pin", "gold"), (40, 15, 6.8, 6.8, 6.0, 1, "DLS port", "gold"), (0, 22, 10, 3, 1.5, -1, "Cable to carrier", "conn")])
-    ribbon("io_cable", [(0, 81.9, 22), (0, 70.0, 22), (0, 49.0, 22), (0, 47.7, 22)], 9.0, EXT, E(90), "Cable, I/O board to carrier")
+             (24, 15, 7.5, 7.5, 6.0, 1, "GPS / PPS, 8-pin", "gold"), (35, 15, 6.8, 6.8, 6.0, 1, "DLS port", "gold"), (0, 22, 10, 3, 1.5, -1, "Cable to carrier", "conn")])
+    ribbon("io_cable", [(0, D - 8.1, 22), (0, D - 18.0, 22), (0, 49.0, 22), (0, 47.7, 22)], 9.0, EXT, E(90), "Cable, I/O board to carrier")
     br = rbox(-30, 30, 22.0, 70.0, -3.2, -0.2, 3.0, "|Z")
     for sx in (-1, 1):
         for sy in (28.0, 64.0):
@@ -501,14 +562,16 @@ def build_duos():
     B = 26.0
     E = lambda y, z=0: (0, y, z)
     EXF = E(-95)
-    fs, panel, rh, (px0, px1, pz0, pz1), _ = rugged_body(Wd, H, D, 3.0, FT, frame, recess, wall, 2.2, EXF, E(55), bump=0.7, soft=1.0)
+    D = 24.0                                                            # body -4 .. 24 = 28 mm; the hood adds 3.5
+    fs, panel, rh, (px0, px1, pz0, pz1), inset = sculpted_body(Wd, H, -4.0, D, 6.0, FT, frame, recess, wall, 2.6, EXF, E(55), taper=1.0, r_rear=3.5, hd=3.5, b=0.8)
     L = [(-B / 2, 15.0), (B / 2, 15.0)]
     for (x, z) in L:
         panel = panel.cut(ycyl(x, z, -1, 5, 7.2))
     panel = light_bar(panel, (0.0, 26.0, 10.0, 0.9), recess, EXF)
     add("panel", panel, EXT, EXF, finish="panel", density=PA12CF, label="Front panel")
     light_pipe(0.0, 26.0, 10.0, recess + 1.0, 6.5, EXT, E(-82))
-    add("gasket", soft_box(-Wd / 2 + 0.5, Wd / 2 - 0.5, FT - 0.2, FT + 0.2, 0.5, H - 0.5, 2.5, 0.1).cut(rbox(-Wd / 2 + 1.3, Wd / 2 - 1.3, FT - 1, FT + 1, 1.3, H - 1.3, 1.7)),
+    add("gasket", W(cq.Solid.makeLoft([rr_wire(Wd - 1.0, H - 1.0, 5.5, FT - 0.2, H / 2), rr_wire(Wd - 1.0, H - 1.0, 5.5, FT + 0.2, H / 2)], True))
+        .cut(W(cq.Solid.makeLoft([rr_wire(Wd - 2.2, H - 2.2, 4.9, FT - 1, H / 2), rr_wire(Wd - 2.2, H - 2.2, 4.9, FT + 1, H / 2)], True))),
         EXT, E(-75), mat="rubber", color=(0.85, 0.30, 0.08), mass=0.3, label="Silicone gasket")
     for i, (x, z) in enumerate(L):
         oring(f"cam{i}_oring", x, z, recess - 0.2, 8.6, 0.5, OPT, E(-88))
@@ -532,9 +595,10 @@ def build_duos():
         for zz in (6.0, 24.0):
             rh = rh.cut(ycyl(sx * 19.0, zz, D - 4, D + 1, 1.1))
     for k in range(3):
-        rh = rh.cut(rbox(Wd / 2 - 2.0, Wd / 2 + 1, 10.0, 22.0, 5.0 + k * 2.4, 6.3 + k * 2.4, 0.5, "|X"))
+        for sx in (-1, 1):
+            rh = rh.cut(rbox(sx * Wd / 2 - 3.0, sx * Wd / 2 + 3.0, 9.0, 19.0, 5.0 + k * 2.4, 6.3 + k * 2.4, 0.5, "|X"))
     try:
-        rh = rh.cut(mark_on_side(9.0, 16.0, 19.5, Wd / 2, 0.4))
+        rh = rh.cut(mark_on_side(9.0, 14.0, 19.5, Wd / 2 - inset(14.0), 0.4))
     except Exception as e:
         print("mark skipped", e)
     rh = rh.cut(zcyl(0, 18.0, -1, 4, 3.2))

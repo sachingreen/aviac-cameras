@@ -1,23 +1,16 @@
 [
  {
   "name": "front_shell",
-  "label": "Front shell, PA12-CF, 1.5 mm walls",
+  "label": "Front shell, PA12-CF: the lens tunnel",
   "group": "Externals",
-  "mass": 1.44,
+  "mass": 2.5,
   "estimated": false
  },
  {
-  "name": "bumpers_front",
-  "label": "Corner bumpers, overmoulded TPU",
+  "name": "hood",
+  "label": "Protective hood, overmoulded TPU: stands proud of every lens",
   "group": "Externals",
-  "mass": 0.58,
-  "estimated": false
- },
- {
-  "name": "bumpers_rear",
-  "label": "Corner bumpers, overmoulded TPU",
-  "group": "Externals",
-  "mass": 0.58,
+  "mass": 1.99,
   "estimated": false
  },
  {
@@ -38,7 +31,7 @@
   "name": "panel",
   "label": "Front panel",
   "group": "Externals",
-  "mass": 1.56,
+  "mass": 1.55,
   "estimated": false
  },
  {
@@ -269,7 +262,7 @@
   "name": "rear_housing",
   "label": "Rear housing, PA12-CF",
   "group": "Externals",
-  "mass": 7.6,
+  "mass": 5.67,
   "estimated": false
  },
  {

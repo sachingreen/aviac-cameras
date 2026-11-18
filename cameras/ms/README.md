@@ -1,6 +1,8 @@
 # Aviac MS: multispectral camera (rev C, rugged body)
 
-96 x 90 x 90 mm. One Sony IMX565 on a compact 16 mm C-mount lens (RGB), centred-right; three Mira220 on
+96 x 90 mm face, 94 mm deep including the protective hood; the body tapers 3 mm per side toward the back and rounds off at the rear.
+The lenses sit in a front tunnel ringed by an overmoulded TPU hood that stands 2 mm proud of every lens, so a
+crash lands on the hood, not the glass. Ribbed TPU grips on both sides. One Sony IMX565 on a compact 16 mm C-mount lens (RGB), centred-right; three Mira220 on
 M12 lenses with band-pass filters (red edge 723, NIR 840, NIR+ 890) in a column on the left. Jetson Orin NX / Nano
 on an 87 x 52 mm carrier; two 6 mm heat pipes carry the heat to a 1.5 mm finned aluminium insert in the rear
 wall, with a 30 mm fan. The downwelling light

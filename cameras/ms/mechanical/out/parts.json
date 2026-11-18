@@ -1,23 +1,16 @@
 [
  {
   "name": "front_shell",
-  "label": "Front shell, PA12-CF, 1.5 mm walls",
+  "label": "Front shell, PA12-CF: the lens tunnel",
   "group": "Externals",
-  "mass": 15.57,
+  "mass": 37.6,
   "estimated": false
  },
  {
-  "name": "bumpers_front",
-  "label": "Corner bumpers, overmoulded TPU",
+  "name": "hood",
+  "label": "Protective hood, overmoulded TPU: stands proud of every lens",
   "group": "Externals",
-  "mass": 2.19,
-  "estimated": false
- },
- {
-  "name": "bumpers_rear",
-  "label": "Corner bumpers, overmoulded TPU",
-  "group": "Externals",
-  "mass": 2.19,
+  "mass": 15.24,
   "estimated": false
  },
  {
@@ -38,35 +31,35 @@
   "name": "panel",
   "label": "Front panel",
   "group": "Externals",
-  "mass": 8.62,
+  "mass": 8.61,
   "estimated": false
  },
  {
   "name": "front_screw_-1_7",
-  "label": "M3 x 10, stainless, front shell",
+  "label": "M3 x 16, stainless, hood and front shell",
   "group": "Externals",
-  "mass": 0.45,
+  "mass": 0.39,
   "estimated": true
  },
  {
   "name": "front_screw_-1_83",
-  "label": "M3 x 10, stainless, front shell",
+  "label": "M3 x 16, stainless, hood and front shell",
   "group": "Externals",
-  "mass": 0.45,
+  "mass": 0.39,
   "estimated": true
  },
  {
   "name": "front_screw_1_7",
-  "label": "M3 x 10, stainless, front shell",
+  "label": "M3 x 16, stainless, hood and front shell",
   "group": "Externals",
-  "mass": 0.45,
+  "mass": 0.39,
   "estimated": true
  },
  {
   "name": "front_screw_1_83",
-  "label": "M3 x 10, stainless, front shell",
+  "label": "M3 x 16, stainless, hood and front shell",
   "group": "Externals",
-  "mass": 0.45,
+  "mass": 0.39,
   "estimated": true
  },
  {
@@ -952,10 +945,24 @@
   "estimated": true
  },
  {
+  "name": "grip_-1",
+  "label": "Ribbed TPU grip",
+  "group": "Externals",
+  "mass": 2.39,
+  "estimated": false
+ },
+ {
+  "name": "grip_1",
+  "label": "Ribbed TPU grip",
+  "group": "Externals",
+  "mass": 2.39,
+  "estimated": false
+ },
+ {
   "name": "rear_housing",
   "label": "Rear housing, PA12-CF",
   "group": "Externals",
-  "mass": 52.4,
+  "mass": 39.9,
   "estimated": false
  },
  {
