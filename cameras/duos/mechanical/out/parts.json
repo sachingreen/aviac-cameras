@@ -355,5 +355,75 @@
   "group": "Externals",
   "mass": 1.5,
   "estimated": true
+ },
+ {
+  "name": "gimbal_tilt_motor",
+  "label": "Tilt motor, brushless, encoder",
+  "group": "Gimbal",
+  "mass": 14.0,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_tilt_cap",
+  "label": "Motor cap ring",
+  "group": "Gimbal",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_arm",
+  "label": "Gimbal arm, carbon-filled nylon",
+  "group": "Gimbal",
+  "mass": 7.6,
+  "estimated": false
+ },
+ {
+  "name": "gimbal_pan_motor",
+  "label": "Pan motor, brushless, slip ring",
+  "group": "Gimbal",
+  "mass": 16.0,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_plate",
+  "label": "Damper plate",
+  "group": "Gimbal",
+  "mass": 9.33,
+  "estimated": false
+ },
+ {
+  "name": "gimbal_iso_-1_-1",
+  "label": "Rubber vibration isolator",
+  "group": "Gimbal",
+  "mass": 0.6,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_iso_-1_1",
+  "label": "Rubber vibration isolator",
+  "group": "Gimbal",
+  "mass": 0.6,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_iso_1_-1",
+  "label": "Rubber vibration isolator",
+  "group": "Gimbal",
+  "mass": 0.6,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_iso_1_1",
+  "label": "Rubber vibration isolator",
+  "group": "Gimbal",
+  "mass": 0.6,
+  "estimated": true
+ },
+ {
+  "name": "gimbal_top",
+  "label": "Airframe plate, quick-release",
+  "group": "Gimbal",
+  "mass": 9.33,
+  "estimated": false
  }
 ]

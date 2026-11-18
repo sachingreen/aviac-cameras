@@ -183,6 +183,8 @@ def make_material(kind, color, name):
     elif kind == "blast":           # bead-blasted metal: fine even grain, soft sheen
         setp(b, color=c, metal=1.0, rough=0.38)
         bump(nt, b, 2600.0, 0.06, 0.00002, detail=2.0)
+    elif kind == "gloss_grey":      # painted glass fibre: slate grey under a clear coat
+        setp(b, color=c, rough=0.28, spec=0.5, coat=1.0, coat_rough=0.04)
     elif kind == "gloss_white":     # gloss white polymer, slightly translucent at the edges
         setp(b, color=c, rough=0.16, spec=0.5, coat=0.6, coat_rough=0.05, sss=0.05)
     elif kind == "knurl":           # diamond-knurled rubber: two crossed fine ridges
@@ -225,37 +227,50 @@ def make_material(kind, color, name):
 
 rig = bpy.data.objects.new("rig", None); scene.collection.objects.link(rig)
 objs, matcache = {}, {}
-for m in meta:
-    raw = base64.b64decode(m["pos"]); n = len(raw) // 4
-    f = struct.unpack(f"<{n}f", raw)
-    verts = [(f[i] * U, f[i + 1] * U, f[i + 2] * U) for i in range(0, n, 3)]
-    faces = [(i, i + 1, i + 2) for i in range(0, len(verts), 3)]
-    me = bpy.data.meshes.new(m["name"]); me.from_pydata(verts, [], faces)
-    bm = bmesh.new(); bm.from_mesh(me)
-    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=2e-6)
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    bm.to_mesh(me); bm.free()
-    for p in me.polygons:
-        p.use_smooth = True
-    try:
-        me.use_auto_smooth = True; me.auto_smooth_angle = math.radians(32)
-    except Exception:
-        pass
-    me.update()
-    ob = bpy.data.objects.new(m["name"], me); scene.collection.objects.link(ob); ob.parent = rig
-    if FINISH and m.get("finish") in FINISH:            # colourway: the part's role picks its colour and material
-        m["mat"], m["color"] = FINISH[m["finish"]]["mat"], FINISH[m["finish"]]["color"]
-    key = (m["mat"], tuple(round(c, 3) for c in m["color"]))
-    if key not in matcache:
-        matcache[key] = make_material(m["mat"], m["color"], m["mat"] + "_" + str(len(matcache)))
-    ob.data.materials.append(matcache[key])
-    # CAD meshes have long thin triangles across flat faces; weighting normals by face area keeps flat faces flat
-    wn = ob.modifiers.new("wnormal", "WEIGHTED_NORMAL"); wn.mode = "FACE_AREA"; wn.keep_sharp = True
-    if m["mat"] in ("shell", "powder", "satin", "hardcoat", "steel_brushed", "anodised", "pcb", "plastic_gloss", "ic", "steel", "accent", "cfrp"):
-        bv = ob.modifiers.new("bevel", "BEVEL"); bv.width = 0.00022 if m["mat"] == "shell" else 0.00010
-        bv.segments = 2; bv.limit_method = "ANGLE"; bv.angle_limit = math.radians(40)
-    ob["explode"] = m["explode"]; ob["group"] = m["group"]; ob["proxy"] = bool(m.get("proxy"))
-    objs[m["name"]] = ob
+
+
+def load_meta(meta, parent, store, finish=None, prefix=""):
+  for m in meta:
+      raw = base64.b64decode(m["pos"]); n = len(raw) // 4
+      f = struct.unpack(f"<{n}f", raw)
+      verts = [(f[i] * U, f[i + 1] * U, f[i + 2] * U) for i in range(0, n, 3)]
+      faces = [(i, i + 1, i + 2) for i in range(0, len(verts), 3)]
+      me = bpy.data.meshes.new(m["name"]); me.from_pydata(verts, [], faces)
+      bm = bmesh.new(); bm.from_mesh(me)
+      bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=2e-6)
+      bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+      bm.to_mesh(me); bm.free()
+      for p in me.polygons:
+          p.use_smooth = True
+      try:
+          me.use_auto_smooth = True; me.auto_smooth_angle = math.radians(32)
+      except Exception:
+          pass
+      me.update()
+      ob = bpy.data.objects.new(prefix + m["name"], me); scene.collection.objects.link(ob); ob.parent = parent
+      if finish and m.get("finish") in finish:            # colourway: the part's role picks its colour and material
+          m["mat"], m["color"] = finish[m["finish"]]["mat"], finish[m["finish"]]["color"]
+      key = (m["mat"], tuple(round(c, 3) for c in m["color"]))
+      if key not in matcache:
+          matcache[key] = make_material(m["mat"], m["color"], m["mat"] + "_" + str(len(matcache)))
+      ob.data.materials.append(matcache[key])
+      # CAD meshes have long thin triangles across flat faces; weighting normals by face area keeps flat faces flat
+      wn = ob.modifiers.new("wnormal", "WEIGHTED_NORMAL"); wn.mode = "FACE_AREA"; wn.keep_sharp = True
+      if m["mat"] in ("shell", "powder", "satin", "hardcoat", "steel_brushed", "anodised", "pcb", "plastic_gloss", "ic", "steel", "accent", "cfrp"):
+          bv = ob.modifiers.new("bevel", "BEVEL"); bv.width = 0.00022 if m["mat"] == "shell" else 0.00010
+          bv.segments = 2; bv.limit_method = "ANGLE"; bv.angle_limit = math.radians(40)
+      ob["explode"] = m["explode"]; ob["group"] = m["group"]; ob["proxy"] = bool(m.get("proxy"))
+      store[m["name"]] = ob
+
+
+
+load_meta(meta, rig, objs, FINISH)
+drone_objs = {}
+DRONE = os.environ.get("DRONE")                 # a second model.js: the aircraft the camera hangs from (film shots)
+if DRONE:
+    drone_rig = bpy.data.objects.new("drone_rig", None); scene.collection.objects.link(drone_rig)
+    drone_frame = json.load(open(os.path.join(os.path.dirname(DRONE), "frame.json")))
+    load_meta(json.loads(open(DRONE).read()[len("window.AVIAC_MODEL="):-1]), drone_rig, drone_objs, None, "drone_")
 
 # ---- the real carrier board from KiCad
 before = set(bpy.data.objects)
@@ -618,6 +633,91 @@ for s in shots:
         os.environ.setdefault("CINE_EXP", "-3.3")      # small, flat subjects take far more light per pixel
         cshoot(os.environ.get("TAG", "") + "sensor", c, size, -105, 38, 100, 0.62, 11.0, f, "green")
         del os.environ["CINE_EXP"]
+    elif s == "film":
+        # MOUNT_AT: camera-model point (mm) that bolts to the aircraft; TURN: camera yaw (deg); PITCH: camera tilt (deg, lens down +)
+        frames = int(os.environ.get("FRAMES", "72"))
+        mount_at = Vector([float(v) for v in os.environ.get("MOUNT_AT", "0,40,102").split(",")]) * U
+        turn, pitch = math.radians(float(os.environ.get("TURN", "0"))), math.radians(float(os.environ.get("PITCH", "15")))
+        for ob in objs.values():
+            ob.location = (0, 0, 0)
+            ob.hide_render = ob["group"] in ("DLS puck",) or ob["proxy"] or ob["group"] in os.environ.get("HIDE", "").split(",")
+        for o in board_objs:
+            o.hide_render = True
+        rig.rotation_euler = Euler((pitch, 0, turn), "XYZ"); rig.location = (0, 0, 0)
+        bpy.context.view_layer.update()
+        rig.location = -(rig.matrix_world @ mount_at)
+        cm = Vector(drone_frame["camera_mount"]) * U
+        drone_rig.location = -cm
+        bpy.context.view_layer.update()
+        # gimbal: pan about the vertical through the pan motor, tilt about X through the tilt motor
+        gim = os.environ.get("GIMBAL")
+        if gim:
+            px, py, pz, tz = [float(v) * U for v in gim.split(",")]
+            pan_e = bpy.data.objects.new("pan", None); scene.collection.objects.link(pan_e); pan_e.parent = rig; pan_e.location = (px, py, pz)
+            tilt_e = bpy.data.objects.new("tilt", None); scene.collection.objects.link(tilt_e); tilt_e.parent = pan_e; tilt_e.location = (0, 0, tz - pz)
+            bpy.context.view_layer.update()
+            fixed = ("gimbal_plate", "gimbal_top")
+            for n, ob in objs.items():
+                if n in fixed or n.startswith("gimbal_iso"):
+                    continue
+                parent = pan_e if n.startswith("gimbal_") else tilt_e
+                mw = ob.matrix_world.copy(); ob.parent = parent; ob.matrix_world = mw
+            for f, pan, tilt in ((1, -28, 6), (frames // 2, 22, 24), (frames, -28, 6)):
+                pan_e.rotation_euler = (0, 0, math.radians(pan)); pan_e.keyframe_insert("rotation_euler", frame=f)
+                tilt_e.rotation_euler = (math.radians(tilt), 0, 0); tilt_e.keyframe_insert("rotation_euler", frame=f)
+        # floor: concrete, at the bottom of the aircraft's landing gear
+        lo = min((d.matrix_world @ Vector(c)).z for d in drone_objs.values() for c in d.bound_box)
+        cyc.hide_render = True
+        bpy.ops.mesh.primitive_plane_add(size=30, location=(0, 0, lo))
+        fl = bpy.context.active_object
+        fm, fb, fnt = principled("concrete")
+        n1 = fnt.nodes.new("ShaderNodeTexNoise"); n1.inputs["Scale"].default_value = 3.0; n1.inputs["Detail"].default_value = 8.0
+        n2 = fnt.nodes.new("ShaderNodeTexNoise"); n2.inputs["Scale"].default_value = 220.0; n2.inputs["Detail"].default_value = 4.0
+        mx = fnt.nodes.new("ShaderNodeMixRGB"); mx.blend_type = "MULTIPLY"; mx.inputs["Fac"].default_value = 0.5
+        fnt.links.new(n1.outputs["Fac"], mx.inputs[1]); fnt.links.new(n2.outputs["Fac"], mx.inputs[2])
+        cr = fnt.nodes.new("ShaderNodeValToRGB"); cr.color_ramp.elements[0].color = (0.16, 0.16, 0.155, 1); cr.color_ramp.elements[1].color = (0.30, 0.295, 0.29, 1)
+        fnt.links.new(mx.outputs[0], cr.inputs["Fac"]); fnt.links.new(cr.outputs["Color"], fb.inputs["Base Color"])
+        fb.inputs["Roughness"].default_value = 0.82
+        bp = fnt.nodes.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.25; bp.inputs["Distance"].default_value = 0.001
+        fnt.links.new(n2.outputs["Fac"], bp.inputs["Height"]); fnt.links.new(bp.outputs[0], fb.inputs["Normal"])
+        fl.data.materials.append(fm)
+        # light: a hard low sun for crisp shadows, a soft top box and a cool rim, dim world
+        for l in lights:
+            bpy.data.objects.remove(l, do_unlink=True)
+        lights.clear()
+        sd = bpy.data.lights.new("sun", "SUN"); sd.energy = float(os.environ.get("SUN", "4.5")); sd.angle = math.radians(1.2)
+        so = bpy.data.objects.new("sun", sd); scene.collection.objects.link(so)
+        so.rotation_euler = Euler((math.radians(52), 0, math.radians(float(os.environ.get("SUN_AZ", "-35")))), "XYZ")
+        lights.append(so)
+        lights.append(area("top", Vector((0, 0.3, 1.2)), Vector((0, 0, 0)), 30.0, 1.2, (1, 1, 1), 0.8))
+        lights.append(area("rim", Vector((0.9, 0.9, 0.2)), Vector((0, 0, 0)), 18.0, 0.15, (0.85, 0.92, 1.0), 1.2))
+        bgn.inputs[0].default_value = (0.78, 0.8, 0.82, 1); bgn.inputs[1].default_value = float(os.environ.get("WORLD", "0.55"))
+        scene.view_settings.exposure = float(os.environ.get("CINE_EXP", "0"))
+        try:
+            scene.view_settings.look = "AgX - Medium High Contrast"
+        except Exception:
+            pass
+        # camera: low, looking slightly up at the belly, slow orbit
+        tgt = Vector([float(v) for v in os.environ.get("TARGET", "0,0,-0.05").split(",")])
+        d0, a0, a1 = float(os.environ.get("DIST", "0.42")), float(os.environ.get("AZ0", "-150")), float(os.environ.get("AZ1", "-110"))
+        el = math.radians(float(os.environ.get("EL", "-4")))
+        cam_d.lens = float(os.environ.get("LENS", "50")); cam_d.dof.use_dof = True; cam_d.dof.aperture_fstop = 4.0; cam_d.dof.focus_distance = d0
+        for f in range(1, frames + 1):
+            u = (f - 1) / max(1, frames - 1)
+            k = 0.5 - 0.5 * math.cos(math.pi * u)
+            a = math.radians(a0 + (a1 - a0) * k)
+            cam.location = tgt + Vector((d0 * math.cos(el) * math.cos(a), d0 * math.cos(el) * math.sin(a), d0 * math.sin(el)))
+            cam.rotation_euler = (tgt - cam.location).to_track_quat("-Z", "Y").to_euler()
+            cam.keyframe_insert("location", frame=f); cam.keyframe_insert("rotation_euler", frame=f)
+        scene.frame_start, scene.frame_end = 1, frames
+        if os.environ.get("STILL"):
+            scene.frame_set(int(os.environ["STILL"]))
+            scene.render.filepath = os.path.join(outdir, os.environ.get("TAG", "") + "film_still.png")
+            bpy.ops.render.render(write_still=True)
+        else:
+            scene.render.image_settings.color_depth = "8"
+            scene.render.filepath = os.path.join(outdir, os.environ.get("TAG", "") + "f_####")
+            bpy.ops.render.render(animation=True)
     elif s == "top_unit":
         c, size = pose(0.5, show_only=(TOPU,), rot=(0, 0, 0), board=False)
         shoot("09_top_unit_exploded", c, size, az=-55, el=24, lens=100, fill=0.7)

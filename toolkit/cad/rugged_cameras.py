@@ -279,6 +279,62 @@ def light_bar(panel, bar, recess, ex):
     return panel
 
 
+def xcyl(x0, x1, y, z, r):
+    """Cylinder along X from x0 to x1."""
+    return W(cq.Solid.makeCylinder(r, x1 - x0, V(x0, y, z), V(1, 0, 0)))
+
+
+def gimbal_yoke(cx, cy, z_axis, half_w, top_z, prefix="gimbal"):
+    """Black 2-axis gimbal: a tilt motor on the -X side of the camera, an L-arm up to a pan motor above it, and a
+    damper plate with four rubber isolators that bolts to the airframe. Parts go in group 'Gimbal'."""
+    G, ex = "Gimbal", (0, 0, 40)
+    xm0, xm1 = -half_w - 10.0, -half_w - 1.0
+    tm = xcyl(xm0, xm1, cy, z_axis, 9.5)
+    try:
+        tm = tm.faces("<X").edges().fillet(2.0)
+    except Exception:
+        pass
+    add(prefix + "_tilt_motor", tm, G, ex, mat="powder", color=(0.02, 0.02, 0.022), mass=14.0, label="Tilt motor, brushless, encoder")
+    add(prefix + "_tilt_cap", xcyl(xm0 - 0.4, xm0 + 0.6, cy, z_axis, 6.0).cut(xcyl(xm0 - 1, xm0 + 1, cy, z_axis, 4.8)), G, ex, mat="satin",
+        color=(0.30, 0.31, 0.32), mass=0.0, label="Motor cap ring")
+    arm = rbox(xm0 - 1.0, xm0 + 6.0, cy - 7.0, cy + 7.0, z_axis - 2.0, top_z - 4.0, 3.0, "|Y")
+    arm = arm.union(rbox(xm0 - 1.0, cx + 8.0, cy - 7.0, cy + 7.0, top_z - 10.0, top_z - 4.0, 3.0, "|Y"))
+    try:
+        arm = arm.edges("|Y").fillet(1.5)
+    except Exception:
+        pass
+    add(prefix + "_arm", arm, G, ex, mat="powder", color=(0.02, 0.02, 0.022), density=1.4, label="Gimbal arm, carbon-filled nylon")
+    pm = zcyl(cx, cy, top_z - 4.0, top_z + 8.0, 10.0)
+    try:
+        pm = pm.faces(">Z").edges().fillet(1.5)
+    except Exception:
+        pass
+    add(prefix + "_pan_motor", pm, G, ex, mat="powder", color=(0.02, 0.02, 0.022), mass=16.0, label="Pan motor, brushless, slip ring")
+    plate = rbox(cx - 24, cx + 24, cy - 18, cy + 18, top_z + 8.0, top_z + 10.0, 4.0, "|Z")
+    add(prefix + "_plate", plate, G, ex, mat="satin", color=(0.75, 0.76, 0.77), density=2.7, label="Damper plate")
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            ball = W(cq.Solid.makeSphere(3.6, V(cx + sx * 18, cy + sy * 12, top_z + 13.0)))
+            add(f"{prefix}_iso_{sx}_{sy}", ball, G, ex, mat="rubber", color=(0.03, 0.03, 0.033), mass=0.6, label="Rubber vibration isolator")
+    add(prefix + "_top", rbox(cx - 24, cx + 24, cy - 18, cy + 18, top_z + 16.0, top_z + 18.0, 4.0, "|Z"), G, ex, mat="satin",
+        color=(0.75, 0.76, 0.77), density=2.7, label="Airframe plate, quick-release")
+
+
+def fixed_hanger(cx, cy, top_z, w, d, prefix="hanger"):
+    """MS is fixed: a stiff plate on its top face, four rubber isolators and an airframe plate. Group 'Hanger'."""
+    G, ex = "Hanger", (0, 0, 40)
+    pl = rbox(cx - w / 2, cx + w / 2, cy - d / 2, cy + d / 2, top_z, top_z + 3.0, 5.0, "|Z")
+    for sx in (-1, 1):
+        pl = pl.cut(rbox(cx + sx * w / 4 - 7, cx + sx * w / 4 + 7, cy - d / 4, cy + d / 4, top_z - 1, top_z + 4, 3.0, "|Z"))
+    add(prefix + "_plate", pl, G, ex, mat="powder", color=(0.02, 0.02, 0.022), density=1.4, label="Fixed mount plate")
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            add(f"{prefix}_iso_{sx}_{sy}", W(cq.Solid.makeSphere(4.2, V(cx + sx * (w / 2 - 8), cy + sy * (d / 2 - 8), top_z + 6.5))), G, ex,
+                mat="rubber", color=(0.03, 0.03, 0.033), mass=0.8, label="Rubber vibration isolator")
+    add(prefix + "_top", rbox(cx - w / 2, cx + w / 2, cy - d / 2, cy + d / 2, top_z + 10.0, top_z + 12.0, 5.0, "|Z"), G, ex, mat="satin",
+        color=(0.75, 0.76, 0.77), density=2.7, label="Airframe plate")
+
+
 # colourways: role -> material and colour (linear RGB)
 FINISHES = {
     "titanium": {"body": {"mat": "blast", "color": [0.30, 0.30, 0.31]}, "bumper": {"mat": "knurl", "color": [0.012, 0.012, 0.013]},
@@ -590,6 +646,7 @@ def build_ms():
         for sy in (28.0, 64.0):
             br = br.cut(zcyl(sx * 22, sy, -5, 1, 1.7)).cut(zcyl(sx * 22, sy, -5, -1.8, 3.0))
         br = br.cut(rbox(sx * 12 - 7, sx * 12 + 7, 34, 58, -5, 1, 3.0, "|Z"))
+    fixed_hanger(0.0, 40.0, H, 64.0, 52.0)
     add("mount", br, "Mount", E(150, -45), mat="satin", color=(0.05, 0.05, 0.055), density=PA12CF, label="Drone bracket, PA12-CF, 4 x M3")
     for sx in (-1, 1):
         for sy in (28.0, 64.0):
@@ -660,6 +717,7 @@ def build_duos():
         for zz in (6.0, 24.0):
             screw(f"rear_screw_{sx}_{int(zz)}", sx * 19.0, zz, D + 0.6, 10.0, 0.8, EXT, E(68), "M1.6 x 10, rear", toward=-1)
     add("insert_14_20", zcyl(0, 18.0, 0.3, 6.0, 3.2).cut(zcyl(0, 18.0, 0, 7, 2.6)), EXT, E(55, -18), mat="gold", color=(0.8, 0.6, 0.2), mass=1.5, label='1/4"-20 insert')
+    gimbal_yoke(0.0, 10.0, 15.0, Wd / 2, H + 12.0)
     export(os.path.join(REPO, "cameras", "duos", "mechanical", "out"), "aviac_duos")
 
 

@@ -1,0 +1,156 @@
+[
+ {
+  "name": "body",
+  "label": "Body shell",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "frame",
+  "label": "Carbon centre plate",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "tank",
+  "label": "Spray tank, 20 L",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "arm_-1_-180",
+  "label": "Arm",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "arm_-1_180",
+  "label": "Arm",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "skid_-1",
+  "label": "Landing skid",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "strut_-1_-200",
+  "label": "Strut",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "strut_-1_200",
+  "label": "Strut",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "arm_1_-180",
+  "label": "Arm",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "arm_1_180",
+  "label": "Arm",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "skid_1",
+  "label": "Landing skid",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "strut_1_-200",
+  "label": "Strut",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "strut_1_200",
+  "label": "Strut",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "boom",
+  "label": "Spray boom",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nozzle_0",
+  "label": "Nozzle",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nozzle_1",
+  "label": "Nozzle",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nozzle_2",
+  "label": "Nozzle",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nozzle_3",
+  "label": "Nozzle",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nozzle_4",
+  "label": "Nozzle",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nozzle_5",
+  "label": "Nozzle",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nozzle_6",
+  "label": "Nozzle",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nozzle_7",
+  "label": "Nozzle",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ }
+]

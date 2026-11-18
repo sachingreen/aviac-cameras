@@ -1225,6 +1225,48 @@
   "estimated": true
  },
  {
+  "name": "hanger_plate",
+  "label": "Fixed mount plate",
+  "group": "Hanger",
+  "mass": 10.96,
+  "estimated": false
+ },
+ {
+  "name": "hanger_iso_-1_-1",
+  "label": "Rubber vibration isolator",
+  "group": "Hanger",
+  "mass": 0.8,
+  "estimated": true
+ },
+ {
+  "name": "hanger_iso_-1_1",
+  "label": "Rubber vibration isolator",
+  "group": "Hanger",
+  "mass": 0.8,
+  "estimated": true
+ },
+ {
+  "name": "hanger_iso_1_-1",
+  "label": "Rubber vibration isolator",
+  "group": "Hanger",
+  "mass": 0.8,
+  "estimated": true
+ },
+ {
+  "name": "hanger_iso_1_1",
+  "label": "Rubber vibration isolator",
+  "group": "Hanger",
+  "mass": 0.8,
+  "estimated": true
+ },
+ {
+  "name": "hanger_top",
+  "label": "Airframe plate",
+  "group": "Hanger",
+  "mass": 17.97,
+  "estimated": false
+ },
+ {
   "name": "mount",
   "label": "Drone bracket, PA12-CF, 4 x M3",
   "group": "Mount",

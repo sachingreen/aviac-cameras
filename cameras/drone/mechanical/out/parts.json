@@ -1,0 +1,310 @@
+[
+ {
+  "name": "fuselage",
+  "label": "Fuselage, glass fibre, slate-grey gloss",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "hatch_-300",
+  "label": "Access opening",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "hatch_40",
+  "label": "Access opening",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "spinner",
+  "label": "Spinner",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "prop_-1",
+  "label": "Tractor propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "prop_1",
+  "label": "Tractor propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "wing_-1",
+  "label": "Wing",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "wing_1",
+  "label": "Wing",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "stripe_-1_0",
+  "label": "Marking",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "stripe_-1_1",
+  "label": "Marking",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "stripe_-1_2",
+  "label": "Marking",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "stripe_-1_3",
+  "label": "Marking",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "stripe_1_0",
+  "label": "Marking",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "stripe_1_1",
+  "label": "Marking",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "stripe_1_2",
+  "label": "Marking",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "stripe_1_3",
+  "label": "Marking",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "boom_-1",
+  "label": "Carbon boom",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "boom_clamp_-1",
+  "label": "Boom mount",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_mount_-1_front",
+  "label": "Motor mount",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_-1_front",
+  "label": "Lift motor",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_cap_-1_front",
+  "label": "Motor bell",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lift_prop_-1_front_0",
+  "label": "Lift propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lift_prop_-1_front_1",
+  "label": "Lift propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_mount_-1_rear",
+  "label": "Motor mount",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_-1_rear",
+  "label": "Lift motor",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_cap_-1_rear",
+  "label": "Motor bell",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lift_prop_-1_rear_0",
+  "label": "Lift propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lift_prop_-1_rear_1",
+  "label": "Lift propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "pod_-1",
+  "label": "Boom end pod",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "leg_-1",
+  "label": "Landing leg, printed lattice",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "boom_1",
+  "label": "Carbon boom",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "boom_clamp_1",
+  "label": "Boom mount",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_mount_1_front",
+  "label": "Motor mount",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_1_front",
+  "label": "Lift motor",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_cap_1_front",
+  "label": "Motor bell",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lift_prop_1_front_0",
+  "label": "Lift propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lift_prop_1_front_1",
+  "label": "Lift propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_mount_1_rear",
+  "label": "Motor mount",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_1_rear",
+  "label": "Lift motor",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "motor_cap_1_rear",
+  "label": "Motor bell",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lift_prop_1_rear_0",
+  "label": "Lift propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "lift_prop_1_rear_1",
+  "label": "Lift propeller",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "pod_1",
+  "label": "Boom end pod",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "leg_1",
+  "label": "Landing leg, printed lattice",
+  "group": "Drone",
+  "mass": 0.0,
+  "estimated": true
+ }
+]
