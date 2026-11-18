@@ -84,10 +84,10 @@ def build_th():
     rc.parts.clear()
     Wd, H, D = 60.0, 42.0, 36.0
     LW, RGB = (-9.0, 21.0), (17.5, 21.0)
-    body(Wd, H, D, [(LW[0], LW[1], 12.6), (RGB[0], RGB[1], 7.2)], "TH", 37.0, [(LW[0], LW[1], 13.9), (RGB[0], RGB[1], 9.3)])
+    body(Wd, H, D, [(LW[0], LW[1], 12.6), (RGB[0], RGB[1], 7.2)], "TH", 37.0, [(LW[0], LW[1], 13.9, "open"), (RGB[0], RGB[1], 9.3)])
     lens_ring("lwir", LW[0], LW[1], -3.8, 1.2, 27.0, 22.0, OPT, E(-70))
     oring("lwir_oring", LW[0], LW[1], 1.0, 12.4, 0.55, OPT, E(-88))
-    big_lens("lwir", LW[0], LW[1], -6.1, 9.0, 10.0, (0.20, 0.17, 0.24), "Germanium LWIR lens, 13 mm f/1.0", "Germanium window, DLC-coated", glass_mat="die_dark")
+    big_lens("lwir", LW[0], LW[1], -6.1, 9.0, 10.0, (0.20, 0.17, 0.24), "Germanium LWIR lens, 13 mm f/1.0", "Germanium window, DLC-coated", glass_mat="germanium")
     lens_ring("rgb", RGB[0], RGB[1], -3.8, 1.2, 18.0, 15.0, OPT, E(-70))
     m12_lens("rgb", RGB[0], RGB[1], -6.0, 12.0, OPT, E(-60), (0.10, 0.22, 0.20), "M12 lens, colour camera")
     # thermal core: a machined block with the bolometer window, on its own board

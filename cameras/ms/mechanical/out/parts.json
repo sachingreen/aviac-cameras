@@ -63,41 +63,6 @@
   "estimated": true
  },
  {
-  "name": "front_glass",
-  "label": "Front glass, gloss black, toughened",
-  "group": "Externals",
-  "mass": 7.14,
-  "estimated": false
- },
- {
-  "name": "front_window_0",
-  "label": "Lens window, AR-coated",
-  "group": "Externals",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "front_window_1",
-  "label": "Lens window, AR-coated",
-  "group": "Externals",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "front_window_2",
-  "label": "Lens window, AR-coated",
-  "group": "Externals",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "front_window_3",
-  "label": "Lens window, AR-coated",
-  "group": "Externals",
-  "mass": 0.0,
-  "estimated": true
- },
- {
   "name": "markings",
   "label": "Laser-etched markings",
   "group": "Externals",
@@ -135,6 +100,13 @@
  {
   "name": "mira0_lip",
   "label": "Ring chamfer",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_accent",
+  "label": "Copper accent ring",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -224,6 +196,13 @@
   "estimated": true
  },
  {
+  "name": "mira1_accent",
+  "label": "Copper accent ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
   "name": "mira1_retainer",
   "label": "Filter retaining ring",
   "group": "Optics",
@@ -308,6 +287,13 @@
   "estimated": true
  },
  {
+  "name": "mira2_accent",
+  "label": "Copper accent ring",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
   "name": "mira2_retainer",
   "label": "Filter retaining ring",
   "group": "Optics",
@@ -387,6 +373,13 @@
  {
   "name": "imx_lip",
   "label": "Ring chamfer",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_accent",
+  "label": "Copper accent ring",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true

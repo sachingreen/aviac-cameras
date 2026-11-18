@@ -244,14 +244,16 @@ def front_glass(px0, px1, pz0, pz1, y, r, holes, slot=None, ex=(0, -240, 0)):
     """One gloss-black glass plate across the front, just behind the rubber rim: openings for each lens and the
     status light, so the face reads as a single clean surface."""
     g = rbox(px0, px1, y, y + 0.7, pz0, pz1, r)
-    for (x, z, rr) in holes:
+    for (x, z, rr, *_o) in holes:
         g = g.cut(ycyl(x, z, y - 1, y + 2, rr))
     if slot:
         x, z, l, h = slot
         g = g.cut(rbox(x - l / 2 - 0.4, x + l / 2 + 0.4, y - 1, y + 2, z - h / 2 - 0.4, z + h / 2 + 0.4, min(h / 2 + 0.4, 1.0)))
     add("front_glass", g, EXT, ex, mat="glass_black", color=(0.01, 0.01, 0.012), density=2.5, label="Front glass, gloss black, toughened")
     # clear windows flush in the same glass: one continuous gloss surface, the lenses sit quietly underneath
-    for i, (x, z, rr) in enumerate(holes):
+    for i, (x, z, rr, *opt) in enumerate(holes):
+        if opt and opt[0] == "open":
+            continue
         add(f"front_window_{i}", ycyl(x, z, y, y + 0.7, rr), EXT, ex, mat="cover_glass", color=(0.3, 0.32, 0.33), mass=0.0, label="Lens window, AR-coated")
 
 
@@ -562,8 +564,7 @@ def build_ms():
     for sx in (-1, 1):
         for zz in (7.0, H - 7.0):
             screw(f"front_screw_{sx}_{int(zz)}", sx * (Wd / 2 - 4.2), zz, -13.7, 16.0, 1.3, EXT, EXF, "M3 x 16, stainless, hood and front shell", toward=1)
-    GY = -12.9
-    front_glass(px0 + 0.3, px1 - 0.3, pz0 + 0.3, pz1 - 0.3, GY, 6.0, [(cx, cz, 21.4)] + [(x, z, 9.6) for (x, z, *_r) in MIRA], BAR)
+    GY = recess
     mk = lockup(cx, 19.5, GY, 5.0, "M S", 2.6)
     for (x, z, band, _t) in MIRA:
         mk = mk.union(etch_text(band.split()[0], 1.7, -15.0, z, GY))
@@ -577,11 +578,13 @@ def build_ms():
     for i, (x, z, band, tint) in enumerate(MIRA):
         oring(f"mira{i}_oring", x, z, recess - 0.3, 8.6, 0.6, OPT, E(-225))
         lens_ring(f"mira{i}", x, z, -10.0, recess, 20.0, 15.6, OPT, E(-190))
+        add(f"mira{i}_accent", yring(x, z, -9.0, -8.2, 10.85, 10.25), OPT, E(-190), mat="satin", color=(0.72, 0.40, 0.20), mass=0.0, label="Copper accent ring")
         add(f"mira{i}_retainer", yring(x, z, -10.3, -9.7, 7.6, 6.2), OPT, E(-196), mat="satin", color=(0.035, 0.035, 0.038), mass=0.1, label="Filter retaining ring")
         m12_lens(f"mira{i}", x, z, -9.0, 25.0, OPT, E(-165), (0.10, 0.22, 0.20), "M12 lens, 6 mm, 25 mm long", filt=(band, tint))
         m12_holder(f"mira{i}_holder", x, z, 8.5, 17.0, OPT, E(-120))
     oring("imx_oring", cx, cz, recess - 0.3, 18.6, 0.7, OPT, E(-225))
     lens_ring("imx", cx, cz, -12.0, recess, 44.0, 34.0, OPT, E(-190))
+    add("imx_accent", yring(cx, cz, -11.0, -10.0, 22.85, 22.2), OPT, E(-190), mat="satin", color=(0.72, 0.40, 0.20), mass=0.0, label="Copper accent ring")
     cb = ycyl(cx, cz, -12.0, 18.0, 15.5).cut(ycyl(cx, cz, -13, 6.0, 11.5))
     for (ya, yb) in ((-8.0, -3.0), (0.0, 4.5)):
         for k in range(36):
