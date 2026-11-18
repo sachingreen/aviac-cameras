@@ -392,8 +392,36 @@
   "estimated": true
  },
  {
-  "name": "mira0_pcb_c0",
+  "name": "mira0_pcb_c0_pkg",
   "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "mira0_pcb_c0_pads",
+  "label": "Bond pads",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_pcb_c0_frame",
+  "label": "Seal ring",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_pcb_c0_die",
+  "label": "Pixel array, 1600 x 1400",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira0_pcb_c0_glass",
+  "label": "Cover glass",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
@@ -448,8 +476,36 @@
   "estimated": true
  },
  {
-  "name": "mira1_pcb_c0",
+  "name": "mira1_pcb_c0_pkg",
   "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "mira1_pcb_c0_pads",
+  "label": "Bond pads",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_pcb_c0_frame",
+  "label": "Seal ring",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_pcb_c0_die",
+  "label": "Pixel array, 1600 x 1400",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira1_pcb_c0_glass",
+  "label": "Cover glass",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
@@ -504,8 +560,36 @@
   "estimated": true
  },
  {
-  "name": "mira2_pcb_c0",
+  "name": "mira2_pcb_c0_pkg",
   "label": "ams OSRAM Mira220, 1600 x 1400 global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "mira2_pcb_c0_pads",
+  "label": "Bond pads",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_pcb_c0_frame",
+  "label": "Seal ring",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_pcb_c0_die",
+  "label": "Pixel array, 1600 x 1400",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "mira2_pcb_c0_glass",
+  "label": "Cover glass",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
@@ -560,8 +644,36 @@
   "estimated": true
  },
  {
-  "name": "imx_pcb_c0",
+  "name": "imx_pcb_c0_pkg",
   "label": "Sony IMX565, 12.4 MP global shutter",
+  "group": "Baseboard + image sensors",
+  "mass": 1.2,
+  "estimated": true
+ },
+ {
+  "name": "imx_pcb_c0_well",
+  "label": "Package well",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_pcb_c0_frame",
+  "label": "Bond wires and frame",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_pcb_c0_die",
+  "label": "Pixel array, 4128 x 3008",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "imx_pcb_c0_glass",
+  "label": "Cover glass",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true

@@ -65,6 +65,31 @@
   </div>
 </div></section>
 
+<section id="hardware" style="padding-top:20px"><div class="wrap">
+  <div class="head reveal"><h2>Inside the hardware.</h2><p>Every part is chosen for one job: catch the light in the right band, at the same instant, and turn it into an answer on board.</p></div>
+  <div class="hw">
+    <div class="chipcard reveal"><img src="{{R}}assets/img/sensor_imx565.jpg" alt="Sony IMX565 image sensor on its board"><div class="cap"><div class="lab">RGB · Aviac MS</div><h3>Sony IMX565</h3><p>12.4 MP, 1.1-inch global shutter on a C-mount lens. The colour reference every other band is registered to.</p></div></div>
+    <div class="chipcard reveal"><img src="{{R}}assets/img/sensor_mira220.jpg" alt="ams OSRAM Mira220 image sensor on its board"><div class="cap"><div class="lab">Spectral bands · MS and Duos</div><h3>ams OSRAM Mira220</h3><p>2.2 MP global shutter, sensitive deep into the near infrared. Three in the MS, a matched pair in the Duos.</p></div></div>
+  </div>
+  <div class="feats">
+    <div class="feat reveal"><div class="k">50 µs</div><h4>One trigger, every shutter</h4><p>A sync controller fires all sensors on one hardware edge and stamps each frame with GNSS time.</p></div>
+    <div class="feat reveal"><div class="k">+2 mm</div><h4>Crash-proof optics</h4><p>A rubber hood stands proud of every lens. A hard landing hits the hood, not the glass.</p></div>
+    <div class="feat reveal"><div class="k">On board</div><h4>Edge AI</h4><p>A Jetson Orin inside the MS builds indices and detections in flight. No upload, no wait.</p></div>
+    <div class="feat reveal"><div class="k">2 × 6 mm</div><h4>Heat pipes, sealed body</h4><p>Heat goes to a finned rear insert and a 30 mm fan. The optics bay stays sealed by a gasket.</p></div>
+    <div class="feat reveal"><div class="k">343 g</div><h4>Light enough for any survey drone</h4><p>Carbon-nylon shell with 1.5 mm walls, aluminium only where it carries heat or holds alignment.</p></div>
+    <div class="feat reveal"><div class="k">3S–6S</div><h4>Runs off the drone</h4><p>Straight from the flight battery through an XT30. Ethernet, USB-C and GPS/PPS at the back.</p></div>
+  </div>
+  <div class="cmp reveal"><table>
+    <tr><th></th><th>Aviac MS</th><th>Aviac Duos</th></tr>
+    <tr><td>Sensors</td><td>1 × IMX565 + 3 × Mira220</td><td>2 × Mira220</td></tr>
+    <tr><td>Optics</td><td>16 mm C-mount + 3 × M12 with band-pass filters</td><td>2 × low-profile M12, 26 mm baseline</td></tr>
+    <tr><td>Output</td><td>6-band maps, indices, detections</td><td>Stereo depth, coverage, gaps</td></tr>
+    <tr><td>Compute</td><td>Jetson Orin NX / Nano on board</td><td>External, over USB-C or GMSL</td></tr>
+    <tr><td>Body</td><td>96 × 90 mm, 94 mm deep · 343 g</td><td>50 × 30 × 28 mm · 28 g</td></tr>
+    <tr><td>Mount</td><td>4 × M3 bracket</td><td>4 × M2 · ¼"-20</td></tr>
+  </table></div>
+</div></section>
+
 <section id="field" class="field"><div class="wrap">
   <div class="head reveal"><h2>In the field.</h2><p>Every flight lands in the Aviac dashboard: field maps, NDVI layers, alerts and plot-level numbers, ready to act on.</p></div>
   <div class="device reveal"><img src="{{R}}assets/img/dashboard.jpg" alt="The Aviac dashboard: an aerial field map with field outlines, an alerts calendar, performance figures and quick actions"></div>

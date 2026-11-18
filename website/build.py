@@ -16,8 +16,8 @@ SRC, OUT = os.path.join(HERE, "src"), os.path.join(HERE, "public")
 sys.path.insert(0, os.path.join(REPO, "toolkit", "brand"))
 from logo import svg_mark, svg_wordmark, GREEN, IVORY
 
-NAV = [("systems", "Systems", "#systems"), ("field", "In the field", "#field"), ("research", "Research", "#research"),
-       ("company", "Company", "#company"), ("ms", "Aviac MS", "product/multispectral/"), ("duos", "Aviac Duos", "product/duos/")]
+NAV = [("systems", "Systems", "#systems", [("ms", "Aviac MS", "product/multispectral/", "Multispectral · six bands"), ("duos", "Aviac Duos", "product/duos/", "Stereo · spray drones")]),
+       ("hardware", "Hardware", "#hardware", None), ("field", "In the field", "#field", None), ("research", "Research", "#research", None), ("company", "Company", "#company", None)]
 
 
 def render(text, R):
@@ -39,7 +39,15 @@ def render(text, R):
     def nav(m):
         on = m.group(1)
         home = "" if on == "home" else R
-        items = "".join(f'<li><a href="{(R if h.startswith("product") else home) + h}"{" class=on" if k == on else ""}>{t}</a></li>' for k, t, h in NAV)
+        items = ""
+        for k, t, h, sub in NAV:
+            on_ = k == on or (sub and any(sk == on for sk, *_ in sub))
+            if sub:
+                links = "".join(f'<a href="{R}{sh}"{" class=on" if sk == on else ""}><b>{st}</b><span>{sd}</span></a>' for sk, st, sh, sd in sub)
+                items += (f'<li class="dd"><a href="{home}{h}"{" class=on" if on_ else ""} aria-haspopup="true">{t} <span class="car">&#9662;</span></a>'
+                          f'<div class="menu">{links}</div></li>')
+            else:
+                items += f'<li><a href="{home}{h}">{t}</a></li>'
         return (f'<nav class="nav"><div class="wrap"><a class="brand" href="{R}" aria-label="Aviac Technologies, home"><img class="m" src="{R}img/mark.svg" alt="">'
                 f'<img class="w" src="{R}img/wordmark.svg" alt=""></a><ul>{items}</ul>'
                 f'<a class="btn p cta" href="{home}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>')

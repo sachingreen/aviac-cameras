@@ -168,15 +168,71 @@
   "estimated": true
  },
  {
-  "name": "board_c0",
+  "name": "board_c0_pkg",
   "label": "Mira220, left",
+  "group": "Baseboard + image sensors",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "board_c0_pads",
+  "label": "Bond pads",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "board_c1",
+  "name": "board_c0_frame",
+  "label": "Seal ring",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board_c0_die",
+  "label": "Pixel array, 1600 x 1400",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board_c0_glass",
+  "label": "Cover glass",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board_c1_pkg",
   "label": "Mira220, right",
+  "group": "Baseboard + image sensors",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "board_c1_pads",
+  "label": "Bond pads",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board_c1_frame",
+  "label": "Seal ring",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board_c1_die",
+  "label": "Pixel array, 1600 x 1400",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "board_c1_glass",
+  "label": "Cover glass",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true

@@ -156,6 +156,28 @@ def make_material(kind, color, name):
         st = b.inputs.get("Specular Tint")
         if st is not None:
             st.default_value = (0.55, 0.95, 0.9, 1)
+    elif kind in ("die", "die_dark"):   # silicon pixel array: a diffraction rainbow that shifts with the viewing angle
+        dark = kind == "die_dark"
+        setp(b, color=(0.05, 0.05, 0.06), metal=0.6, rough=0.2 if not dark else 0.25, coat=1.0, coat_rough=0.02)
+        if not dark:
+            setp(b, emit=0.6)
+        tc = nt.nodes.new("ShaderNodeTexCoord"); lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.45
+        ns = nt.nodes.new("ShaderNodeTexNoise"); ns.inputs["Scale"].default_value = 70.0; ns.inputs["Distortion"].default_value = 4.0
+        ns.inputs["Detail"].default_value = 1.0
+        add2 = nt.nodes.new("ShaderNodeMath"); add2.operation = "ADD"
+        nt.links.new(tc.outputs["Object"], ns.inputs["Vector"]); nt.links.new(ns.outputs["Fac"], add2.inputs[0]); nt.links.new(lw.outputs["Facing"], add2.inputs[1])
+        cr = nt.nodes.new("ShaderNodeValToRGB"); el = cr.color_ramp.elements
+        stops = [(0.0, (0.9, 0.1, 0.5)), (0.25, (1.0, 0.55, 0.05)), (0.45, (0.95, 0.9, 0.1)), (0.6, (0.1, 0.8, 0.4)), (0.78, (0.1, 0.4, 1.0)), (1.0, (0.5, 0.1, 0.9))]
+        el[0].position, el[0].color = stops[0][0], (*stops[0][1], 1); el[1].position, el[1].color = stops[-1][0], (*stops[-1][1], 1)
+        for pos, col in stops[1:-1]:
+            e = el.new(pos); e.color = (*col, 1)
+        cr.color_ramp.interpolation = "B_SPLINE"
+        nt.links.new(add2.outputs[0], cr.inputs["Fac"])
+        if dark:
+            mx = nt.nodes.new("ShaderNodeMixRGB"); mx.inputs["Fac"].default_value = 0.85; mx.inputs[2].default_value = (0.02, 0.025, 0.035, 1)
+            nt.links.new(cr.outputs["Color"], mx.inputs[1]); nt.links.new(mx.outputs[0], b.inputs["Base Color"])
+        else:
+            nt.links.new(cr.outputs["Color"], b.inputs["Base Color"]); nt.links.new(cr.outputs["Color"], b.inputs["Emission Color"])
     elif kind == "glass_black":     # gloss black glass front, like a phone back
         setp(b, color=(0.004, 0.004, 0.005), rough=0.03, spec=0.5, coat=1.0, coat_rough=0.01)
     elif kind == "blast":           # bead-blasted metal: fine even grain, soft sheen
@@ -483,6 +505,8 @@ def cshoot(name, target, size, az, el, lens, fill, fstop, focus, back):
     if fstop:
         cam_d.dof.aperture_fstop = fstop; cam_d.dof.focus_distance = (Vector(focus) - loc).length
     cine(target, size, back)
+    if os.environ.get("CINE_EXP"):
+        scene.view_settings.exposure = float(os.environ["CINE_EXP"])
     scene.render.filepath = os.path.join(outdir, name + ".png")
     bpy.ops.render.render(write_still=True)
 
@@ -586,6 +610,14 @@ for s in shots:
             cshoot(tag + "lens_closeup", f + Vector((0.004, 0, 0)), Vector((0.05, 0.05, 0.03)), -112, 6, 135, 0.78, 5.6, f, "green")
         else:
             cshoot(tag + "exploded", c, size, -140, 16, 70, 0.86, None, c, "light")
+    elif s == "c_sensor":                     # one sensor board, studio close-up; SENSOR = the part-name prefix
+        pre = os.environ.get("SENSOR", "mira0_pcb")
+        keep = [n for n in objs if n.startswith(pre)]
+        c, size = pose(0, hide=tuple(n for n in objs if n not in keep) + ("DLS puck",), rot=(-math.pi / 2, 0, 0), lift=0.0)
+        f = c + Vector((0, 0, size.z * 0.5))
+        os.environ.setdefault("CINE_EXP", "-3.3")      # small, flat subjects take far more light per pixel
+        cshoot(os.environ.get("TAG", "") + "sensor", c, size, -105, 38, 100, 0.62, 11.0, f, "green")
+        del os.environ["CINE_EXP"]
     elif s == "top_unit":
         c, size = pose(0.5, show_only=(TOPU,), rot=(0, 0, 0), board=False)
         shoot("09_top_unit_exploded", c, size, az=-55, el=24, lens=100, fill=0.7)

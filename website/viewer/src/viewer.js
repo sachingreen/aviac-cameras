@@ -25,6 +25,9 @@ function material(kind, c) {
   const Ph = (o) => new THREE.MeshPhysicalMaterial({color: col, roughness: 0.5, metalness: 0, ...o});
   switch (kind) {
     case 'blast': return S({metalness: 1, roughness: 0.42});
+    case 'die': return Ph({color: new THREE.Color('#2a2440'), metalness: 0.9, roughness: 0.12, iridescence: 1, iridescenceIOR: 1.8, iridescenceThicknessRange: [200, 900], clearcoat: 1});
+    case 'die_dark': return Ph({color: new THREE.Color('#0b0d12'), metalness: 0.8, roughness: 0.18, iridescence: 0.6, iridescenceIOR: 1.6, clearcoat: 1});
+    case 'window': return Ph({color: new THREE.Color('#ffffff'), transmission: 1, roughness: 0.02, transparent: true, opacity: 0.25});
     case 'glass_black': return Ph({color: new THREE.Color('#050506'), roughness: 0.06, clearcoat: 1, clearcoatRoughness: 0.03});
     case 'gloss_white': return Ph({roughness: 0.22, clearcoat: 0.7, clearcoatRoughness: 0.08});
     case 'knurl': KNURL ??= knurlTexture(); return S({roughness: 0.62, bumpMap: KNURL, bumpScale: 1.2});

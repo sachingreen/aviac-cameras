@@ -327,10 +327,53 @@ def pcb(name, x0, x1, z0, z1, y0, t, group, ex, label, mass, comps="front", seed
         add(name + "_passives", pas, group, ex, mat="ceramic", color=(0.62, 0.50, 0.36), mass=0.0, label="Passives")
     for i, (x, z, w, h, ht, side, lab, kind) in enumerate(ics):
         yy0, yy1 = (y0 - ht, y0) if side < 0 else (y0 + t, y0 + t + ht)
+        if kind == "sensor":
+            image_sensor(f"{name}_c{i}", x, z, yy0, yy1, "imx" if "IMX" in lab else "mira", group, ex, lab)
+            continue
         mat, col = {"ic": ("ic", (0.03, 0.03, 0.033)), "conn": ("plastic_gloss", (0.80, 0.77, 0.68)), "steel": ("steel", (0.72, 0.72, 0.74)),
                     "ind": ("ferrite", (0.2, 0.2, 0.21)), "gold": ("gold", (0.8, 0.6, 0.2)), "black": ("plastic_gloss", (0.05, 0.05, 0.055)),
                     "xtal": ("steel", (0.7, 0.7, 0.72)), "sensor": ("ceramic_dark", (0.06, 0.06, 0.07))}[kind]
         add(f"{name}_c{i}", box(x - w / 2, x + w / 2, yy0, yy1, z - h / 2, z + h / 2), group, ex, mat=mat, color=col, mass=0.0, label=lab)
+
+
+def image_sensor(name, x, z, y_front, y_back, kind, group, ex, label):
+    """A sensor package as it looks on the board, facing -y. Mira220: green organic substrate, a ring of gold pads,
+    an iridescent die under cover glass. IMX565: dark grey ceramic, a gold bond frame, a dark die under glass."""
+    if kind == "mira":
+        W2, H2, ht = 7.6, 7.0, 1.0
+        add(name + "_pkg", box(x - W2 / 2, x + W2 / 2, y_back - ht, y_back, z - H2 / 2, z + H2 / 2), group, ex, mat="pcb", color=(0.03, 0.30, 0.10), mass=0.2, label=label)
+        pads = None
+        for k in range(15):
+            for (px, pz, w, h) in ((x - W2 / 2 + 0.45 + k * (W2 - 0.9) / 14, z + H2 / 2 - 0.2, 0.22, 0.28), (x - W2 / 2 + 0.45 + k * (W2 - 0.9) / 14, z - H2 / 2 + 0.2, 0.22, 0.28),
+                                   (x + W2 / 2 - 0.2, z - H2 / 2 + 0.45 + k * (H2 - 0.9) / 14, 0.28, 0.22), (x - W2 / 2 + 0.2, z - H2 / 2 + 0.45 + k * (H2 - 0.9) / 14, 0.28, 0.22)):
+                b = box(px - w / 2, px + w / 2, y_back - ht - 0.03, y_back - ht + 0.01, pz - h / 2, pz + h / 2)
+                pads = b if pads is None else pads.union(b)
+        add(name + "_pads", pads, group, ex, mat="gold", color=(0.85, 0.65, 0.25), mass=0.0, label="Bond pads")
+        add(name + "_frame", box(x - 3.05, x + 3.05, y_back - ht - 0.06, y_back - ht, z - 2.75, z + 2.75).cut(box(x - 2.85, x + 2.85, y_back - 5, y_back + 5, z - 2.55, z + 2.55)),
+            group, ex, mat="gold", color=(0.85, 0.65, 0.25), mass=0.0, label="Seal ring")
+        add(name + "_die", box(x - 2.85, x + 2.85, y_back - ht - 0.05, y_back - ht + 0.02, z - 2.55, z + 2.55), group, ex, mat="die", color=(0.6, 0.4, 0.9), mass=0.0, label="Pixel array, 1600 x 1400")
+        add(name + "_glass", box(x - 3.2, x + 3.2, y_back - ht - 0.4, y_back - ht - 0.06, z - 2.9, z + 2.9), group, ex, mat="window", color=(0.9, 0.95, 1.0), mass=0.0, label="Cover glass")
+    else:
+        W2, H2, ht = 20.0, 16.8, 1.7
+        add(name + "_pkg", rbox(x - W2 / 2, x + W2 / 2, y_back - ht, y_back, z - H2 / 2, z + H2 / 2, 0.6), group, ex, mat="ceramic_dark", color=(0.10, 0.10, 0.105), mass=1.2, label=label)
+        add(name + "_well", box(x - 8.6, x + 8.6, y_back - ht - 0.02, y_back - ht + 0.4, z - 7.0, z + 7.0).cut(box(x - 8.0, x + 8.0, y_back - 5, y_back + 5, z - 6.4, z + 6.4)),
+            group, ex, mat="ceramic_dark", color=(0.05, 0.05, 0.055), mass=0.0, label="Package well")
+        add(name + "_frame", box(x - 7.7, x + 7.7, y_back - ht + 0.3, y_back - ht + 0.42, z - 6.1, z + 6.1).cut(box(x - 7.45, x + 7.45, y_back - 5, y_back + 5, z - 5.85, z + 5.85)),
+            group, ex, mat="gold", color=(0.85, 0.65, 0.25), mass=0.0, label="Bond wires and frame")
+        add(name + "_die", box(x - 7.1, x + 7.1, y_back - ht + 0.38, y_back - ht + 0.45, z - 5.5, z + 5.5), group, ex, mat="die_dark", color=(0.04, 0.05, 0.07), mass=0.0, label="Pixel array, 4128 x 3008")
+        add(name + "_glass", box(x - 9.2, x + 9.2, y_back - ht - 0.5, y_back - ht, z - 7.6, z + 7.6), group, ex, mat="window", color=(0.9, 0.95, 1.0), mass=0.0, label="Cover glass")
+
+
+def lockup(x, z_top, y, mark_h, word, word_size):
+    """The Aviac mark on top and the product name below, laser-etched on a front face (reads from -y)."""
+    sol = None
+    for poly in logo_polygons():
+        pts = [(x + px * mark_h, z_top - mark_h / 2 + py * mark_h) for (px, py) in poly]
+        w = cq.Workplane("XZ").polyline(pts).close().extrude(0.06)
+        sol = w if sol is None else sol.union(w)
+    bb = sol.val().BoundingBox()
+    sol = sol.translate((0, y - bb.ymax + 0.01, 0))
+    return sol.union(etch_text(word, word_size, x, z_top - mark_h - word_size * 0.9, y, kind="regular"))
 
 
 def screw(name, x, z, y_head, length, r, group, ex, label="Screw", head="pan", toward=-1):
@@ -405,7 +448,7 @@ def build_ms():
     for sx in (-1, 1):
         for zz in (7.0, H - 7.0):
             screw(f"front_screw_{sx}_{int(zz)}", sx * (Wd / 2 - 4.2), zz, -13.7, 16.0, 1.3, EXT, EXF, "M3 x 16, stainless, hood and front shell", toward=1)
-    mk = etch_text("AVIAC MS", 3.0, cx, 13.0, recess)
+    mk = lockup(cx, 19.5, recess, 5.0, "M S", 2.6)
     for (x, z, band, _t) in MIRA:
         mk = mk.union(etch_text(band.split()[0], 1.7, -15.0, z, recess))
     add("markings", mk, EXT, EXF, mat="etch", color=(0.7, 0.71, 0.73), mass=0.0, label="Laser-etched markings")
@@ -604,7 +647,11 @@ def build_duos():
         for sx in (-1, 1):
             rh = rh.cut(rbox(sx * Wd / 2 - 3.0, sx * Wd / 2 + 3.0, 9.0, 19.0, 5.0 + k * 2.4, 6.3 + k * 2.4, 0.5, "|X"))
     try:
-        rh = rh.cut(mark_on_side(9.0, 14.0, 19.5, Wd / 2 - inset(14.0), 0.4))
+        rh = rh.cut(mark_on_side(8.0, 14.0, 21.0, Wd / 2 - inset(14.0), 0.4))
+        word = cq.Workplane("YZ").text("DUOS", 2.0, 0.5, kind="regular", halign="center", valign="center").mirror("XZ")      # reads from +X
+        bb = word.val().BoundingBox()
+        xf = Wd / 2 - inset(14.0)
+        rh = rh.cut(word.translate((xf - 0.35 - bb.xmin, 14.0 - (bb.ymin + bb.ymax) / 2, 15.2 - (bb.zmin + bb.zmax) / 2)))
     except Exception as e:
         print("mark skipped", e)
     rh = rh.cut(zcyl(0, 18.0, -1, 4, 3.2))
