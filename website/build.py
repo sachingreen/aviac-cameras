@@ -51,7 +51,7 @@ def switcher(on, R):
         return ""
     i = keys.index(on)
     prv, nxt = SYSTEMS_ORDER[(i - 1) % 4], SYSTEMS_ORDER[(i + 1) % 4]
-    row = "".join(f'<a href="{R}{h}"{" class=on aria-current=page" if k == on else ""}><img src="{R}assets/img/{img}" alt=""><span><b>{n}</b>{sub}</span></a>'
+    row = "".join(f'<a href="{R}{h}"{" class=on aria-current=page" if k == on else ""}><img src="{R}assets/img/t/{img}" alt="" width="54" height="38"><span><b>{n}</b>{sub}</span></a>'
                   for k, n, sub, h, img in SYSTEMS_ORDER)
     return (f'<div class="sysbar"><div class="wrap"><a class="sb-arrow" href="{R}{prv[3]}" aria-label="Previous system: {prv[1]}">&larr;</a>'
             f'<nav class="sb-row" aria-label="Systems">{row}</nav><a class="sb-arrow" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}">&rarr;</a></div></div>'

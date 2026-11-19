@@ -273,10 +273,6 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
   .facts,.partners,.people,.form .two,.pspecs{grid-template-columns:1fr}
   .pspecs div{border-right:0}
   .kv{grid-template-columns:1fr 1fr 1fr}
-  .td{height:auto}.td .pin{position:relative;height:auto;padding:90px 0 30px}
-  .td .pin .viewer{position:relative;height:62vh}
-  .track{position:relative;bottom:auto;overflow-x:auto;scroll-snap-type:x mandatory;padding-right:20px;margin-top:12px;transform:none!important}
-  .card{scroll-snap-align:start}.card:not(.on){opacity:1;transform:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
@@ -384,3 +380,23 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .sb-edge b{font:400 16px var(--serif);max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .35s var(--ease)}
 .sb-edge:hover b{max-width:80px}.sb-edge.l:hover{transform:translate(4px,-50%)}.sb-edge.r:hover{transform:translate(-4px,-50%)}
 @media (max-width:900px){.sb-edge{display:none}.sb-row a{flex:0 0 150px}}
+
+/* phones: teardown stays a sticky stage (model above, card below), driven by scroll like on desktop */
+@media (max-width:760px){
+  .td .pin{height:100svh}
+  .td .top{top:78px;gap:12px}.td .top h2{font-size:24px}.td .prog i{width:18px}
+  .td .pin .viewer{top:118px;bottom:auto;height:44svh}
+  .track{left:16px;right:16px;bottom:16px;padding:0;height:min(42svh,330px);transform:none!important}
+  .card{position:absolute;left:0;right:0;bottom:0;padding:16px 18px;background:#fff;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .35s,transform .35s}
+  .td .card:not(.on){opacity:0!important;visibility:hidden}
+  .td .card.on{opacity:1!important;visibility:visible;pointer-events:auto;transform:none}.card h3{font-size:22px;margin:6px 0 6px}.card p{font-size:14px;line-height:1.45;margin:0 0 8px}
+  .card ul{font-size:12px}.card li{padding:4px 0}
+  .sb-row a{flex:0 0 138px}.sb-row span{font-size:11px}
+}
+/* phones: hero stats sit under the photo, not over it */
+@media (max-width:960px){
+  .band{aspect-ratio:auto;background:#0f1a14}
+  .band>img{aspect-ratio:4/3;height:auto;object-position:70% 50%}
+  .band::after{display:none}
+  .bstats{position:relative;width:auto;padding:18px 18px 20px;gap:16px 18px}
+}

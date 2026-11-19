@@ -81,7 +81,7 @@ if (td) {
   const track = $('.track', td), cards = $$('.card', td), bars = $$('.prog i', td), label = $('.prog span', td), vid = $('.viewer', td).id;
   const stages = cards.map((c) => c.dataset.group || null);
   const views = cards.map((c) => (c.dataset.view || '0.6,0.2,3.2').split(',').map(Number));
-  const mobile = () => matchMedia('(max-width:560px)').matches;
+  const mobile = () => false;                           // one behaviour everywhere: scrolling drives the stages
   let last = -1;
   const apply = (i) => {
     const v = window.Aviac?.viewers?.[vid];

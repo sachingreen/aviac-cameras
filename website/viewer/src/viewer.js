@@ -173,6 +173,7 @@ async function mount(el) {
   camera.position.copy(home);
   controls.target.set(0, 0, 0);
 
+  const fit = () => Math.max(1, Math.pow(1 / Math.max(0.2, camera.aspect), 0.9)) * (innerWidth < 760 ? 1.3 : 1);     // narrow screens: step back
   let k = 0, kT = 0, focus = null;
   const look = new THREE.Vector3(), lookT = new THREE.Vector3(), camT = home.clone();
   const api = {
@@ -187,7 +188,7 @@ async function mount(el) {
       } else lookT.set(0, 0, 0);
       if (at) camT.copy(at).multiplyScalar(R);
     },
-    view(az, el2, d) { camT.set(Math.sin(az) * Math.cos(el2), Math.sin(el2), Math.cos(az) * Math.cos(el2)).multiplyScalar(R * d); },
+    view(az, el2, d) { camT.set(Math.sin(az) * Math.cos(el2), Math.sin(el2), Math.cos(az) * Math.cos(el2)).multiplyScalar(R * d * fit()); },
     driven: false,
   };
   (window.Aviac ??= {viewers: {}}).viewers[el.id || base] = api;
@@ -198,6 +199,7 @@ async function mount(el) {
   };
   new ResizeObserver(resize).observe(el);
   resize();
+  camera.position.copy(home).multiplyScalar(fit()); camT.copy(camera.position);
   el.classList.add('ready');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const loop = () => {

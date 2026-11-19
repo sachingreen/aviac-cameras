@@ -130,7 +130,7 @@ TEMPLATE = """{{{{HEAD {name} · Aviac Technologies}}}}
 </div></section>
 
 <section style="padding-top:10px"><div class="wrap">
-  <a class="cambox reveal" href="{{{{R}}}}{cam_href}" style="text-decoration:none;color:inherit"><img src="{{{{R}}}}assets/img/{cam_img}" alt="{cam_name}">
+  <a class="cambox reveal" href="{{{{R}}}}{cam_href}" style="text-decoration:none;color:inherit"><img src="{{{{R}}}}assets/img/t/{cam_img}" loading="lazy" alt="{cam_name}">
     <div class="body"><div class="lab g">The camera</div><h3 style="font-size:40px;margin:10px 0 8px">{cam_name} <span style="color:var(--mute);font-size:.55em">{cam_sub}</span>{demo_tag}</h3><p>{cam_text}</p><span class="go" style="color:var(--forest);font-weight:500">See the camera <span class="a">&rarr;</span></span></div></a>
 </div></section>
 
@@ -229,8 +229,8 @@ PROD = [
                  [("Thermal", "1280 × 1024 VOx, 12 µm"), ("NIR", "Mira220, 1600 × 1400"), ("Bands", "8–14 µm · 400–940 nm")]),
                 ("Processing board", "Two bands, one frame", "Triggers both modules together, turns thermal counts into temperatures, registers the NIR frame onto the thermal one, and streams both over Ethernet with flight time and position.",
                  [("Sync", "one trigger, both modules"), ("Ports", "PoE GigE (M12) · USB-C · microSD")]),
-                ("Externals", "Housing and heat sink", "A field-sage housing with one dark faceplate screwed in front: both lenses sit flush behind polished bezels, with a label plate by the thermal lens. A black finned aluminium shell behind sheds the core's heat.",
-                 [("Faceplate", "aluminium, 4 screws"), ("Rear", "aluminium, finned"), ("Connector", "M12")])],
+                ("Externals", "Housing and heat sink", "A field-sage housing with one dark faceplate, fixed from inside so no screws show: both lenses sit flush behind polished bezels, with a label plate by the thermal lens. A black finned aluminium shell behind sheds the core's heat.",
+                 [("Faceplate", "aluminium, fixed from inside"), ("Rear", "aluminium, finned"), ("Connector", "M12")])],
          end="Heat and NIR, in one pass.", swatches=[("field", "#5f6b58")], teardown=True,
          gal=("th_field_hero_light.jpg", "th_field_hero_green.jpg"), solution="solutions/solar/",
          gal_head=("Two modules, one head.", "Thermal finds the hot cell; the NIR frame shows exactly which module it is on.")),
