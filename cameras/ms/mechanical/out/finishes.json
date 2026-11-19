@@ -180,5 +180,57 @@
     0.36
    ]
   }
+ },
+ "field": {
+  "body": {
+   "mat": "powder",
+   "color": [
+    0.052,
+    0.068,
+    0.048
+   ]
+  },
+  "bumper": {
+   "mat": "rubberised",
+   "color": [
+    0.018,
+    0.018,
+    0.02
+   ]
+  },
+  "panel": {
+   "mat": "glass_black",
+   "color": [
+    0.004,
+    0.004,
+    0.005
+   ]
+  }
+ },
+ "cobalt": {
+  "body": {
+   "mat": "gloss_white",
+   "color": [
+    0.8,
+    0.8,
+    0.79
+   ]
+  },
+  "bumper": {
+   "mat": "rubberised",
+   "color": [
+    0.012,
+    0.012,
+    0.013
+   ]
+  },
+  "panel": {
+   "mat": "powder",
+   "color": [
+    0.012,
+    0.012,
+    0.014
+   ]
+  }
  }
 }

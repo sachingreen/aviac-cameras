@@ -169,13 +169,15 @@ def make_material(kind, color, name):
             nt.links.new(cr.outputs["Color"], b.inputs["Specular Tint"])
     elif kind == "cover_glass":     # the clear part of the front glass: same gloss, lightly tinted, AR-coated
         setp(b, color=(0.98, 0.99, 1.0), rough=0.0, trans=1.0, ior=1.05, spec=0.5, coat=0.5, coat_rough=0.0)
-    elif kind == "germanium":       # DLC-coated germanium: dark gunmetal mirror with a faint gold-green sheen at an angle
-        setp(b, color=(0.36, 0.36, 0.38), metal=1.0, rough=0.16, coat=1.0, coat_rough=0.03)
-        lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.4
+    elif kind == "germanium":       # AR-coated germanium: near-black, reflections tinted magenta to green with the angle
+        setp(b, color=(0.2, 0.2, 0.2), metal=0.0, rough=0.45, spec=0.1, coat=0.45, coat_rough=0.32)
+        lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.45
         cr = nt.nodes.new("ShaderNodeValToRGB"); el = cr.color_ramp.elements
-        el[0].position, el[0].color = 0.0, (0.62, 0.45, 0.85, 1); el[1].position, el[1].color = 1.0, (0.45, 0.9, 0.6, 1)
-        e = el.new(0.6); e.color = (0.95, 0.78, 0.35, 1)
+        el[0].position, el[0].color = 0.0, (0.95, 0.35, 0.75, 1); el[1].position, el[1].color = 1.0, (0.35, 0.95, 0.55, 1)
+        e = el.new(0.55); e.color = (0.7, 0.5, 0.95, 1)
         nt.links.new(lw.outputs["Facing"], cr.inputs["Fac"])
+        sc_ = nt.nodes.new("ShaderNodeMixRGB"); sc_.blend_type = "MULTIPLY"; sc_.inputs["Fac"].default_value = 1.0; sc_.inputs[2].default_value = (0.16, 0.13, 0.17, 1)
+        nt.links.new(cr.outputs["Color"], sc_.inputs[1]); nt.links.new(sc_.outputs[0], b.inputs["Base Color"])
         if b.inputs.get("Coat Tint") is not None:
             nt.links.new(cr.outputs["Color"], b.inputs["Coat Tint"])
     elif kind == "iris":            # aperture blades: dark anodised steel with a soft sheen

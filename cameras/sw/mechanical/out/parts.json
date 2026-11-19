@@ -98,13 +98,6 @@
   "estimated": false
  },
  {
-  "name": "iris_scale",
-  "label": "Iris scale, engraved",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
   "name": "focus_ring",
   "label": "Focus ring",
   "group": "Optics",
@@ -112,24 +105,10 @@
   "estimated": false
  },
  {
-  "name": "focus_scale",
-  "label": "Focus scale, engraved",
+  "name": "engraving",
+  "label": "Engraved: Aviac",
   "group": "Optics",
   "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "index_mark",
-  "label": "Index line",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "lock_screw",
-  "label": "Focus lock screw, knurled",
-  "group": "Optics",
-  "mass": 1.0,
   "estimated": true
  },
  {

@@ -38,9 +38,9 @@ def big_lens(name, x, z, y_front, y_back, r, tint, label, glass_label, glass_mat
                 p_["mat"], p_["label"] = glass_mat, glass_label
 
 
-def body(Wd, H, D, lenses, word, bar_z, glass_holes=()):
+def body(Wd, H, D, lenses, word, bar_z, glass_holes=(), vents=False):
     FT, frame, recess, wall = 6.0, 1.6, 1.2, 1.5
-    fs, panel, rh, (px0, px1, pz0, pz1), inset = sculpted_body(Wd, H, -4.0, D, 7.0, FT, frame, recess, wall, 3.0, EXF, E(55), taper=1.4, r_rear=4.5, hd=3.8, b=0.9)
+    fs, panel, rh, (px0, px1, pz0, pz1), inset = sculpted_body(Wd, H, -4.0, D, 9.5, FT, frame, recess, wall, 3.0, EXF, E(55), taper=0.0, r_rear=8.0, hd=4.6, b=1.9)
     for (x, z, rr) in lenses:
         panel = panel.cut(ycyl(x, z, -1, 5, rr))
     panel = light_bar(panel, (0.0, bar_z, 10.0, 0.9), recess, EXF)
@@ -62,16 +62,22 @@ def body(Wd, H, D, lenses, word, bar_z, glass_holes=()):
     for k in range(4):
         for sx in (-1, 1):
             rh = rh.cut(rbox(sx * Wd / 2 - 3.0, sx * Wd / 2 + 3.0, 12.0, 26.0, 7.0 + k * 3.0, 8.6 + k * 3.0, 0.6, "|X"))
-    try:
-        rh = rh.cut(mark_on_side(10.0, 18.0, H - 11.0, Wd / 2 - inset(18.0), 0.4))
-        t = cq.Workplane("YZ").text(word, 3.0, 0.5, kind="bold", halign="center", valign="center")
-        bb = t.val().BoundingBox()
-        xf = Wd / 2 - inset(18.0)
-        rh = rh.cut(t.translate((xf - 0.35 - bb.xmin, 18.0 - (bb.ymin + bb.ymax) / 2, H - 22.0 - (bb.zmin + bb.zmax) / 2)))
-    except Exception as e:
-        print("mark skipped", e)
     rh = rh.cut(box(-5.0, 5.0, D - 2, D + 1, H / 2 - 2.0, H / 2 + 2.0))
+    if vents:                                       # slotted vents across the top, two groups
+        for gx in (-Wd / 4, Wd / 4):
+            for k in range(8):
+                y = 12.0 + k * 2.0
+                rh = rh.cut(rbox(gx - 7.0, gx + 7.0, y, y + 0.9, H - 3.0, H + 1.0, 0.44, "|Z"))
     add("rear_housing", rh, EXT, E(55), finish="body", density=PA12CF, label="Rear housing, PA12-CF")
+    sol = None
+    for poly in rc.logo_polygons():                 # Aviac mark and name printed on the right side
+        pts = [(19.0 + px * 10.0, H - 13.0 + (py - 0.5) * 10.0) for (px, py) in poly]
+        w = cq.Workplane("YZ").polyline(pts).close().extrude(0.25)
+        sol = w if sol is None else sol.union(w)
+    t = cq.Workplane("YZ").text(word, 3.0, 0.25, kind="bold", halign="center", valign="center")
+    bb = t.val().BoundingBox()
+    sol = sol.union(t.translate((0, 19.0 - (bb.ymin + bb.ymax) / 2, H - 23.0 - (bb.zmin + bb.zmax) / 2)))
+    add("side_mark", sol.translate((Wd / 2 - 0.1, 0, 0)), EXT, E(55), mat="etch", color=(0.75, 0.76, 0.78), mass=0.0, label="Aviac mark, printed")
     for sx in (-1, 1):
         for zz in (6.0, H - 6.0):
             screw(f"rear_screw_{sx}_{int(zz)}", sx * (Wd / 2 - 6.0), zz, D + 0.6, 10.0, 0.9, EXT, E(68), "M2 x 10, rear", toward=-1)
@@ -80,14 +86,32 @@ def body(Wd, H, D, lenses, word, bar_z, glass_holes=()):
     return D
 
 
+def thermal_lens(name, x, z, y_glass, r):
+    """A thermal lens the way they look: short and stout, a deep knurled grip ring, a black front lip with the
+    germanium element set in it (dark, with the magenta-green glint of its AR coating), engraved Aviac."""
+    import math
+    G, ex = OPT, E(-70)
+    add(name + "_mount", ycyl(x, z, y_glass - 1.5, y_glass + 9.0, r - 0.3), G, ex, mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Lens mount")
+    add(name + "_band", yring(x, z, y_glass - 2.6, y_glass - 1.5, r + 0.2, r - 0.6), G, ex, mat="satin", color=(0.06, 0.07, 0.09), mass=0.0, label="Mount ring")
+    k_ = ycyl(x, z, y_glass - 11.0, y_glass - 2.6, r + 1.0)
+    for k in range(72):
+        a = 2 * math.pi * k / 72
+        k_ = k_.cut(ycyl(x + (r + 1.1) * math.cos(a), z + (r + 1.1) * math.sin(a), y_glass - 10.4, y_glass - 3.2, 0.32))
+    add(name + "_grip", k_, G, ex, mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Knurled grip ring")
+    lip = ycyl(x, z, y_glass - 13.2, y_glass - 11.0, r + 0.6).cut(ycyl(x, z, y_glass - 14, y_glass - 10, r - 2.2))
+    add(name + "_lip", lip, G, ex, mat="anodised", color=(0.01, 0.01, 0.012), density=ALU, label="Front lip")
+    add(name + "_engrave", ring_text(["AVIAC", "13mm f/1.0", "8-14um"], x, z, r + 0.6, y_glass - 12.1, 0.9, 110, 250), G, ex, mat="etch",
+        color=(0.8, 0.8, 0.82), mass=0.0, label="Engraving")
+    add(name + "_glass", dome(x, z, y_glass - 13.0, r - 2.2, 2.8), G, ex, mat="germanium", color=(0.2, 0.17, 0.24), mass=0.0, label="Germanium element, AR-coated")
+    add(name + "_inner", yring(x, z, y_glass - 11.5, y_glass - 9.0, r - 2.2, r - 4.0), G, ex, mat="black", color=(0, 0, 0), mass=0.0, label="Lens interior")
+
+
 def build_th():
     rc.parts.clear()
     Wd, H, D = 60.0, 42.0, 36.0
     LW, RGB = (-9.0, 21.0), (17.5, 21.0)
-    body(Wd, H, D, [(LW[0], LW[1], 12.6), (RGB[0], RGB[1], 7.2)], "TH", 37.0, [(LW[0], LW[1], 13.9, "open"), (RGB[0], RGB[1], 9.3)])
-    lens_ring("lwir", LW[0], LW[1], -3.8, 1.2, 27.0, 22.0, OPT, E(-70))
-    oring("lwir_oring", LW[0], LW[1], 1.0, 12.4, 0.55, OPT, E(-88))
-    big_lens("lwir", LW[0], LW[1], -6.1, 9.0, 10.0, (0.20, 0.17, 0.24), "Germanium LWIR lens, 13 mm f/1.0", "Germanium window, DLC-coated", glass_mat="germanium")
+    body(Wd, H, D, [(LW[0], LW[1], 12.6), (RGB[0], RGB[1], 7.2)], "TH", 37.0, [(LW[0], LW[1], 13.9, "open"), (RGB[0], RGB[1], 9.3)], vents=True)
+    thermal_lens("lwir", LW[0], LW[1], -6.0, 13.0)
     lens_ring("rgb", RGB[0], RGB[1], -3.8, 1.2, 18.0, 15.0, OPT, E(-70))
     m12_lens("rgb", RGB[0], RGB[1], -6.0, 12.0, OPT, E(-60), (0.10, 0.22, 0.20), "M12 lens, colour camera")
     # thermal core: a machined block with the bolometer window, on its own board
@@ -101,11 +125,6 @@ def build_th():
     pcb("proc", -27.0, 27.0, 4.0, 38.0, 24.0, 1.2, PROC, E(10), "Processing board: radiometric pipeline, sync, USB-C / Ethernet", 6.0, comps="both", seed=90,
         ics=[(0, 21, 12, 12, 1.2, 1, "FPGA, thermal pipeline", "ic"), (-16, 28, 6, 5, 1.0, 1, "DDR", "ic"), (16, 28, 6, 5, 1.0, 1, "Flash", "ic"),
              (0, 8, 14, 3, 1.6, -1, "Board-to-board", "conn"), (0, 21, 8.9, 3.2, D - 25.2 - 0.5, 1, "USB-C", "steel")])
-    # heat-sink fins across the top: the thermal head runs a cooled pipeline, and wears it
-    for k in range(7):
-        x = -18.0 + k * 6.0
-        add(f"top_fin_{k}", rbox(x - 1.1, x + 1.1, 10.0, D - 6.0, H - 1.2, H + 3.2, 0.9, "|Y"), EXT, (0, 0, 40), finish="body", density=ALU, label="Cooling fin")
-    gimbal_yoke(0.0, 14.0, H / 2, Wd / 2, H + 12.0)
     rc.export(os.path.join(REPO, "cameras", "th", "mechanical", "out"), "aviac_th")
 
 
@@ -144,21 +163,16 @@ def c_mount_lens(x, z, y0):
         a = 2 * math.pi * k / 48
         iris = iris.cut(ycyl(x + 15.75 * math.cos(a), z + 15.75 * math.sin(a), y0 - 15.0, y0 - 13.4, 0.38))
     add("iris_ring", iris, G, ex, mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Iris ring, f/1.4 to f/16")
-    add("iris_scale", ring_text(["16", "11", "8", "5.6", "4", "2.8", "2", "1.4"], x, z, 15.6, y0 - 11.0, 1.5, 120, 235), G, ex, mat="etch",
-        color=(0.85, 0.85, 0.86), mass=0.0, label="Iris scale, engraved")
+    pass
     foc = ycyl(x, z, y0 - 28.0, y0 - 15.8, 16.6)
     for k in range(60):
         a = 2 * math.pi * k / 60
         foc = foc.cut(ycyl(x + 16.75 * math.cos(a), z + 16.75 * math.sin(a), y0 - 24.5, y0 - 18.0, 0.45))
     add("focus_ring", foc, G, ex, mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Focus ring")
-    add("focus_scale", ring_text(["0.2", "0.3", "0.5", "1", "3", "inf m"], x, z, 16.6, y0 - 26.4, 1.5, 125, 230), G, ex, mat="etch",
-        color=(0.85, 0.85, 0.86), mass=0.0, label="Focus scale, engraved")
-    add("index_mark", box(x - 16.9, x - 16.5, y0 - 15.8, y0 - 8.8, z - 0.25, z + 0.25), G, ex, mat="etch", color=(0.9, 0.9, 0.9), mass=0.0, label="Index line")
-    ts = zcyl(x, y0 - 21.0, z + 16.0, z + 21.5, 2.3)
-    for k in range(16):
-        a = 2 * math.pi * k / 16
-        ts = ts.cut(zcyl(x + 2.4 * math.cos(a), y0 - 21.0 + 2.4 * math.sin(a), z + 18.0, z + 22, 0.32))
-    add("lock_screw", ts, G, ex, mat="anodised", color=(0.02, 0.02, 0.022), mass=1.0, label="Focus lock screw, knurled")
+    pass
+    pass
+    add("engraving", ring_text(["AVIAC"], x, z, 16.6, y0 - 22.0, 2.2, 90, 90), G, ex, mat="etch", color=(0.88, 0.88, 0.9), mass=0.0,
+        label="Engraved: Aviac")
     flare = W(cq.Solid.makeLoft([rc.rr_wire(33.2, 33.2, 16.59, y0 - 28.0, z), rc.rr_wire(38.0, 38.0, 18.99, y0 - 36.0, z)], True)).translate((x, 0, 0)) if False else \
         W(cq.Solid.makeCone(16.6, 19.0, 8.0, V(x, y0 - 28.0, z), V(0, -1, 0)))
     front = flare.union(ycyl(x, z, y0 - 39.0, y0 - 36.0, 19.6))
@@ -170,9 +184,7 @@ def c_mount_lens(x, z, y0):
     for k in (-1, 1):
         add(f"front_screw_{k}", W(cq.Solid.makeCylinder(0.7, 0.6, V(x + k * 17.6, y0 - 39.1, z), V(0, 1, 0))), G, ex, mat="steel", color=(0.3, 0.3, 0.32), mass=0.0, label="Retainer screw")
     rc.lens_stack("swir", x, z, y0 - 38.3, 14.8, G, ex, (0.24, 0.15, 0.06), depth=16.0)
-    for p_ in rc.parts:                                   # machine-vision glass: multi-coated but bright, you see the elements
-        if p_["name"] == "swir_glass":
-            p_["mat"], p_["color"] = "filterglass", (0.10, 0.12, 0.24)
+
 
 
 def build_sw():

@@ -41,7 +41,7 @@ function material(kind, c) {
     case 'lens': return Ph({color: new THREE.Color('#0a1414'), roughness: 0.02, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.0, iridescence: 0.8, iridescenceIOR: 1.45, transparent: true, opacity: 0.45, depthWrite: false});
     case 'lens_inner': return Ph({color: new THREE.Color('#141a18'), roughness: 0.03, metalness: 0.3, clearcoat: 1, iridescence: 0.6, iridescenceIOR: 1.7, transparent: true, opacity: 0.55, depthWrite: false});
     case 'cover_glass': return Ph({color: new THREE.Color('#1a1f22'), roughness: 0.0, metalness: 0, clearcoat: 1, transparent: true, opacity: 0.35, depthWrite: false});
-    case 'germanium': return Ph({color: new THREE.Color('#2a2b2e'), roughness: 0.12, metalness: 0.9, clearcoat: 0.6, iridescence: 0.4, iridescenceIOR: 1.9});
+    case 'germanium': return Ph({color: new THREE.Color('#251c2a'), roughness: 0.08, metalness: 0.85, clearcoat: 1, iridescence: 1, iridescenceIOR: 2.1, iridescenceThicknessRange: [260, 620]});
     case 'iris': return Ph({color: new THREE.Color('#121214'), roughness: 0.35, metalness: 0.7});
     case 'filterglass': return Ph({color: col.clone().multiplyScalar(0.5), roughness: 0.04, metalness: 0.6, clearcoat: 1, iridescence: 0.6});
     case 'led': return S({color: new THREE.Color('#ffd9a8'), emissive: new THREE.Color('#ff9a3c'), emissiveIntensity: 1.4});
