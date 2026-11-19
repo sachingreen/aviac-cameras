@@ -15,4 +15,8 @@ rng = np.random.default_rng(3)
 g = rng.normal(0, 1, a.shape[:2]).astype(np.float32)
 g = np.asarray(Image.fromarray(((g * 0.5 + 0.5).clip(0, 1) * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.6))).astype(np.float32) / 255.0 - 0.5
 a = np.clip(a + g[..., None] * 0.035 * (0.6 + 0.4 * (1 - lum)), 0, 1)
-Image.fromarray((a * 255).astype(np.uint8)).save(sys.argv[2], quality=88, optimize=True, progressive=True)
+out = Image.fromarray((a * 255).astype(np.uint8))
+import os
+if os.environ.get("SHARPEN"):
+    out = out.filter(ImageFilter.UnsharpMask(radius=1.6, percent=int(os.environ["SHARPEN"]), threshold=2))
+out.save(sys.argv[2], quality=88, optimize=True, progressive=True)
