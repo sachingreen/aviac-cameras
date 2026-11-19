@@ -275,7 +275,7 @@ for d in PROD:
     <h1 style="margin:14px 0 16px">{d['name']} <span style="color:var(--mute);font-size:.45em;letter-spacing:0">{d['sub']}</span></h1>
     <p style="font-size:18px;max-width:520px">{d['lead']}</p>
     <div class="pspecs">{specs}</div>
-    {'<a class="btn p" href="#teardown">See inside <span class="a">&darr;</span></a> <a class="btn" href="{{{{R}}}}' + d['solution'] + '">See it fly</a>' if d.get('teardown') else '<a class="btn p" href="{{{{R}}}}' + d['solution'] + '">See it fly <span class="a">&rarr;</span></a> <a class="btn" href="{{{{R}}}}#contact">Request a pilot</a>'}
+    {'<a class="btn p" href="#teardown">See inside <span class="a">&darr;</span></a> <a class="btn" href="{{R}}' + d['solution'] + '">See it fly</a>' if d.get('teardown') else '<a class="btn p" href="{{R}}' + d['solution'] + '">See it fly <span class="a">&rarr;</span></a> <a class="btn" href="{{R}}#contact">Request a pilot</a>'}
   </div>
   <div class="stage3d reveal">
     <div class="viewer" id="{d['cam']}-hero" data-src="{{{{R}}}}models/{d['cam']}/" data-finish="{d['finish']}" data-spin="1" data-zoom="1" data-dist="4.4" role="img" aria-label="{d['name']}, interactive 3D model. Drag to turn."></div>
