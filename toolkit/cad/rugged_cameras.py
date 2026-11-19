@@ -785,7 +785,6 @@ def build_duos():
              (12, 20, 3.2, 2.5, 0.8, 1, "Oscillator", "xtal"), (0, 15, 8.9, 3.2, D - 15.2 - 0.5, 1, "USB-C, locking: power and both video streams", "steel")])
     for sx in (-1, 1):
         standoff(f"so{sx}", sx * 20.5, 15.0, 8.2, 14.0, 0.9, SEN, E(-5), "Standoff")
-    rh = rh.cut(box(-4.6, 4.6, D - 2, D + 1, 13.3, 16.7))
     for sx in (-1, 1):
         for zz in (6.0, 24.0):
             rh = rh.cut(ycyl(sx * 19.0, zz, D - 4, D + 1, 1.1))
@@ -802,6 +801,7 @@ def build_duos():
         print("mark skipped", e)
     rh = rh.cut(zcyl(0, 18.0, -1, 4, 3.2))
     add("rear_housing", rh, EXT, E(55), finish="body", density=PA12CF, label="Rear housing, PA12-CF")
+    rear_ports("rear_housing", D, [("usbc", 0.0, 15.0, "USB-C, locking: power and both video streams")], EXT, E(68))
     for sx in (-1, 1):
         for zz in (6.0, 24.0):
             screw(f"rear_screw_{sx}_{int(zz)}", sx * 19.0, zz, D + 0.6, 10.0, 0.8, EXT, E(68), "M1.6 x 10, rear", toward=-1)

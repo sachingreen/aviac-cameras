@@ -188,7 +188,7 @@ for d in SOL:
     if d.get("film"):
         extra = f"""
 <section style="padding-top:20px"><div class="wrap">
-  <div class="cambox reveal"><video src="{{{{R}}}}assets/film/{d['film']}.mp4" poster="{{{{R}}}}assets/film/{d['film']}.jpg" autoplay muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;aspect-ratio:16/9;display:block" aria-label="Duos on its gimbal at the rear of a spray drone"></video>
+  <div class="cambox reveal"><video data-src="{{{{R}}}}assets/film/{d['film']}.mp4" data-sm="{{{{R}}}}assets/film/{d['film']}_sm.mp4" poster="{{{{R}}}}assets/film/{d['film']}.jpg" muted loop playsinline preload="none" style="width:100%;height:100%;object-fit:cover;aspect-ratio:16/9;display:block" aria-label="Duos on its gimbal at the rear of a spray drone"></video>
     <div class="body"><div class="lab g">On the aircraft</div><h3 style="font-size:34px;margin:10px 0 8px">At the back, facing aft.</h3><p>Mounted behind the boom, Duos sees the spray that just landed, not the crop ahead. The gimbal holds the stereo pair level while the sprayer pitches.</p></div></div>
 </div></section>
 """
@@ -246,6 +246,8 @@ PROD = [
          end="Locked, sealed, ready.", gal_head=("Sealed for flight.", "A fixed-focus C-mount lens on a sealed box body: nothing to knock out of focus."), swatches=[("graphite", "#2b2d31")], gal=("sw_graphite_hero_light.jpg", "sw_graphite_hero_green.jpg"), solution="solutions/industrial/"),
 ]
 
+PORTS_HTML = {'th': '<section id="ports"><div class="wrap"><div class="ports reveal"><div class="pimg"><img src="{{R}}assets/img/th_rear.jpg" alt="The back of the TH camera: its connectors" loading="lazy" width="1600" height="1000"></div><div class="pbody"><div class="lab g">At the back</div><h2>One rugged cable to the drone.</h2><p>Power and both streams on one M12, with setup and a backup recorder beside it.</p><ul class="plist"><li><b>M12 X-coded · PoE GigE</b><span><em>Power and data</em>power and both the thermal and NIR streams on one locking cable to the gimbal</span></li><li><b>USB-C</b><span><em>Setup</em>locking; configure palettes, sync and alarms on the bench</span></li><li><b>microSD</b><span><em>Backup recording</em>keeps radiometric frames on board if the link drops</span></li></ul></div></div></div></section>\n\n', 'sw': '<section id="ports"><div class="wrap"><div class="ports reveal"><div class="pimg"><img src="{{R}}assets/img/sw_rear.jpg" alt="The back of the SW camera: its connectors" loading="lazy" width="1600" height="1000"></div><div class="pbody"><div class="lab g">At the back</div><h2>One rugged cable to the drone.</h2><p>Power and data on one M12, with setup and a backup recorder beside it.</p><ul class="plist"><li><b>M12 X-coded · PoE GigE</b><span><em>Power and data</em>power and the SWIR stream on one locking cable to the gimbal or airframe</span></li><li><b>USB-C</b><span><em>Setup</em>locking; set exposure and correction on the bench</span></li><li><b>microSD</b><span><em>Backup recording</em>keeps frames on board if the link drops</span></li></ul></div></div></div></section>\n\n'}
+
 for d in PROD:
     specs = "".join(f"<div><span>{a}</span><b>{b}</b></div>" for a, b in d["specs"])
     n = len(d["cards"])
@@ -284,7 +286,7 @@ for d in PROD:
   </div>
 </div></div></header>
 {teardown}
-<section><div class="wrap">
+{PORTS_HTML.get(d['cam'], '')}<section><div class="wrap">
   <div class="head reveal"><h2>{d.get('gal_head', ('Same family, new band.', ''))[0]}</h2><p>{d.get('gal_head', ('', 'Every lens is fixed and sealed for flight.'))[1]}</p></div>
   <div class="gallery reveal"><img src="{{{{R}}}}assets/img/{d['gal'][1]}" alt="{d['name']} camera"><div class="col"><img src="{{{{R}}}}assets/img/{d['gal'][0]}" alt="{d['name']} camera"></div></div>
 </div></section>

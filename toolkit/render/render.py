@@ -702,11 +702,15 @@ for s in shots:
             cshoot(tag + "lens_closeup", f + Vector((0.004, 0, 0)), Vector((0.05, 0.05, 0.03)), -112, 6, 135, 0.78, 5.6, f, "green")
         else:
             cshoot(tag + "exploded", c, size, -140, 16, 70, 0.86, None, c, "light")
-    elif s in ("studio_light", "studio_dark", "studio_close", "studio_wide"):
+    elif s in ("studio_light", "studio_dark", "studio_close", "studio_wide", "studio_rear"):
         tag = os.environ.get("TAG", "")
-        c, size = pose(0, hide=("DLS puck",) + tuple(g for g in os.environ.get("HIDE", "").split(",") if g), rot=(0, 0, 0), lift=0.0)
+        c, size = pose(0, hide=("DLS puck",) + tuple(g for g in os.environ.get("HIDE", "").split(",") if g), rot=(0, 0, math.pi if s == "studio_rear" else 0), lift=0.0)
+        if s == "studio_rear":                 # the camera turned round under the same light: the connectors face the lens
+            cshoot(tag + "rear", c, size, -122, 12, 105, 0.72, 16.0, c, "stone")
         f = world_of(os.environ.get("FOCUS", "imx_glass"))
-        if s == "studio_wide":                 # a wide banner: the camera small and right of centre, room for type on the left
+        if s == "studio_rear":
+            pass
+        elif s == "studio_wide":                 # a wide banner: the camera small and right of centre, room for type on the left
             off = Vector((float(os.environ.get("WIDE_X", "-1.05")) * size.x, float(os.environ.get("WIDE_Y", "0.6")) * size.y, 0.12 * size.z))
             globals()["LIGHT_AT"] = c
             cshoot(tag + "hero_wide", c + off, size, -62, 8, 85, float(os.environ.get("WIDE_FILL", "0.36")), 11.0, f, "sage")

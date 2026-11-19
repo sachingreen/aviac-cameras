@@ -151,3 +151,14 @@ $$('.explorer').forEach((ex) => {
   const tick = (now) => { if (auto && seen) { const k = (now - t0) / 6000; bar.style.width = `${Math.min(1, k) * 100}%`; if (k >= 1) go((i + 1) % panes.length); } requestAnimationFrame(tick); };
   requestAnimationFrame(tick);
 });
+
+// ---------- films: the small file on phones, loaded when near the screen, paused when off it
+$$('video[data-src]').forEach((v) => {
+  let loaded = false;
+  new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) {
+      if (!loaded) { v.src = innerWidth < 760 && v.dataset.sm ? v.dataset.sm : v.dataset.src; loaded = true; }
+      v.play().catch(() => {});
+    } else if (loaded) v.pause();
+  }), {rootMargin: '200px'}).observe(v);
+});

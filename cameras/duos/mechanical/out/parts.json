@@ -392,6 +392,20 @@
   "estimated": false
  },
  {
+  "name": "port_usbc_0.0",
+  "label": "USB-C, locking: power and both video streams",
+  "group": "Externals",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "port_usbc_tongue_0.0",
+  "label": "USB-C tongue",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
   "name": "rear_screw_-1_6",
   "label": "M1.6 x 10, rear",
   "group": "Externals",

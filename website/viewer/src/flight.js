@@ -411,7 +411,8 @@ function mount(el) {
     if (auto && simT - lastSwitch > 9) { lastSwitch = simT; view = view === 'drone' ? 'survey' : view === 'survey' ? 'map' : 'drone'; el.querySelectorAll('[data-v]').forEach((x) => x.classList.toggle('on', x.dataset.v === view)); }
     const span = ud.span;
     if (view === 'drone') {
-      const back = dir.clone().multiplyScalar(-span * 1.35).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.9 + yaw);
+      const zf = Math.max(1, 1.6 / Math.max(0.6, cam.aspect));        // narrow canvases: step back so the whole aircraft fits
+      const back = dir.clone().multiplyScalar(-span * 1.35 * zf).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.9 + yaw);
       camPos.copy(drone.position).add(back).add(new THREE.Vector3(0, span * (0.12 + pitch), 0));
       camTgt.copy(drone.position).add(new THREE.Vector3(0, -span * 0.12, 0));
     } else if (view === 'survey') {
