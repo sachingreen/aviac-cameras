@@ -257,6 +257,27 @@ def front_glass(px0, px1, pz0, pz1, y, r, holes, slot=None, ex=(0, -240, 0)):
         add(f"front_window_{i}", ycyl(x, z, y, y + 0.7, rr), EXT, ex, mat="cover_glass", color=(0.3, 0.32, 0.33), mass=0.0, label="Lens window, AR-coated")
 
 
+def rear_ports(part, yb, items, group="Externals", ex=(0, 70, 0)):
+    """Cut rear connector openings into `part` (back face at y = yb) and add the hardware. items: (kind, x, z, label).
+    kinds: usbc (locking USB-C), sd (microSD slot with its card), jst (GigE, JST-GH 8-pin locking)."""
+    p = next(q for q in parts if q["name"] == part)
+    sol = p["solid"]
+    for (kind, x, z, label) in items:
+        if kind == "usbc":
+            sol = sol.cut(rbox(x - 4.7, x + 4.7, yb - 4, yb + 1, z - 1.9, z + 1.9, 1.8, "|Y"))
+            shell = rbox(x - 4.4, x + 4.4, yb - 3.5, yb - 0.15, z - 1.6, z + 1.6, 1.55, "|Y").cut(rbox(x - 3.75, x + 3.75, yb - 4, yb + 1, z - 0.95, z + 0.95, 0.9, "|Y"))
+            add(f"port_usbc_{x}", shell, group, ex, mat="steel", color=(0.72, 0.73, 0.75), mass=0.4, label=label)
+            add(f"port_usbc_tongue_{x}", box(x - 3.1, x + 3.1, yb - 3.4, yb - 1.2, z - 0.35, z + 0.35), group, ex, mat="black", color=(0.02, 0.02, 0.02), mass=0.0, label="USB-C tongue")
+        elif kind == "sd":
+            sol = sol.cut(rbox(x - 6.2, x + 6.2, yb - 4, yb + 1, z - 1.0, z + 1.0, 0.6, "|Y"))
+            add(f"port_sd_{x}", box(x - 5.5, x + 5.5, yb - 3.2, yb - 0.7, z - 0.45, z + 0.45), group, ex, mat="plastic_gloss", color=(0.03, 0.03, 0.035), mass=0.3, label=label)
+        elif kind == "jst":
+            sol = sol.cut(rbox(x - 4.6, x + 4.6, yb - 4, yb + 1, z - 2.2, z + 2.2, 0.8, "|Y"))
+            hdr = box(x - 4.3, x + 4.3, yb - 3.6, yb - 0.3, z - 1.9, z + 1.9).cut(box(x - 3.7, x + 3.7, yb - 4, yb + 1, z - 1.3, z + 1.3))
+            add(f"port_jst_{x}", hdr, group, ex, mat="plastic_gloss", color=(0.92, 0.92, 0.9), mass=0.3, label=label)
+    p["solid"] = sol
+
+
 def etch_text(txt, size, x, z, y, kind="bold"):
     """Text laser-etched on a front face (reads from the front, -Y)."""
     t = cq.Workplane("XZ").text(txt, size, 0.06, kind=kind, halign="center", valign="center")
@@ -675,7 +696,8 @@ def build_ms():
         print("mark skipped", e)
     HX0, HX1, HZ0, HZ1 = -30.0, 30.0, 30.0, 84.0
     rh = rh.cut(rbox(HX0, HX1, D - 3, D + 1, HZ0, HZ1, 4.0))
-    PORTS = ((-30, 16.0, 8.0, "xt30"), (-8, 12.0, 9.5, "eth"), (9, 9.0, 3.4, "usb"), (24, 0, 0, "gps"), (35, 0, 0, "dls"))
+    PORTS = ((-30, 16.0, 8.0, "xt30"), (-8, 9.2, 4.4, "eth"), (9, 9.0, 3.4, "usb"), (24, 0, 0, "gps"), (35, 0, 0, "dls"))
+    rh = rh.cut(rbox(-22.2, -9.8, D - 3, D + 1, 22.5, 24.5, 0.6, "|Y"))                 # microSD slot
     for (x, w, h, kind) in PORTS:
         rh = rh.cut(ycyl(x, 15.0, D - 3, D + 1, 3.7 if kind == "dls" else 4.2) if kind in ("gps", "dls") else box(x - w / 2, x + w / 2, D - 3, D + 1, 15 - h / 2, 15 + h / 2))
     for k in range(5):
@@ -703,7 +725,7 @@ def build_ms():
     for (x, z) in ((-12.5, 44.5), (12.5, 44.5), (-12.5, 69.5), (12.5, 69.5)):
         screw(f"fan_screw_{x}_{z}", x, z, D - 18.2, 9.0, 0.9, EXT, E(78), "Fan screw", toward=1)
     pcb("io_board", -41, 41, 5.0, 26.0, D - 8.0, 1.6, EXT, E(100), "Rear I/O board", 4.0, comps="front", seed=50, r=9.0,
-        ics=[(-30, 15, 14, 7, 6.0, 1, "XT30 power in, 3S-6S", "conn"), (-8, 15, 11, 9, 6.0, 1, "Ethernet", "steel"), (9, 15, 8.6, 3.2, 6.0, 1, "USB-C", "steel"),
+        ics=[(-30, 15, 14, 7, 6.0, 1, "XT30 power in, 3S-6S", "conn"), (-8, 15, 8.6, 3.8, 6.0, 1, "GigE, JST-GH 8-pin locking", "conn"), (9, 15, 8.6, 3.2, 6.0, 1, "USB-C, locking: setup and offload", "steel"), (-16, 23.5, 12, 2, 6.0, 1, "microSD slot: logs and backup", "steel"),
              (24, 15, 7.5, 7.5, 6.0, 1, "GPS / PPS, 8-pin", "gold"), (35, 15, 6.8, 6.8, 6.0, 1, "DLS port", "gold"), (0, 22, 10, 3, 1.5, -1, "Cable to carrier", "conn")])
     ribbon("io_cable", [(0, D - 8.1, 22), (0, D - 18.0, 22), (0, 49.0, 22), (0, 47.7, 22)], 9.0, EXT, E(90), "Cable, I/O board to carrier")
     br = rbox(-30, 30, 22.0, 70.0, -3.2, -0.2, 3.0, "|Z")
@@ -758,9 +780,9 @@ def build_duos():
     pcb("board", -23.2, 23.2, 2.0, 28.0, 7.0, 1.2, SEN, E(-15), "Shared sensor board: both Mira220 on one clock and one trigger", 3.0, comps="rear", seed=60,
         ics=[(L[0][0], 15, 6.6, 6.2, 0.9, -1, "Mira220, left", "sensor"), (L[1][0], 15, 6.6, 6.2, 0.9, -1, "Mira220, right", "sensor"),
              (0, 15, 2.5, 2, 0.8, 1, "Shared oscillator", "xtal"), (0, 6, 12, 2.5, 1.6, 1, "Board-to-board", "conn")])
-    pcb("iface", -20, 20, 4.0, 26.0, 14.0, 1.2, PROC, E(10), "Interface board: MIPI to USB-C / GMSL", 2.5, comps="both", seed=70,
+    pcb("iface", -20, 20, 4.0, 26.0, 14.0, 1.2, PROC, E(10), "Interface board: both streams and power over one USB-C", 2.5, comps="both", seed=70,
         ics=[(0, 15, 9, 9, 1.0, 1, "Bridge IC", "ic"), (0, 6, 12, 2.5, 1.6, -1, "Board-to-board", "conn"), (-12, 20, 3, 3, 0.8, 1, "Flash", "ic"),
-             (12, 20, 3.2, 2.5, 0.8, 1, "Oscillator", "xtal"), (0, 15, 8.9, 3.2, D - 15.2 - 0.5, 1, "USB-C", "steel")])
+             (12, 20, 3.2, 2.5, 0.8, 1, "Oscillator", "xtal"), (0, 15, 8.9, 3.2, D - 15.2 - 0.5, 1, "USB-C, locking: power and both video streams", "steel")])
     for sx in (-1, 1):
         standoff(f"so{sx}", sx * 20.5, 15.0, 8.2, 14.0, 0.9, SEN, E(-5), "Standoff")
     rh = rh.cut(box(-4.6, 4.6, D - 2, D + 1, 13.3, 16.7))

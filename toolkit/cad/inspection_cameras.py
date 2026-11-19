@@ -16,7 +16,7 @@ import cadquery as cq
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import rugged_cameras as rc
 from rugged_cameras import (add, box, rbox, ycyl, yring, zcyl, W, V, OPT, SEN, PROC, EXT, PA12CF, ALU, REPO, sculpted_body, lens_ring, dome,
-                            m12_lens, m12_holder, light_bar, light_pipe, oring, pcb, standoff, screw, image_sensor, gimbal_yoke, mark_on_side, rr_wire)
+                            m12_lens, m12_holder, rear_ports, light_bar, light_pipe, oring, pcb, standoff, screw, image_sensor, gimbal_yoke, mark_on_side, rr_wire)
 
 E = lambda y, z=0: (0, y, z)
 EXF = E(-95)
@@ -123,9 +123,9 @@ def build_th():
     screwed into a field-sage housing; a black finned aluminium shell behind sheds the core's heat."""
     import math
     rc.parts.clear()
-    Wd, H, F0, F1, R1 = 52.0, 66.0, 0.0, 32.0, 54.0
+    Wd, H, F0, F1, R1 = 58.0, 66.0, 0.0, 32.0, 54.0
     NX, NZ, NR = 0.0, 43.0, 11.5                         # NIR lens: centre and clear radius
-    TX, TZ, TR = -9.0, 15.0, 7.2                         # thermal lens
+    TX, TZ, TR = 0.0, 15.0, 7.2                         # thermal lens
     # ---- externals
     fh = rbox(-Wd / 2, Wd / 2, F0, F1, 0, H, 9.0, "|Y")
     try:
@@ -138,22 +138,27 @@ def build_th():
     add("front_housing", fh, EXT, E(-60), finish="body", density=1.15, label="Front housing, PA12-CF, field sage")
     fp = rbox(-Wd / 2 + 4.6, Wd / 2 - 4.6, -0.8, 2.6, 4.6, H - 4.6, 12.4, "|Y")
     fp = fp.cut(ycyl(NX, NZ, -2, 4, NR + 1.6)).cut(ycyl(TX, TZ, -2, 4, TR + 1.4))
-    for (sx, sz) in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
-        fp = fp.cut(ycyl(sx * (Wd / 2 - 9.0), (8.5 if sz < 0 else H - 8.5), -1.5, 0.0, 1.5))
-    add("faceplate", fp, EXT, E(-80), mat="powder", color=(0.03, 0.032, 0.034), density=ALU, label="Faceplate, aluminium, dark anodised")
-    for (sx, sz) in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
-        x, z = sx * (Wd / 2 - 9.0), (8.5 if sz < 0 else H - 8.5)
-        sc = ycyl(x, z, -1.1, -0.2, 1.4).cut(box(x - 0.9, x + 0.9, -1.4, -0.7, z - 0.18, z + 0.18)).cut(box(x - 0.18, x + 0.18, -1.4, -0.7, z - 0.9, z + 0.9))
-        add(f"face_screw_{sx}_{sz}", sc, EXT, E(-80), mat="steel", color=(0.7, 0.71, 0.73), mass=0.2, label="M2 screw, stainless")
+    add("faceplate", fp, EXT, E(-80), mat="powder", color=(0.03, 0.032, 0.034), density=ALU, label="Faceplate, aluminium, dark anodised: fixed from inside, no screws on the face")
+    for sx in (-1, 1):                                  # internal fixing: four bosses behind the plate
+        for sz in (-1, 1):
+            add(f"face_boss_{sx}_{sz}", ycyl(sx * (Wd / 2 - 9.0), (9.0 if sz < 0 else H - 9.0), 2.6, 6.0, 1.8), EXT, E(-80), mat="powder", color=(0.03, 0.032, 0.034), mass=0.2, label="Faceplate boss, screwed from inside")
     # bezels: a bright chamfer ring round each lens opening
     add("nir_bezel", yring(NX, NZ, -1.2, -0.6, NR + 1.6, NR + 0.4), OPT, E(-100), mat="steel", color=(0.75, 0.76, 0.78), mass=0.0, label="Lens bezel, polished")
     add("th_bezel", yring(TX, TZ, -1.2, -0.6, TR + 1.4, TR + 0.4), OPT, E(-100), mat="steel", color=(0.75, 0.76, 0.78), mass=0.0, label="Lens bezel, polished")
-    # label plate beside the thermal lens, and the focal length under the NIR lens
-    lp = rbox(TX + TR + 3.0, Wd / 2 - 7.0, -1.0, -0.6, TZ - 4.6, TZ + 4.6, 4.5, "|Y")
-    add("label_plate", lp, EXT, E(-80), mat="satin", color=(0.62, 0.63, 0.64), density=ALU, label="Label plate")
-    lx = (TX + TR + 3.0 + Wd / 2 - 7.0) / 2
-    add("label_text", rc.etch_text("THERMAL", 1.6, lx, TZ + 1.4, -1.0).union(rc.etch_text("1 MP", 1.6, lx, TZ - 1.6, -1.0)), EXT, E(-80), mat="etch",
+    # two matching silver plates either side of the thermal lens: the Aviac mark on the left, the label on the right
+    px0, px1 = TR + 3.4, Wd / 2 - 7.2
+    for sx in (-1, 1):
+        lp = rbox(sx * px0 if sx > 0 else -px1, px1 if sx > 0 else -px0, -1.0, -0.6, TZ - 4.8, TZ + 4.8, 4.6, "|Y")
+        add(f"label_plate_{sx}", lp, EXT, E(-80), mat="satin", color=(0.62, 0.63, 0.64), density=ALU, label="Label plate")
+    lx = (px0 + px1) / 2
+    add("label_text", rc.etch_text("THERMAL", 1.25, lx, TZ + 1.3, -1.0).union(rc.etch_text("1 MP", 1.4, lx, TZ - 1.7, -1.0)), EXT, E(-80), mat="etch",
         color=(0.06, 0.06, 0.07), mass=0.0, label="Label: thermal, 1 MP")
+    ms = None
+    for pts in fitted_mark(-lx, TZ, 7.0, 8.0):
+        w = cq.Workplane("XZ").polyline(pts).close().extrude(0.06)
+        ms = w if ms is None else ms.union(w)
+    bb = ms.val().BoundingBox()
+    add("plate_mark", ms.translate((0, -1.06 - bb.ymin, 0)), EXT, E(-80), mat="etch", color=(0.06, 0.06, 0.07), mass=0.0, label="Aviac mark on the label plate")
     add("nir_text", rc.etch_text("400-940 nm", 1.4, NX + 8.0, NZ - NR - 4.0, -0.8), EXT, E(-80), mat="etch", color=(0.82, 0.82, 0.84), mass=0.0, label="Band label, printed")
     add("light_dot", ycyl(NX - 9.5, NZ - NR - 3.6, -1.0, -0.6, 0.9), EXT, E(-80), mat="led", color=(1.0, 0.55, 0.12), mass=0.0, label="Status light")
     # rear: hollow finned aluminium shell
@@ -164,7 +169,9 @@ def build_th():
         rb = rb.cut(box(Wd / 2 - 4.0, Wd, y, y + 0.9, -1, H + 1)).cut(box(-Wd, -Wd / 2 + 4.0, y, y + 0.9, -1, H + 1))
     rb = rb.cut(ycyl(0, 12.0, R1 - 2, R1 + 1, 4.5)).cut(rbox(-Wd / 2 + 5.5, Wd / 2 - 5.5, F1 - 1, R1 - 2.5, 5.5, H - 5.5, 5.0, "|Y"))
     add("rear_block", rb, EXT, E(55), mat="powder", color=(0.012, 0.012, 0.014), density=ALU, label="Finned rear shell, aluminium, black anodised")
-    add("rear_conn", ycyl(0, 12.0, R1 - 0.5, R1 + 3.0, 4.4).cut(ycyl(0, 12.0, R1, R1 + 4, 3.2)), EXT, E(70), mat="steel", color=(0.6, 0.6, 0.62), mass=2.0, label="M12 connector: power and Ethernet")
+    add("rear_conn", ycyl(0, 12.0, R1 - 0.5, R1 + 3.0, 4.4).cut(ycyl(0, 12.0, R1, R1 + 4, 3.2)), EXT, E(70), mat="steel", color=(0.6, 0.6, 0.62), mass=2.0,
+        label="M12 X-coded: PoE GigE, power and both streams")
+    rear_ports("rear_block", R1, [("usbc", 14.0, 12.0, "USB-C, locking: setup"), ("sd", -14.0, 12.0, "microSD: radiometric backup recording")], EXT, E(70))
     for sx in (1, -1):
         sol = None
         for pts in fitted_mark(16.0, H / 2 + 6.0, 16.0, 18.0):
@@ -306,7 +313,9 @@ def build_sw():
     add("tec", box(x - 9, x + 9, yb + 1.4, yb + 5.4, z - 9, z + 9), SEN, E(-5), mat="satin", color=(0.75, 0.76, 0.77), density=ALU, label="Heat spreader for the sensor's cooler")
     pcb("proc", -22.0, 22.0, 4.0, 48.0, 40.0, 1.2, PROC, E(10), "Processing board: non-uniformity correction, sync, Ethernet", 6.0, comps="both", seed=97,
         ics=[(0, 26, 12, 12, 1.2, 1, "FPGA, SWIR pipeline", "ic"), (-14, 38, 6, 5, 1.0, 1, "DDR", "ic"), (14, 38, 6, 5, 1.0, 1, "Flash", "ic")])
-    add("rear_conn", ycyl(0, 14.0, D - 0.5, D + 3.0, 5.0).cut(ycyl(0, 14.0, D, D + 4, 3.6)), EXT, E(70), mat="steel", color=(0.6, 0.6, 0.62), mass=2.0, label="M12 Ethernet / power connector")
+    add("rear_conn", ycyl(0, 14.0, D - 0.5, D + 3.0, 5.0).cut(ycyl(0, 14.0, D, D + 4, 3.6)), EXT, E(70), mat="steel", color=(0.6, 0.6, 0.62), mass=2.0,
+        label="M12 X-coded: PoE GigE, power and data")
+    rear_ports("rear_housing", D, [("usbc", 15.0, 14.0, "USB-C, locking: setup"), ("sd", -15.0, 14.0, "microSD: backup recording")], EXT, E(70))
     rc.export(os.path.join(REPO, "cameras", "sw", "mechanical", "out"), "aviac_sw")
 
 

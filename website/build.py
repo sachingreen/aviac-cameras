@@ -38,6 +38,30 @@ def _ver():
 V = _ver()       # cache-buster: browsers keep img/ for a week, so a changed logo or stylesheet gets a new URL
 
 
+SYSTEMS_ORDER = [("ms", "MS", "Agri Spectral", "product/multispectral/", "ms_titanium_hero_light.jpg"),
+                 ("duos", "Duos", "Stereo", "product/duos/", "duos_arctic_hero_light.jpg"),
+                 ("th", "TH", "Thermal + NIR", "product/thermal/", "th_field_hero_light.jpg"),
+                 ("sw", "SW", "SWIR", "product/swir/", "sw_graphite_hero_light.jpg")]
+
+
+def switcher(on, R):
+    """Product pages: a row of all four systems under the header, and arrows at the screen edges to the neighbours."""
+    keys = [k for k, *_ in SYSTEMS_ORDER]
+    if on not in keys:
+        return ""
+    i = keys.index(on)
+    prv, nxt = SYSTEMS_ORDER[(i - 1) % 4], SYSTEMS_ORDER[(i + 1) % 4]
+    row = "".join(f'<a href="{R}{h}"{" class=on aria-current=page" if k == on else ""}><img src="{R}assets/img/{img}" alt=""><span><b>{n}</b>{sub}</span></a>'
+                  for k, n, sub, h, img in SYSTEMS_ORDER)
+    return (f'<div class="sysbar"><div class="wrap"><a class="sb-arrow" href="{R}{prv[3]}" aria-label="Previous system: {prv[1]}">&larr;</a>'
+            f'<nav class="sb-row" aria-label="Systems">{row}</nav><a class="sb-arrow" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}">&rarr;</a></div></div>'
+            f'<a class="sb-edge l" href="{R}{prv[3]}" aria-label="Previous system: {prv[1]}"><span>&larr;</span><b>{prv[1]}</b></a>'
+            f'<a class="sb-edge r" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}"><b>{nxt[1]}</b><span>&rarr;</span></a>'
+            f'<script>addEventListener("keydown",e=>{{if(e.target.closest("input,textarea,select"))return;if(e.key==="ArrowLeft")location.href="{R}{prv[3]}";if(e.key==="ArrowRight")location.href="{R}{nxt[3]}"}});'
+            f'(()=>{{let x=null;addEventListener("touchstart",e=>{{if(!e.target.closest(".viewer,.cmpimg,.fly"))x=e.touches[0].clientX}},{{passive:true}});'
+            f'addEventListener("touchend",e=>{{if(x===null)return;const d=e.changedTouches[0].clientX-x;x=null;if(d>90)location.href="{R}{prv[3]}";if(d<-90)location.href="{R}{nxt[3]}"}})}})();</script>')
+
+
 def render(text, R):
     def head(m):
         return f"""<!doctype html>
@@ -68,7 +92,7 @@ def render(text, R):
                 items += f'<li><a href="{home}{h}">{t}</a></li>'
         return (f'<nav class="nav"><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="">'
                 f'<span class="wm">Aviac</span></a><ul>{items}</ul>'
-                f'<a class="btn p cta" href="{home}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>')
+                f'<a class="btn p cta" href="{home}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>' + switcher(on, R))
 
     foot = (f'<footer><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="" style="height:22px">'
             f'<span class="wm" style="font-size:19px">Aviac</span></a>'

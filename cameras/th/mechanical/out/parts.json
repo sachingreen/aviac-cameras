@@ -3,40 +3,40 @@
   "name": "front_housing",
   "label": "Front housing, PA12-CF, field sage",
   "group": "Externals",
-  "mass": 16.67,
+  "mass": 17.59,
   "estimated": false
  },
  {
   "name": "faceplate",
-  "label": "Faceplate, aluminium, dark anodised",
+  "label": "Faceplate, aluminium, dark anodised: fixed from inside, no screws on the face",
   "group": "Externals",
-  "mass": 13.98,
+  "mass": 17.15,
   "estimated": false
  },
  {
-  "name": "face_screw_-1_-1",
-  "label": "M2 screw, stainless",
+  "name": "face_boss_-1_-1",
+  "label": "Faceplate boss, screwed from inside",
   "group": "Externals",
   "mass": 0.2,
   "estimated": true
  },
  {
-  "name": "face_screw_1_-1",
-  "label": "M2 screw, stainless",
+  "name": "face_boss_-1_1",
+  "label": "Faceplate boss, screwed from inside",
   "group": "Externals",
   "mass": 0.2,
   "estimated": true
  },
  {
-  "name": "face_screw_-1_1",
-  "label": "M2 screw, stainless",
+  "name": "face_boss_1_-1",
+  "label": "Faceplate boss, screwed from inside",
   "group": "Externals",
   "mass": 0.2,
   "estimated": true
  },
  {
-  "name": "face_screw_1_1",
-  "label": "M2 screw, stainless",
+  "name": "face_boss_1_1",
+  "label": "Faceplate boss, screwed from inside",
   "group": "Externals",
   "mass": 0.2,
   "estimated": true
@@ -56,15 +56,29 @@
   "estimated": true
  },
  {
-  "name": "label_plate",
+  "name": "label_plate_-1",
   "label": "Label plate",
   "group": "Externals",
-  "mass": 0.16,
+  "mass": 0.1,
+  "estimated": false
+ },
+ {
+  "name": "label_plate_1",
+  "label": "Label plate",
+  "group": "Externals",
+  "mass": 0.1,
   "estimated": false
  },
  {
   "name": "label_text",
   "label": "Label: thermal, 1 MP",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "plate_mark",
+  "label": "Aviac mark on the label plate",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
@@ -87,14 +101,35 @@
   "name": "rear_block",
   "label": "Finned rear shell, aluminium, black anodised",
   "group": "Externals",
-  "mass": 54.47,
+  "mass": 58.64,
   "estimated": false
  },
  {
   "name": "rear_conn",
-  "label": "M12 connector: power and Ethernet",
+  "label": "M12 X-coded: PoE GigE, power and both streams",
   "group": "Externals",
   "mass": 2.0,
+  "estimated": true
+ },
+ {
+  "name": "port_usbc_14.0",
+  "label": "USB-C, locking: setup",
+  "group": "Externals",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "port_usbc_tongue_14.0",
+  "label": "USB-C tongue",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "port_sd_-14.0",
+  "label": "microSD: radiometric backup recording",
+  "group": "Externals",
+  "mass": 0.3,
   "estimated": true
  },
  {

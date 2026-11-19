@@ -1179,7 +1179,7 @@
   "name": "rear_housing",
   "label": "Rear housing, PA12-CF",
   "group": "Externals",
-  "mass": 39.9,
+  "mass": 39.98,
   "estimated": false
  },
  {
@@ -1289,34 +1289,41 @@
  },
  {
   "name": "io_board_c1",
-  "label": "Ethernet",
+  "label": "GigE, JST-GH 8-pin locking",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
  },
  {
   "name": "io_board_c2",
-  "label": "USB-C",
+  "label": "USB-C, locking: setup and offload",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
  },
  {
   "name": "io_board_c3",
-  "label": "GPS / PPS, 8-pin",
+  "label": "microSD slot: logs and backup",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
  },
  {
   "name": "io_board_c4",
-  "label": "DLS port",
+  "label": "GPS / PPS, 8-pin",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
  },
  {
   "name": "io_board_c5",
+  "label": "DLS port",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "io_board_c6",
   "label": "Cable to carrier",
   "group": "Externals",
   "mass": 0.0,

@@ -323,7 +323,7 @@
  },
  {
   "name": "iface",
-  "label": "Interface board: MIPI to USB-C / GMSL",
+  "label": "Interface board: both streams and power over one USB-C",
   "group": "Processing board",
   "mass": 2.5,
   "estimated": true
@@ -365,7 +365,7 @@
  },
  {
   "name": "iface_c4",
-  "label": "USB-C",
+  "label": "USB-C, locking: power and both video streams",
   "group": "Processing board",
   "mass": 0.0,
   "estimated": true

@@ -3,7 +3,7 @@
   "name": "rear_housing",
   "label": "Body, PA12-CF, painted",
   "group": "Externals",
-  "mass": 31.62,
+  "mass": 31.49,
   "estimated": false
  },
  {
@@ -274,9 +274,30 @@
  },
  {
   "name": "rear_conn",
-  "label": "M12 Ethernet / power connector",
+  "label": "M12 X-coded: PoE GigE, power and data",
   "group": "Externals",
   "mass": 2.0,
+  "estimated": true
+ },
+ {
+  "name": "port_usbc_15.0",
+  "label": "USB-C, locking: setup",
+  "group": "Externals",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "port_usbc_tongue_15.0",
+  "label": "USB-C tongue",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "port_sd_-15.0",
+  "label": "microSD: backup recording",
+  "group": "Externals",
+  "mass": 0.3,
   "estimated": true
  }
 ]
