@@ -117,89 +117,88 @@ def fitted_mark(cy, cz, h_max, w_max):
 
 
 def build_th():
-    """TH: a dual-module thermal head. Left, the thermal module: a 1 MP (1280 x 1024, 12 um) uncooled core behind a
-    short germanium lens. Right, the NIR module: a Mira220 global-shutter sensor behind one M12 lens and one
-    400-940 nm filter, so a single channel covers visible through near infrared. Field-sage front housing, black
-    finned aluminium rear block that sheds the core's heat."""
+    """TH: a dual-module head with its optics stacked behind one faceplate. On top, the NIR module: a Mira220 behind a
+    large clear lens and a 400-940 nm filter (it passes visible and near infrared, so it looks clear). Below, the
+    thermal module: a 1 MP uncooled core behind a germanium lens, with a label plate beside it. The dark faceplate is
+    screwed into a field-sage housing; a black finned aluminium shell behind sheds the core's heat."""
     import math
     rc.parts.clear()
-    Wd, H, F0, F1, R1 = 66.0, 44.0, 0.0, 30.0, 52.0    # front housing y 0..30, finned rear y 30..52
-    zc = H / 2
-    TX, NX = -13.0, 18.0                                 # thermal and NIR lens centres
+    Wd, H, F0, F1, R1 = 52.0, 66.0, 0.0, 32.0, 54.0
+    NX, NZ, NR = 0.0, 43.0, 11.5                         # NIR lens: centre and clear radius
+    TX, TZ, TR = -9.0, 15.0, 7.2                         # thermal lens
     # ---- externals
-    fh = rbox(-Wd / 2, Wd / 2, F0, F1, 0, H, 6.0, "|Y")
+    fh = rbox(-Wd / 2, Wd / 2, F0, F1, 0, H, 9.0, "|Y")
     try:
-        fh = fh.faces("<Y").edges().chamfer(1.6)
+        fh = fh.faces("<Y").edges().fillet(2.4)
     except Exception:
         pass
-    fh = fh.cut(rbox(-Wd / 2 + 2, Wd / 2 - 2, F0 + 2, F1 + 1, 2, H - 2, 4.5, "|Y")).cut(ycyl(TX, zc, -1, 3, 12.0)).cut(ycyl(NX, zc, -1, 3, 8.6))
+    fh = fh.cut(rbox(-Wd / 2 + 2, Wd / 2 - 2, F0 + 2, F1 + 1, 2, H - 2, 7.0, "|Y"))
+    fp_out = rbox(-Wd / 2 + 4.0, Wd / 2 - 4.0, -0.2, 3.0, 4.0, H - 4.0, 13.0, "|Y")
+    fh = fh.cut(fp_out.translate((0, -0.01, 0)))
     add("front_housing", fh, EXT, E(-60), finish="body", density=1.15, label="Front housing, PA12-CF, field sage")
-    face = rbox(-Wd / 2 + 3.4, Wd / 2 - 3.4, -0.6, 0.4, 3.4, H - 3.4, 4.0, "|Y").cut(ycyl(TX, zc, -2, 2, 12.0)).cut(ycyl(NX, zc, -2, 2, 8.6))
-    add("face", face, EXT, E(-60), mat="powder", color=(0.035, 0.038, 0.036), density=ALU, label="Front face plate")
-    add("accent_ring", yring(TX, zc, -1.2, -0.4, 12.8, 11.2), EXT, E(-60), mat="satin", color=(0.04, 0.42, 0.20), mass=0.0, label="Accent ring, thermal")
-    add("accent_ring_nir", yring(NX, zc, -1.2, -0.4, 9.4, 8.4), EXT, E(-60), mat="satin", color=(0.04, 0.42, 0.20), mass=0.0, label="Accent ring, NIR")
-    add("face_text", rc.etch_text("LWIR", 1.6, TX, H - 6.2, -0.6).union(rc.etch_text("400-940 nm", 1.6, NX, H - 6.2, -0.6)), EXT, E(-60), mat="etch",
-        color=(0.85, 0.85, 0.86), mass=0.0, label="Band labels, printed")
-    add("light_dot", ycyl(NX, 6.5, -0.9, -0.3, 0.9), EXT, E(-60), mat="led", color=(1.0, 0.55, 0.12), mass=0.0, label="Status light")
-    rb = rbox(-Wd / 2 + 1.0, Wd / 2 - 1.0, F1, R1, 1.0, H - 1.0, 5.0, "|Y")
-    for k in range(10):                                 # fins: grooves round the rear block
+    fp = rbox(-Wd / 2 + 4.6, Wd / 2 - 4.6, -0.8, 2.6, 4.6, H - 4.6, 12.4, "|Y")
+    fp = fp.cut(ycyl(NX, NZ, -2, 4, NR + 1.6)).cut(ycyl(TX, TZ, -2, 4, TR + 1.4))
+    for (sx, sz) in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+        fp = fp.cut(ycyl(sx * (Wd / 2 - 9.0), (8.5 if sz < 0 else H - 8.5), -1.5, 0.0, 1.5))
+    add("faceplate", fp, EXT, E(-80), mat="powder", color=(0.03, 0.032, 0.034), density=ALU, label="Faceplate, aluminium, dark anodised")
+    for (sx, sz) in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+        x, z = sx * (Wd / 2 - 9.0), (8.5 if sz < 0 else H - 8.5)
+        sc = ycyl(x, z, -1.1, -0.2, 1.4).cut(box(x - 0.9, x + 0.9, -1.4, -0.7, z - 0.18, z + 0.18)).cut(box(x - 0.18, x + 0.18, -1.4, -0.7, z - 0.9, z + 0.9))
+        add(f"face_screw_{sx}_{sz}", sc, EXT, E(-80), mat="steel", color=(0.7, 0.71, 0.73), mass=0.2, label="M2 screw, stainless")
+    # bezels: a bright chamfer ring round each lens opening
+    add("nir_bezel", yring(NX, NZ, -1.2, -0.6, NR + 1.6, NR + 0.4), OPT, E(-100), mat="steel", color=(0.75, 0.76, 0.78), mass=0.0, label="Lens bezel, polished")
+    add("th_bezel", yring(TX, TZ, -1.2, -0.6, TR + 1.4, TR + 0.4), OPT, E(-100), mat="steel", color=(0.75, 0.76, 0.78), mass=0.0, label="Lens bezel, polished")
+    # label plate beside the thermal lens, and the focal length under the NIR lens
+    lp = rbox(TX + TR + 3.0, Wd / 2 - 7.0, -1.0, -0.6, TZ - 4.6, TZ + 4.6, 4.5, "|Y")
+    add("label_plate", lp, EXT, E(-80), mat="satin", color=(0.62, 0.63, 0.64), density=ALU, label="Label plate")
+    lx = (TX + TR + 3.0 + Wd / 2 - 7.0) / 2
+    add("label_text", rc.etch_text("THERMAL", 1.6, lx, TZ + 1.4, -1.0).union(rc.etch_text("1 MP", 1.6, lx, TZ - 1.6, -1.0)), EXT, E(-80), mat="etch",
+        color=(0.06, 0.06, 0.07), mass=0.0, label="Label: thermal, 1 MP")
+    add("nir_text", rc.etch_text("400-940 nm", 1.4, NX + 8.0, NZ - NR - 4.0, -0.8), EXT, E(-80), mat="etch", color=(0.82, 0.82, 0.84), mass=0.0, label="Band label, printed")
+    add("light_dot", ycyl(NX - 9.5, NZ - NR - 3.6, -1.0, -0.6, 0.9), EXT, E(-80), mat="led", color=(1.0, 0.55, 0.12), mass=0.0, label="Status light")
+    # rear: hollow finned aluminium shell
+    rb = rbox(-Wd / 2 + 1.0, Wd / 2 - 1.0, F1, R1, 1.0, H - 1.0, 8.0, "|Y")
+    for k in range(10):
         y = F1 + 2.0 + k * 2.0
         rb = rb.cut(box(-Wd, Wd, y, y + 0.9, H - 4.0, H + 1)).cut(box(-Wd, Wd, y, y + 0.9, -1, 4.0))
         rb = rb.cut(box(Wd / 2 - 4.0, Wd, y, y + 0.9, -1, H + 1)).cut(box(-Wd, -Wd / 2 + 4.0, y, y + 0.9, -1, H + 1))
-    rb = rb.cut(ycyl(0, 12.0, R1 - 2, R1 + 1, 4.5)).cut(rbox(-Wd / 2 + 5.5, Wd / 2 - 5.5, F1 - 1, R1 - 2.5, 5.5, H - 5.5, 2.0, "|Y"))
-    add("rear_block", rb, EXT, E(55), mat="powder", color=(0.012, 0.012, 0.014), density=ALU, label="Finned rear block, aluminium, black anodised")
+    rb = rb.cut(ycyl(0, 12.0, R1 - 2, R1 + 1, 4.5)).cut(rbox(-Wd / 2 + 5.5, Wd / 2 - 5.5, F1 - 1, R1 - 2.5, 5.5, H - 5.5, 5.0, "|Y"))
+    add("rear_block", rb, EXT, E(55), mat="powder", color=(0.012, 0.012, 0.014), density=ALU, label="Finned rear shell, aluminium, black anodised")
     add("rear_conn", ycyl(0, 12.0, R1 - 0.5, R1 + 3.0, 4.4).cut(ycyl(0, 12.0, R1, R1 + 4, 3.2)), EXT, E(70), mat="steel", color=(0.6, 0.6, 0.62), mass=2.0, label="M12 connector: power and Ethernet")
-    for sx in (-1, 1):
-        for sz in (-1, 1):
-            add(f"rear_screw_{sx}_{sz}", ycyl(sx * (Wd / 2 - 6), zc + sz * 15.0, R1 - 0.2, R1 + 0.6, 1.1), EXT, E(70), mat="steel", color=(0.12, 0.12, 0.13), mass=0.1, label="M2 screw")
-    for sx in (1, -1):                                  # Aviac mark on both sides, model name on the right
+    for sx in (1, -1):
         sol = None
-        for pts in fitted_mark(15.0, zc + 2.0, 14.0, 16.0):
+        for pts in fitted_mark(16.0, H / 2 + 6.0, 16.0, 18.0):
             if sx < 0:
-                pts = [(30.0 - y, z) for (y, z) in pts]
+                pts = [(32.0 - y, z) for (y, z) in pts]
             w = cq.Workplane("YZ").polyline(pts).close().extrude(0.25 * sx)
             sol = w if sol is None else sol.union(w)
         if sx > 0:
-            t = cq.Workplane("YZ").text("TH", 2.6, 0.25, kind="bold", halign="center", valign="center")
+            t = cq.Workplane("YZ").text("TH", 2.8, 0.25, kind="bold", halign="center", valign="center")
             bb = t.val().BoundingBox()
-            sol = sol.union(t.translate((0, 15.0 - (bb.ymin + bb.ymax) / 2, zc - 9.5 - (bb.zmin + bb.zmax) / 2)))
+            sol = sol.union(t.translate((0, 16.0 - (bb.ymin + bb.ymax) / 2, H / 2 - 6.0 - (bb.zmin + bb.zmax) / 2)))
         add("side_mark" if sx > 0 else "side_mark_l", sol.translate((sx * (Wd / 2 - 0.1), 0, 0)), EXT, E(-60), mat="etch", color=(0.86, 0.87, 0.88), mass=0.0, label="Aviac mark, printed")
-    add("tripod", zcyl(0, 24.0, -0.4, 4.0, 3.2).cut(zcyl(0, 24.0, -1, 5, 2.6)), EXT, E(55, -20), mat="gold", color=(0.8, 0.6, 0.2), mass=1.0, label='1/4"-20 insert')
-    # ---- optics: thermal lens (germanium) and the NIR lens with its 400-940 nm filter
-    lb = ycyl(TX, zc, -21.0, 4.0, 10.0)
-    for k in range(56):
-        a = 2 * math.pi * k / 56
-        lb = lb.cut(ycyl(TX + 10.1 * math.cos(a), zc + 10.1 * math.sin(a), -13.0, -5.0, 0.32))
-    lb = lb.cut(ycyl(TX, zc, -22, -18.5, 7.9))
-    add("lens_barrel", lb, OPT, E(-110), mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Thermal lens barrel, 19 mm f/1.0, focus locked")
-    add("lens_lip", yring(TX, zc, -21.6, -20.4, 10.1, 8.0), OPT, E(-110), mat="anodised", color=(0.008, 0.008, 0.01), mass=0.0, label="Front lip")
-    add("lwir_glass", dome(TX, zc, -21.8, 7.95, 3.0), OPT, E(-110), mat="germanium", color=(0.2, 0.17, 0.24), mass=0.0, label="Germanium element, AR-coated")
-    add("lwir_inner", yring(TX, zc, -19.0, -15.5, 8.0, 6.2), OPT, E(-110), mat="black", color=(0, 0, 0), mass=0.0, label="Lens interior")
-    add("lens_engrave", ring_text(["AVIAC"], TX, zc, 10.0, -16.0, 1.3, 90, 90), OPT, E(-110), mat="etch", color=(0.85, 0.85, 0.86), mass=0.0, label="Engraved: Aviac")
-    m12_lens("nir", NX, zc, -10.0, 16.0, OPT, E(-110), (0.10, 0.22, 0.20), "M12 lens, 6 mm f/2.0, NIR-corrected", filt=("400-940 nm", (0.28, 0.10, 0.16)))
-    m12_holder("nir_holder", NX, zc, 6.0, 14.0, OPT, E(-90))
-    for p_ in rc.parts:                                   # the 400-940 nm filter is an interference coating on clear glass
-        if p_["name"] == "nir_filter":
-            p_["mat"], p_["label"] = "dichroic", "Band-pass filter, 400-940 nm, interference-coated"
-    add("nir_retainer", yring(NX, zc, -10.85, -10.45, 7.25, 6.6), OPT, E(-110), mat="steel", color=(0.82, 0.83, 0.85), mass=0.0, label="Filter retaining ring, polished")
+    add("tripod", zcyl(0, 26.0, -0.4, 4.0, 3.2).cut(zcyl(0, 26.0, -1, 5, 2.6)), EXT, E(55, -20), mat="gold", color=(0.8, 0.6, 0.2), mass=1.0, label='1/4"-20 insert')
+    # ---- optics, set flush behind the faceplate
+    add("nir_barrel", yring(NX, NZ, -0.4, 12.0, NR + 0.6, NR - 0.2), OPT, E(-120), mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="NIR lens, 8 mm f/1.8, NIR-corrected")
+    rc.lens_stack("nir", NX, NZ, -0.9, NR, OPT, E(-120), (0.10, 0.22, 0.20), depth=11.0)
+    add("nir_filter", ycyl(NX, NZ, 0.6, 1.0, NR - 0.2), OPT, E(-120), mat="window", color=(0.95, 0.97, 1.0), mass=0.5, label="Filter, 400-940 nm: passes visible and NIR, looks clear")
+    add("th_barrel", yring(TX, TZ, -0.4, 10.0, TR + 0.6, TR - 0.2), OPT, E(-120), mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Thermal lens, 13 mm f/1.0, germanium")
+    add("lwir_glass", dome(TX, TZ, -0.9, TR, 1.6), OPT, E(-120), mat="germanium", color=(0.2, 0.3, 0.2), mass=0.0, label="Germanium element, AR-coated")
+    add("lwir_inner", yring(TX, TZ, 0.8, 5.0, TR, TR - 1.6), OPT, E(-120), mat="black", color=(0, 0, 0), mass=0.0, label="Lens interior")
     # ---- the two sensing modules
-    cm = rbox(TX - 14.5, TX + 14.5, 4.0, 27.0, zc - 14.5, zc + 14.5, 1.2, "|Y").union(ycyl(TX, zc, 1.0, 4.0, 11.4))
-    for sx in (-1, 1):
-        for sz in (-1, 1):
-            cm = cm.cut(ycyl(TX + sx * 11.8, zc + sz * 11.8, 3.0, 5.0, 0.9))
+    cm = rbox(TX - 10.5, TX + 10.5, 10.0, 28.0, TZ - 10.0, TZ + 10.0, 1.0, "|Y").union(ycyl(TX, TZ, 6.0, 10.0, 8.2))
     add("core", cm, SEN, E(-35), mat="powder", color=(0.02, 0.02, 0.022), density=ALU * 0.9, label="Thermal core module: 1280 x 1024 (1 MP) uncooled VOx, 12 um (placeholder)")
-    add("core_window", ycyl(TX, zc, 0.6, 1.1, 7.6), SEN, E(-35), mat="germanium", color=(0.2, 0.17, 0.24), mass=0.0, label="Detector window")
-    add("core_label", rc.etch_text("1MP", 1.6, TX + 9.0, zc + 11.0, 3.95), SEN, E(-35), mat="etch", color=(0.8, 0.8, 0.82), mass=0.0, label="Core label")
-    pcb("core_board", TX - 14.5, TX + 14.5, zc - 14.5, zc + 14.5, 27.2, 1.2, SEN, E(-15), "Core readout board", 2.0, comps="rear", seed=81,
-        ics=[(TX, zc, 8, 8, 1.0, 1, "Readout FPGA", "ic"), (TX - 9, zc + 9, 4, 3, 0.8, 1, "Flash", "ic")])
-    pcb("nir_board", NX - 9.0, NX + 9.0, zc - 10.0, zc + 10.0, 15.0, 1.2, SEN, E(-35), "NIR module: Mira220 board", 1.5, comps="rear", seed=82,
-        ics=[(NX, zc, 6.6, 6.2, 0.9, -1, "Mira220, NIR-enhanced", "sensor"), (NX, zc - 7.5, 9, 2.2, 1.4, 1, "MIPI connector", "conn")])
-    image_sensor("nir_sensor", NX, zc, 13.0, 15.0, "mira", SEN, E(-35), "Mira220, 1600 x 1400, global shutter, NIR-enhanced")
-    pcb("proc", -Wd / 2 + 5, Wd / 2 - 5, 4.0, H - 4.0, 38.0, 1.2, PROC, E(15), "Processing board: thermal and NIR in sync, radiometry, Ethernet", 5.0, comps="both", seed=90,
-        ics=[(0, zc, 12, 12, 1.2, 1, "Processor", "ic"), (-16, zc + 10, 5, 5, 1.0, 1, "DDR", "ic"), (16, zc + 10, 5, 4, 1.0, 1, "PHY", "ic"),
+    add("core_window", ycyl(TX, TZ, 5.6, 6.0, 5.6), SEN, E(-35), mat="germanium", color=(0.2, 0.3, 0.2), mass=0.0, label="Detector window")
+    pcb("core_board", TX - 10.5, TX + 10.5, TZ - 10.0, TZ + 10.0, 28.2, 1.2, SEN, E(-15), "Thermal core readout board", 2.0, comps="rear", seed=81,
+        ics=[(TX, TZ, 7, 7, 1.0, 1, "Readout FPGA", "ic")])
+    pcb("nir_board", NX - 11.0, NX + 11.0, NZ - 11.0, NZ + 11.0, 14.0, 1.2, SEN, E(-35), "NIR module: Mira220 board", 1.5, comps="rear", seed=82,
+        ics=[(NX, NZ, 6.6, 6.2, 0.9, -1, "Mira220, NIR-enhanced", "sensor"), (NX, NZ - 8.5, 9, 2.2, 1.4, 1, "MIPI connector", "conn")])
+    image_sensor("nir_sensor", NX, NZ, 12.0, 14.0, "mira", SEN, E(-35), "Mira220, 1600 x 1400, global shutter, NIR-enhanced")
+    pcb("proc", -Wd / 2 + 5, Wd / 2 - 5, 5.0, H - 5.0, 40.0, 1.2, PROC, E(15), "Processing board: thermal and NIR in sync, radiometry, Ethernet", 5.0, comps="both", seed=90,
+        ics=[(0, H / 2, 12, 12, 1.2, 1, "Processor", "ic"), (-12, H / 2 + 14, 5, 5, 1.0, 1, "DDR", "ic"), (12, H / 2 + 14, 5, 4, 1.0, 1, "PHY", "ic"),
              (0, 12.0, 8, 8, 2.0, 1, "Connector header", "conn")])
     for sx in (-1, 1):
-        standoff(f"so{sx}", sx * (Wd / 2 - 6.0), zc, 28.5, 38.0, 1.0, PROC, E(10), "Standoff")
+        standoff(f"so{sx}", sx * (Wd / 2 - 6.0), H / 2, 29.5, 40.0, 1.0, PROC, E(10), "Standoff")
     rc.export(os.path.join(REPO, "cameras", "th", "mechanical", "out"), "aviac_th")
 
 

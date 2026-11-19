@@ -3,33 +3,75 @@
   "name": "front_housing",
   "label": "Front housing, PA12-CF, field sage",
   "group": "Externals",
-  "mass": 17.95,
+  "mass": 16.67,
   "estimated": false
  },
  {
-  "name": "face",
-  "label": "Front face plate",
+  "name": "faceplate",
+  "label": "Faceplate, aluminium, dark anodised",
   "group": "Externals",
-  "mass": 4.06,
+  "mass": 13.98,
   "estimated": false
  },
  {
-  "name": "accent_ring",
-  "label": "Accent ring, thermal",
+  "name": "face_screw_-1_-1",
+  "label": "M2 screw, stainless",
+  "group": "Externals",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "face_screw_1_-1",
+  "label": "M2 screw, stainless",
+  "group": "Externals",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "face_screw_-1_1",
+  "label": "M2 screw, stainless",
+  "group": "Externals",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "face_screw_1_1",
+  "label": "M2 screw, stainless",
+  "group": "Externals",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "nir_bezel",
+  "label": "Lens bezel, polished",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "th_bezel",
+  "label": "Lens bezel, polished",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "label_plate",
+  "label": "Label plate",
+  "group": "Externals",
+  "mass": 0.16,
+  "estimated": false
+ },
+ {
+  "name": "label_text",
+  "label": "Label: thermal, 1 MP",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "accent_ring_nir",
-  "label": "Accent ring, NIR",
-  "group": "Externals",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "face_text",
-  "label": "Band labels, printed",
+  "name": "nir_text",
+  "label": "Band label, printed",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
@@ -43,9 +85,9 @@
  },
  {
   "name": "rear_block",
-  "label": "Finned rear block, aluminium, black anodised",
+  "label": "Finned rear shell, aluminium, black anodised",
   "group": "Externals",
-  "mass": 48.61,
+  "mass": 54.47,
   "estimated": false
  },
  {
@@ -53,34 +95,6 @@
   "label": "M12 connector: power and Ethernet",
   "group": "Externals",
   "mass": 2.0,
-  "estimated": true
- },
- {
-  "name": "rear_screw_-1_-1",
-  "label": "M2 screw",
-  "group": "Externals",
-  "mass": 0.1,
-  "estimated": true
- },
- {
-  "name": "rear_screw_-1_1",
-  "label": "M2 screw",
-  "group": "Externals",
-  "mass": 0.1,
-  "estimated": true
- },
- {
-  "name": "rear_screw_1_-1",
-  "label": "M2 screw",
-  "group": "Externals",
-  "mass": 0.1,
-  "estimated": true
- },
- {
-  "name": "rear_screw_1_1",
-  "label": "M2 screw",
-  "group": "Externals",
-  "mass": 0.1,
   "estimated": true
  },
  {
@@ -105,46 +119,11 @@
   "estimated": true
  },
  {
-  "name": "lens_barrel",
-  "label": "Thermal lens barrel, 19 mm f/1.0, focus locked",
-  "group": "Optics",
-  "mass": 19.76,
-  "estimated": false
- },
- {
-  "name": "lens_lip",
-  "label": "Front lip",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "lwir_glass",
-  "label": "Germanium element, AR-coated",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "lwir_inner",
-  "label": "Lens interior",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "lens_engrave",
-  "label": "Engraved: Aviac",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
   "name": "nir_barrel",
-  "label": "M12 lens, 6 mm f/2.0, NIR-corrected",
+  "label": "NIR lens, 8 mm f/1.8, NIR-corrected",
   "group": "Optics",
-  "mass": 3.0,
-  "estimated": true
+  "mass": 1.97,
+  "estimated": false
  },
  {
   "name": "nir_glass",
@@ -183,21 +162,28 @@
  },
  {
   "name": "nir_filter",
-  "label": "Band-pass filter, 400-940 nm, interference-coated",
+  "label": "Filter, 400-940 nm: passes visible and NIR, looks clear",
   "group": "Optics",
-  "mass": 0.4,
+  "mass": 0.5,
   "estimated": true
  },
  {
-  "name": "nir_holder",
-  "label": "M12 lens holder",
+  "name": "th_barrel",
+  "label": "Thermal lens, 13 mm f/1.0, germanium",
   "group": "Optics",
-  "mass": 1.2,
+  "mass": 1.04,
+  "estimated": false
+ },
+ {
+  "name": "lwir_glass",
+  "label": "Germanium element, AR-coated",
+  "group": "Optics",
+  "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "nir_retainer",
-  "label": "Filter retaining ring, polished",
+  "name": "lwir_inner",
+  "label": "Lens interior",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -206,7 +192,7 @@
   "name": "core",
   "label": "Thermal core module: 1280 x 1024 (1 MP) uncooled VOx, 12 um (placeholder)",
   "group": "Baseboard + image sensors",
-  "mass": 49.89,
+  "mass": 20.39,
   "estimated": false
  },
  {
@@ -217,15 +203,8 @@
   "estimated": true
  },
  {
-  "name": "core_label",
-  "label": "Core label",
-  "group": "Baseboard + image sensors",
-  "mass": 0.0,
-  "estimated": true
- },
- {
   "name": "core_board",
-  "label": "Core readout board",
+  "label": "Thermal core readout board",
   "group": "Baseboard + image sensors",
   "mass": 2.0,
   "estimated": true
@@ -240,13 +219,6 @@
  {
   "name": "core_board_c0",
   "label": "Readout FPGA",
-  "group": "Baseboard + image sensors",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "core_board_c1",
-  "label": "Flash",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true

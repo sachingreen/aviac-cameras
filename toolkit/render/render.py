@@ -169,19 +169,19 @@ def make_material(kind, color, name):
             nt.links.new(cr.outputs["Color"], b.inputs["Specular Tint"])
     elif kind == "cover_glass":     # the clear part of the front glass: same gloss, lightly tinted, AR-coated
         setp(b, color=(0.98, 0.99, 1.0), rough=0.0, trans=1.0, ior=1.05, spec=0.5, coat=0.5, coat_rough=0.0)
-    elif kind == "germanium":       # AR-coated germanium: a soft mint glow just off-centre, pink around it, dark violet rim
+    elif kind == "germanium":       # AR-coated germanium: a green glow just off-centre, deep green around it, dark rim
         setp(b, color=(0.2, 0.2, 0.2), metal=0.0, rough=0.04, spec=0.7, coat=1.0, coat_rough=0.0)
-        tc = nt.nodes.new("ShaderNodeTexCoord")                       # TH thermal lens centre is x -13 mm, z 22 mm; the glow sits up-left
-        sub = nt.nodes.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"; sub.inputs[1].default_value = (-0.0158, 0, 0.0250)
+        tc = nt.nodes.new("ShaderNodeTexCoord")                       # TH thermal lens centre is x -9 mm, z 15 mm; the glow sits up-left
+        sub = nt.nodes.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"; sub.inputs[1].default_value = (-0.0108, 0, 0.0172)
         msk = nt.nodes.new("ShaderNodeVectorMath"); msk.operation = "MULTIPLY"; msk.inputs[1].default_value = (1, 0, 1)
         ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"
         nt.links.new(tc.outputs["Object"], sub.inputs[0]); nt.links.new(sub.outputs[0], msk.inputs[0]); nt.links.new(msk.outputs[0], ln.inputs[0])
         cn = nt.nodes.new("ShaderNodeValToRGB"); e2 = cn.color_ramp.elements
-        e2[0].position, e2[0].color = 0.0028, (0.45, 0.92, 0.78, 1); e2[1].position, e2[1].color = 0.0090, (0.95, 0.40, 0.68, 1)
+        e2[0].position, e2[0].color = 0.0012, (0.70, 1.00, 0.45, 1); e2[1].position, e2[1].color = 0.0068, (0.12, 0.45, 0.22, 1)
         nt.links.new(ln.outputs["Value"], cn.inputs["Fac"])
         lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.35
         rim = nt.nodes.new("ShaderNodeValToRGB"); e3 = rim.color_ramp.elements
-        e3[0].position, e3[0].color = 0.0, (1, 1, 1, 1); e3[1].position, e3[1].color = 0.85, (0.22, 0.08, 0.28, 1)
+        e3[0].position, e3[0].color = 0.0, (1, 1, 1, 1); e3[1].position, e3[1].color = 0.85, (0.06, 0.12, 0.08, 1)
         nt.links.new(lw.outputs["Facing"], rim.inputs["Fac"])
         mx = nt.nodes.new("ShaderNodeMixRGB"); mx.blend_type = "MULTIPLY"; mx.inputs["Fac"].default_value = 1.0
         nt.links.new(cn.outputs["Color"], mx.inputs[1]); nt.links.new(rim.outputs["Color"], mx.inputs[2])
