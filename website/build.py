@@ -22,7 +22,7 @@ NAV = [("solutions", "Solutions", "#solutions", [("crop", "Crop monitoring", "so
                                                   ("industrial", "Industrial inspection", "solutions/industrial/", "SWIR · moisture, leaks, haze"),
                                                   ("construction", "Construction monitoring", "solutions/construction/", "Weekly maps · progress and volumes")]),
        ("systems", "Systems", "#systems", [("ms", "MS", "product/multispectral/", "Agri Spectral · six bands"), ("duos", "Duos", "product/duos/", "Stereo · spray drones"),
-                                           ("th", "TH", "product/thermal/", "Thermal · demo"), ("sw", "SW", "product/swir/", "SWIR · demo")]),
+                                           ("th", "TH", "product/thermal/", "Thermal + NIR · demo"), ("sw", "SW", "product/swir/", "SWIR · demo")]),
        ("field", "In the field", "#field", None), ("research", "Partners", "#research", None), ("company", "Company", "#company", None)]
 
 

@@ -171,8 +171,8 @@ def make_material(kind, color, name):
         setp(b, color=(0.98, 0.99, 1.0), rough=0.0, trans=1.0, ior=1.05, spec=0.5, coat=0.5, coat_rough=0.0)
     elif kind == "germanium":       # AR-coated germanium: a soft mint glow just off-centre, pink around it, dark violet rim
         setp(b, color=(0.2, 0.2, 0.2), metal=0.0, rough=0.3, spec=0.25, coat=1.0, coat_rough=0.03)
-        tc = nt.nodes.new("ShaderNodeTexCoord")                       # TH lens centre is x -9 mm, z 21 mm; the glow sits up-left
-        sub = nt.nodes.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"; sub.inputs[1].default_value = (-0.0118, 0, 0.0238)
+        tc = nt.nodes.new("ShaderNodeTexCoord")                       # TH thermal lens centre is x -13 mm, z 22 mm; the glow sits up-left
+        sub = nt.nodes.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"; sub.inputs[1].default_value = (-0.0158, 0, 0.0250)
         msk = nt.nodes.new("ShaderNodeVectorMath"); msk.operation = "MULTIPLY"; msk.inputs[1].default_value = (1, 0, 1)
         ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"
         nt.links.new(tc.outputs["Object"], sub.inputs[0]); nt.links.new(sub.outputs[0], msk.inputs[0]); nt.links.new(msk.outputs[0], ln.inputs[0])

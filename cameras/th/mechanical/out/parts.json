@@ -3,26 +3,40 @@
   "name": "front_housing",
   "label": "Front housing, PA12-CF, field sage",
   "group": "Externals",
-  "mass": 12.87,
+  "mass": 17.95,
   "estimated": false
  },
  {
   "name": "face",
   "label": "Front face plate",
   "group": "Externals",
-  "mass": 2.36,
+  "mass": 4.06,
   "estimated": false
  },
  {
   "name": "accent_ring",
-  "label": "Accent ring, Aviac green",
+  "label": "Accent ring, thermal",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "accent_ring_nir",
+  "label": "Accent ring, NIR",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
  },
  {
   "name": "face_text",
-  "label": "Focal length, printed",
+  "label": "Band labels, printed",
+  "group": "Externals",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "light_dot",
+  "label": "Status light",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
@@ -31,7 +45,7 @@
   "name": "rear_block",
   "label": "Finned rear block, aluminium, black anodised",
   "group": "Externals",
-  "mass": 75.79,
+  "mass": 48.61,
   "estimated": false
  },
  {
@@ -92,9 +106,9 @@
  },
  {
   "name": "lens_barrel",
-  "label": "Lens barrel, 13 mm f/1.0, focus set and locked",
+  "label": "Thermal lens barrel, 19 mm f/1.0, focus locked",
   "group": "Optics",
-  "mass": 14.71,
+  "mass": 19.76,
   "estimated": false
  },
  {
@@ -126,10 +140,66 @@
   "estimated": true
  },
  {
+  "name": "nir_barrel",
+  "label": "M12 lens, 6 mm f/2.0, NIR-corrected",
+  "group": "Optics",
+  "mass": 3.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_glass",
+  "label": "Front element, multi-coated",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_element2",
+  "label": "Inner element",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_iris",
+  "label": "Iris blades",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_inner",
+  "label": "Lens interior",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_back",
+  "label": "Rear group",
+  "group": "Optics",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_filter",
+  "label": "Band-pass filter, 400-940 nm",
+  "group": "Optics",
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "nir_holder",
+  "label": "M12 lens holder",
+  "group": "Optics",
+  "mass": 1.2,
+  "estimated": true
+ },
+ {
   "name": "core",
-  "label": "Thermal core module: 640 x 512 uncooled VOx, 12 um (placeholder)",
+  "label": "Thermal core module: 1280 x 1024 (1 MP) uncooled VOx, 12 um (placeholder)",
   "group": "Baseboard + image sensors",
-  "mass": 38.43,
+  "mass": 49.89,
   "estimated": false
  },
  {
@@ -175,17 +245,101 @@
   "estimated": true
  },
  {
-  "name": "core_board_c2",
-  "label": "Board-to-board",
+  "name": "nir_board",
+  "label": "NIR module: Mira220 board",
+  "group": "Baseboard + image sensors",
+  "mass": 1.5,
+  "estimated": true
+ },
+ {
+  "name": "nir_board_passives",
+  "label": "Passives",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_board_c0_pkg",
+  "label": "Mira220, NIR-enhanced",
+  "group": "Baseboard + image sensors",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "nir_board_c0_pads",
+  "label": "Bond pads",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_board_c0_frame",
+  "label": "Seal ring",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_board_c0_die",
+  "label": "Pixel array, 1600 x 1400",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_board_c0_glass",
+  "label": "Cover glass",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_board_c1",
+  "label": "MIPI connector",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_sensor_pkg",
+  "label": "Mira220, 1600 x 1400, global shutter, NIR-enhanced",
+  "group": "Baseboard + image sensors",
+  "mass": 0.2,
+  "estimated": true
+ },
+ {
+  "name": "nir_sensor_pads",
+  "label": "Bond pads",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_sensor_frame",
+  "label": "Seal ring",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_sensor_die",
+  "label": "Pixel array, 1600 x 1400",
+  "group": "Baseboard + image sensors",
+  "mass": 0.0,
+  "estimated": true
+ },
+ {
+  "name": "nir_sensor_glass",
+  "label": "Cover glass",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
  },
  {
   "name": "proc",
-  "label": "Processing board: radiometric pipeline, time sync, Ethernet",
+  "label": "Processing board: thermal and NIR in sync, radiometry, Ethernet",
   "group": "Processing board",
-  "mass": 4.0,
+  "mass": 5.0,
   "estimated": true
  },
  {
