@@ -62,7 +62,7 @@ def switcher(on, R):
             f'addEventListener("touchend",e=>{{if(x===null)return;const d=e.changedTouches[0].clientX-x;x=null;if(d>90)location.href="{R}{prv[3]}";if(d<-90)location.href="{R}{nxt[3]}"}})}})();</script>')
 
 
-SITE = os.environ.get("SITE", "https://aviac-cameras-public.vercel.app")   # set SITE to your own domain when you move hosts
+SITE = os.environ.get("SITE", "https://aviac.in")   # set SITE to your own domain when you move hosts
 DESC = {"": "Aviac builds drone cameras with edge AI: multispectral crop monitoring, spray coverage, thermal solar inspection, SWIR industrial inspection and construction monitoring.",
         "solutions/crop-monitoring/": "See crop stress before it shows: six-band MS camera, NDVI from the air, stressed zones pinned for scouting.",
         "solutions/spraying/": "Know what every spray pass covered: Duos stereo camera at the back of the sprayer flags missed strips and overlaps.",

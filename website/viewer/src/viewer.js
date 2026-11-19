@@ -132,7 +132,7 @@ async function mount(el) {
   const controls = new OrbitControls(camera, renderer.domElement);
   Object.assign(controls, {enableDamping: true, enablePan: false, enableZoom: el.dataset.zoom === '1', autoRotate: el.dataset.spin === '1', autoRotateSpeed: 0.8});
 
-  const [data, txt] = await Promise.all([fetch(base + 'parts.json?v=' + (el.dataset.v || '')).then((r) => r.json()), fetch(base + 'model.txt?v=' + (el.dataset.v || '')).then((r) => r.text())]);
+  const [data, txt] = await load(base, el.dataset.v || '');
   const raw = atob(txt), u8 = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) u8[i] = raw.charCodeAt(i);
   const i16 = new Int16Array(u8.buffer);
@@ -224,7 +224,15 @@ async function mount(el) {
   loop();
 }
 
+// model downloads: shared between the hero and teardown viewers, low priority, cancelled when the page is left
+const ctl = new AbortController(), cache = {};
+addEventListener('pagehide', () => ctl.abort());
+function load(base, v) {
+  const opt = {signal: ctl.signal, priority: 'low'};
+  return (cache[base] ??= Promise.all([fetch(base + 'parts.json?v=' + v, opt).then((r) => r.json()), fetch(base + 'model.txt?v=' + v, opt).then((r) => r.text())]));
+}
+const afterLoad = (fn) => (document.readyState === 'complete' ? fn() : addEventListener('load', fn, {once: true}));
 const io = new IntersectionObserver((es) => es.forEach((e) => {
-  if (e.isIntersecting && !e.target.dataset.started) { e.target.dataset.started = '1'; mount(e.target).catch((err) => { e.target.classList.add('failed'); console.error(err); }); }
+  if (e.isIntersecting && !e.target.dataset.started) { e.target.dataset.started = '1'; mount(e.target).catch((err) => { if (err.name !== 'AbortError') { e.target.classList.add('failed'); console.error(err); } }); }
 }), {rootMargin: '300px'});
-document.querySelectorAll('.viewer[data-src]').forEach((v) => io.observe(v));
+afterLoad(() => document.querySelectorAll('.viewer[data-src]').forEach((v) => io.observe(v)));

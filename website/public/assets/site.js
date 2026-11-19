@@ -206,86 +206,105 @@ $$('video[data-src]').forEach((v) => {
 })();
 
 // ---------- shared spectrum chart: 0 to 2500 nm, the same for every camera; each page highlights where its camera works.
-// TH adds a broken-axis panel for long-wave infrared (8 to 14 um).
+// MS adds a zoomed panel of its six filters; Duos and TH plot the Mira220's quantum efficiency; TH extends to LWIR.
 (() => {
-  const BANDS = {
-    ms: {bands: [[463, 487, '#3a6fd8', 'Blue 475'], [548, 572, '#2fa14b', 'Green 560'], [658, 678, '#d8382c', 'Red 668'], [718, 728, '#a3151f', 'Red edge 723'],
-                 [830, 850, '#6b1036', 'NIR 840'], [880, 900, '#43103f', 'NIR+ 890']], curve: 'leaf'},
-    duos: {bands: [[400, 1000, '#2f6f4e', 'Mira220, 400–1000 nm']], resp: true, curve: 'leaf'},
-    th: {bands: [[400, 940, '#7a2f6b', 'NIR module, 400–940 nm']], lwir: [8000, 14000, '#c2410c', 'Thermal, 8–14 µm']},
-    sw: {bands: [[900, 1700, '#3a6ea5', 'InGaAs SWIR, 900–1700 nm']], curve: 'water'},
-    construction: {bands: [[400, 700, '#2f6f4e', 'Colour map, 400–700 nm'], [700, 1000, '#7c8a82', 'Duos NIR, to 1000 nm']]},
-  };
-  const leaf = (nm) => {                                   // a healthy leaf: green bump, red trough, red edge, NIR plateau, water dips in SWIR
-    const vis = 0.05 + 0.08 * Math.exp(-(((nm - 550) / 40) ** 2));
-    const edge = 1 / (1 + Math.exp(-(nm - 715) / 14));
-    let r = vis + edge * 0.47;
-    if (nm > 1000) r -= (nm - 1000) * 0.00011 + 0.05 * Math.exp(-(((nm - 1200) / 45) ** 2)) + 0.17 * Math.exp(-(((nm - 1450) / 70) ** 2)) + 0.26 * Math.exp(-(((nm - 1940) / 90) ** 2));
+  const g2 = (nm, c, fw) => Math.exp(-4 * Math.LN2 * ((nm - c) / fw) ** 2);
+  const leaf = (nm, s = 0) => {                         // vegetation reflectance; s = stress
+    const vis = 0.05 + (0.08 + 0.05 * s) * g2(nm, 550, 70) + 0.06 * s * g2(nm, 650, 60);
+    const edge = 1 / (1 + Math.exp(-(nm - (712 - 12 * s)) / 14));
+    let r = vis + edge * (0.47 - 0.2 * s);
+    if (nm > 1000) r -= (nm - 1000) * 0.00011 + 0.05 * g2(nm, 1200, 70) + 0.17 * g2(nm, 1450, 120) + 0.26 * g2(nm, 1940, 150);
     return Math.max(0.02, r);
   };
-  const water = (nm) => 0.04 + 0.42 * Math.exp(-(((nm - 1450) / 60) ** 2)) + 0.6 * Math.exp(-(((nm - 1940) / 70) ** 2)) + 0.08 * Math.exp(-(((nm - 1200) / 40) ** 2)) + (nm > 2200 ? (nm - 2200) * 0.0012 : 0);
+  const water = (nm) => 0.04 + 0.42 * g2(nm, 1450, 100) + 0.6 * g2(nm, 1940, 120) + 0.08 * g2(nm, 1200, 70) + (nm > 2200 ? (nm - 2200) * 0.0012 : 0);
+  const QE = [[300, 0.57], [320, 0.63], [350, 0.63], [380, 0.70], [400, 0.85], [420, 0.89], [450, 0.90], [500, 0.94], [550, 0.94], [600, 0.90], [650, 0.86],
+              [700, 0.78], [750, 0.70], [800, 0.62], [850, 0.55], [900, 0.44], [940, 0.36], [960, 0.31], [1000, 0.20], [1050, 0.08], [1100, 0.01]];   // Mira220, typical (datasheet)
+  const qe = (nm) => { if (nm < QE[0][0] || nm >= QE[QE.length - 1][0]) return 0; let i = 1; while (QE[i][0] < nm) i++;
+    const [a, va] = QE[i - 1], [b, vb] = QE[i]; return va + (vb - va) * (nm - a) / (b - a); };
+  const MSB = [[475, 32, '#3a6fd8', 'Blue 475'], [560, 27, '#2fa14b', 'Green 560'], [668, 16, '#d8382c', 'Red 668'], [723, 12, '#a3151f', 'Red edge 723'],
+               [840, 40, '#6b1036', 'NIR 840'], [890, 30, '#43103f', 'NIR+ 890']];
+  const CFG = {
+    ms: {zoom: [420, 950], filters: MSB, curve: 'leaf', legend: [...MSB.map((b) => [b[2], b[3]]), ['#16683a', 'Healthy leaf'], ['#c4862f', 'Stressed leaf']]},
+    duos: {qe: [300, 1100], curve: 'leaf', legend: [['#2f6f4e', 'Mira220 quantum efficiency'], ['#16683a', 'Leaf reflectance']]},
+    th: {qe: [400, 940], pass: [400, 940, '#7a2f6b'], lwir: [8000, 14000, '#c2410c'],
+         legend: [['#7a2f6b', 'NIR module: Mira220 behind a 400–940 nm filter'], ['#2f6f4e', 'Mira220 quantum efficiency'], ['#c2410c', 'Thermal core, 8–14 µm']]},
+    sw: {pass: [900, 1700, '#3a6ea5'], curve: 'water', legend: [['#3a6ea5', 'InGaAs SWIR, 900–1700 nm'], ['#2b5a8a', 'Water absorption']]},
+    construction: {pass: [400, 700, '#2f6f4e'], qe: [400, 1100], legend: [['#2f6f4e', 'Colour map, 400–700 nm'], ['#7c8a82', 'Duos, Mira220 response to 1000 nm']]},
+  };
   function draw(cv) {
-    const key = cv.dataset.band, cfg = BANDS[key];
-    const d = Math.min(2, devicePixelRatio || 1), r = cv.getBoundingClientRect();
-    cv.width = r.width * d; cv.height = r.height * d;
-    const g = cv.getContext('2d'), Wd = cv.width, H = cv.height, P = 34 * d, top = 18 * d, bot = H - 40 * d;
-    const lw = cfg.lwir ? Math.min(220 * d, Wd * 0.26) : 0, gap = cfg.lwir ? 26 * d : 0;
-    const x0 = P, x1 = Wd - P - lw - gap;
-    const X = (nm) => x0 + (nm / 2500) * (x1 - x0), Y = (v) => bot - v * (bot - top);
-    const mono = `${10.5 * d}px JetBrains Mono, monospace`;
-    g.clearRect(0, 0, Wd, H);
-    // regions
-    const regions = [[0, 400, 'UV'], [400, 700, 'Visible'], [700, 1000, 'NIR'], [1000, 2500, 'SWIR']];
-    regions.forEach(([a, b, n], i) => { g.fillStyle = i % 2 ? 'rgba(47,111,78,.035)' : 'rgba(47,111,78,.07)'; g.fillRect(X(a), top, X(b) - X(a), bot - top);
-      g.fillStyle = '#7c8a82'; g.font = mono; g.fillText(n, X(a) + 6 * d, top + 14 * d); });
-    // visible rainbow strip on the axis
-    const rb = g.createLinearGradient(X(400), 0, X(700), 0);
-    [['#6a3fd0', 0], ['#3a6fd8', .2], ['#2fa14b', .45], ['#e8d43a', .65], ['#e98a2c', .8], ['#d8382c', 1]].forEach(([c, o]) => rb.addColorStop(o, c));
-    g.fillStyle = rb; g.fillRect(X(400), bot + 2 * d, X(700) - X(400), 5 * d);
-    // the camera's bands
-    for (const [a, b, c] of cfg.bands) {
-      if (cfg.resp) {                                      // a broad sensor response: a soft hump
-        g.beginPath(); g.moveTo(X(a), bot);
-        for (let nm = a; nm <= b; nm += 5) g.lineTo(X(nm), Y(0.82 * Math.exp(-(((nm - 560) / 240) ** 2)) + 0.04));
-        g.lineTo(X(b), bot); g.closePath(); g.fillStyle = c + '40'; g.fill(); g.strokeStyle = c; g.lineWidth = 2 * d; g.stroke();
-      } else { g.fillStyle = c + (b - a > 60 ? '33' : '55'); g.fillRect(X(a), top, Math.max(2 * d, X(b) - X(a)), bot - top);
-        g.fillStyle = c; g.fillRect(X(a), top, Math.max(2 * d, X(b) - X(a)), 3 * d); }
-    }
-    // reference curve
-    if (cfg.curve) {
-      const f = cfg.curve === 'leaf' ? leaf : water;
-      g.strokeStyle = cfg.curve === 'leaf' ? '#16683a' : '#2b5a8a'; g.lineWidth = 2.2 * d; g.beginPath();
-      for (let nm = 350; nm <= 2500; nm += 5) { const x = X(nm), y = Y(f(nm)); nm === 350 ? g.moveTo(x, y) : g.lineTo(x, y); }
-      g.stroke();
-      if (cfg.curve === 'water') for (const nm of [1450, 1940]) { g.fillStyle = '#2b5a8a'; g.font = mono; g.fillText(`water ${nm}`, X(nm) - 30 * d, Y(water(nm)) - 8 * d); }
-    }
-    // axis
-    g.strokeStyle = '#c9d2cc'; g.lineWidth = d; g.beginPath(); g.moveTo(x0, bot); g.lineTo(x1, bot); g.stroke();
-    g.fillStyle = '#7c8a82'; g.font = mono;
-    for (let nm = 0; nm <= 2500; nm += 500) { const x = X(nm); g.fillRect(x, bot, d, 5 * d); g.fillText(nm, x - g.measureText(String(nm)).width / 2, bot + 22 * d); }
-    g.fillText('nm', x1 - 16 * d, bot + 34 * d);
-    // LWIR extension panel, after a broken axis
-    if (cfg.lwir) {
-      const [a, b, c] = cfg.lwir, L0 = x1 + gap, L1 = Wd - P;
-      const XL = (nm) => L0 + ((nm - 7000) / 8000) * (L1 - L0);
+    const key = cv.dataset.band, C = CFG[key];
+    const d = Math.min(2, devicePixelRatio || 1), rr = cv.getBoundingClientRect();
+    if (C.zoom) cv.style.height = innerWidth < 760 ? '360px' : '420px';
+    cv.width = rr.width * d; cv.height = cv.getBoundingClientRect().height * d;
+    const g = cv.getContext('2d'), Wd = cv.width, H = cv.height, mono = `${10.5 * d}px JetBrains Mono, monospace`;
+    g.clearRect(0, 0, Wd, H); g.font = mono;
+    const panel = (x0, x1, top, bot, a, b, unit, opt = {}) => {
+      const X = (nm) => x0 + ((nm - a) / (b - a)) * (x1 - x0), Y = (v) => bot - v * (bot - top);
+      // regions
+      if (!opt.lwir) [[0, 400, 'UV'], [400, 700, 'Visible'], [700, 1000, 'NIR'], [1000, 2500, 'SWIR']].forEach(([ra, rb, n], i) => {
+        const L = Math.max(ra, a), R = Math.min(rb, b); if (R <= L) return;
+        g.fillStyle = i % 2 ? 'rgba(47,111,78,.035)' : 'rgba(47,111,78,.07)'; g.fillRect(X(L), top, X(R) - X(L), bot - top);
+        g.fillStyle = '#7c8a82'; g.fillText(n, X(L) + 6 * d, top + 14 * d); });
+      else { g.fillStyle = 'rgba(194,65,12,.05)'; g.fillRect(x0, top, x1 - x0, bot - top); g.fillStyle = '#7c8a82'; g.fillText('LWIR', x0 + 6 * d, top + 14 * d); }
+      // visible strip
+      if (!opt.lwir && a < 700) { const L = X(Math.max(400, a)), R = X(Math.min(700, b)); const rb = g.createLinearGradient(X(400), 0, X(700), 0);
+        [['#6a3fd0', 0], ['#3a6fd8', .2], ['#2fa14b', .45], ['#e8d43a', .65], ['#e98a2c', .8], ['#d8382c', 1]].forEach(([c, o]) => rb.addColorStop(o, c));
+        g.fillStyle = rb; g.fillRect(L, bot + 2 * d, R - L, 5 * d); }
+      // passbands
+      if (C.pass && !opt.lwir) { const [pa, pb, c] = C.pass; g.fillStyle = c + '30'; g.fillRect(X(pa), top, X(pb) - X(pa), bot - top); g.fillStyle = c; g.fillRect(X(pa), top, X(pb) - X(pa), 3 * d); }
+      if (opt.lwir) { const [la, lb, c] = C.lwir; g.fillStyle = c + '40'; g.fillRect(X(la), top, X(lb) - X(la), bot - top); g.fillStyle = c; g.fillRect(X(la), top, X(lb) - X(la), 3 * d); }
+      // MS filters: real band-pass shapes
+      if (C.filters && !opt.lwir) for (const [c0, fw, col, n] of C.filters) {
+        g.beginPath(); g.moveTo(X(c0 - 2 * fw), bot);
+        for (let nm = c0 - 2 * fw; nm <= c0 + 2 * fw; nm += 1) g.lineTo(X(nm), Y(0.88 * g2(nm, c0, fw) ** 0.6 * (Math.abs(nm - c0) < fw * 1.4 ? 1 : 0.2)));
+        g.lineTo(X(c0 + 2 * fw), bot); g.closePath(); g.fillStyle = col + (opt.zoom ? '55' : '88'); g.fill();
+        if (opt.zoom) { g.strokeStyle = col; g.lineWidth = 1.6 * d; g.stroke(); g.fillStyle = col; g.fillText(String(c0), X(c0) - 11 * d, Y(0.9) - 6 * d); }
+      }
+      // Mira220 quantum efficiency
+      if (C.qe && !opt.lwir) {
+        const [qa, qb] = C.qe;
+        g.beginPath(); g.moveTo(X(qa), bot); for (let nm = qa; nm <= qb; nm += 4) g.lineTo(X(nm), Y(qe(nm))); g.lineTo(X(qb), bot); g.closePath();
+        g.fillStyle = key === 'construction' ? 'rgba(124,138,130,.18)' : 'rgba(47,111,78,.16)'; g.fill();
+        g.strokeStyle = key === 'construction' ? '#7c8a82' : '#2f6f4e'; g.lineWidth = 2 * d; g.beginPath();
+        for (let nm = 300; nm <= 1100; nm += 4) { const x = X(nm), y = Y(qe(nm)); nm === 300 ? g.moveTo(x, y) : g.lineTo(x, y); } g.stroke();
+        if (key !== 'construction') for (const [nm, v] of [[550, 0.94], [850, 0.55], [940, 0.36]]) { const x = X(nm), y = Y(v); g.fillStyle = '#0f3d27'; g.beginPath(); g.arc(x, y, 3.5 * d, 0, 7); g.fill();
+          g.font = `600 ${10.5 * d}px JetBrains Mono, monospace`; g.fillText(`QE ${Math.round(v * 100)} % at ${nm} nm`, x + 8 * d, nm === 550 ? y + 16 * d : y - 6 * d); g.font = mono; }
+      }
+      // reference curves
+      if (C.curve && !opt.lwir) {
+        const draws = C.curve === 'leaf' ? (opt.zoom ? [[0, '#16683a'], [1, '#c4862f']] : [[0, '#16683a']]) : [[0, '#2b5a8a']];
+        for (const [st, col] of draws) { const f = C.curve === 'leaf' ? (nm) => leaf(nm, st) : water;
+          g.strokeStyle = col; g.lineWidth = 2.2 * d; g.beginPath(); let first = true;
+          for (let nm = Math.max(350, a); nm <= b; nm += 3) { const x = X(nm), y = Y(f(nm)); first ? g.moveTo(x, y) : g.lineTo(x, y); first = false; } g.stroke(); }
+        if (C.curve === 'water') for (const nm of [1450, 1940]) { g.fillStyle = '#2b5a8a'; g.fillText(`water ${nm}`, X(nm) - 30 * d, Y(water(nm)) - 8 * d); }
+      }
+      // axes
+      g.strokeStyle = '#c9d2cc'; g.lineWidth = d; g.beginPath(); g.moveTo(x0, bot); g.lineTo(x1, bot); g.stroke();
+      g.fillStyle = '#7c8a82';
+      const step = opt.lwir ? 2000 : (b - a > 1500 ? 500 : 100);
+      for (let nm = Math.ceil(a / step) * step; nm <= b; nm += step) { const x = X(nm); g.fillRect(x, bot, d, 5 * d);
+        const t = opt.lwir ? String(nm / 1000) : String(nm); g.fillText(t, x - g.measureText(t).width / 2, bot + 20 * d); }
+      g.fillText(unit, x1 - 16 * d, bot + 32 * d);
+      if (opt.yaxis) for (const v of [0, 0.5, 1]) { g.fillText(`${v * 100}%`, 2 * d, Y(v) + 4 * d); g.fillStyle = 'rgba(124,138,130,.25)'; g.fillRect(x0, Y(v), x1 - x0, d * (v ? 0.6 : 0)); g.fillStyle = '#7c8a82'; }
+      return X;
+    };
+    const P = 40 * d, R = 14 * d;
+    if (C.zoom) {                                       // overview on top, the six filters zoomed below
+      const mid = H * 0.38;
+      const X = panel(P, Wd - R, 16 * d, mid - 34 * d, 0, 2500, 'nm', {yaxis: false});
+      const [za, zb] = C.zoom;
+      g.strokeStyle = '#2f6f4e'; g.setLineDash([4 * d, 4 * d]); g.lineWidth = d; g.strokeRect(X(za), 16 * d, X(zb) - X(za), mid - 50 * d); g.setLineDash([]);
+      g.beginPath(); g.moveTo(X(za), mid - 34 * d); g.lineTo(P, mid + 2 * d); g.moveTo(X(zb), mid - 34 * d); g.lineTo(Wd - R, mid + 2 * d); g.strokeStyle = 'rgba(47,111,78,.35)'; g.stroke();
+      panel(P, Wd - R, mid + 8 * d, H - 38 * d, za, zb, 'nm', {zoom: true, yaxis: true});
+    } else if (C.lwir) {
+      const lw = Math.min(220 * d, Wd * 0.26), gap = 26 * d, x1 = Wd - R - lw - gap;
+      panel(P, x1, 16 * d, H - 40 * d, 0, 2500, 'nm', {yaxis: true});
       g.strokeStyle = '#7c8a82'; g.lineWidth = 1.5 * d;
-      for (const dx of [-4, 4]) { g.beginPath(); g.moveTo(x1 + gap / 2 + dx * d - 4 * d, bot + 6 * d); g.lineTo(x1 + gap / 2 + dx * d + 4 * d, bot - 6 * d); g.stroke(); }
-      g.fillStyle = 'rgba(194,65,12,.05)'; g.fillRect(L0, top, L1 - L0, bot - top);
-      g.fillStyle = c + '40'; g.fillRect(XL(a), top, XL(b) - XL(a), bot - top); g.fillStyle = c; g.fillRect(XL(a), top, XL(b) - XL(a), 3 * d);
-      g.fillStyle = '#7c8a82'; g.fillText('LWIR', L0 + 6 * d, top + 14 * d);
-      g.strokeStyle = '#c9d2cc'; g.lineWidth = d; g.beginPath(); g.moveTo(L0, bot); g.lineTo(L1, bot); g.stroke();
-      for (const um of [8, 10, 12, 14]) { const x = XL(um * 1000); g.fillStyle = '#7c8a82'; g.fillRect(x, bot, d, 5 * d); g.fillText(`${um}`, x - 5 * d, bot + 22 * d); }
-      g.fillText('µm', L1 - 16 * d, bot + 34 * d);
-    }
-    // legend
+      for (const dx of [-4, 4]) { g.beginPath(); g.moveTo(x1 + gap / 2 + dx * d - 4 * d, H - 34 * d); g.lineTo(x1 + gap / 2 + dx * d + 4 * d, H - 46 * d); g.stroke(); }
+      panel(x1 + gap, Wd - R, 16 * d, H - 40 * d, 7000, 15000, 'µm', {lwir: true});
+    } else panel(P, Wd - R, 16 * d, H - 40 * d, 0, 2500, 'nm', {yaxis: true});
     const lg = document.querySelector(`[data-legend="${key}"]`);
-    if (lg && !lg.childElementCount) {
-      const items = cfg.bands.map(([, , c, n]) => [c, n]);
-      if (cfg.lwir) items.push([cfg.lwir[2], cfg.lwir[3]]);
-      if (cfg.curve === 'leaf') items.push(['#16683a', 'Healthy leaf reflectance']);
-      if (cfg.curve === 'water') items.push(['#2b5a8a', 'Water absorption']);
-      lg.innerHTML = items.map(([c, n]) => `<span><i style="background:${c}"></i>${n}</span>`).join('');
-    }
+    if (lg && !lg.childElementCount) lg.innerHTML = C.legend.map(([c, n]) => `<span><i style="background:${c}"></i>${n}</span>`).join('');
   }
   const all = $$('canvas[data-band]');
   all.forEach(draw);

@@ -1,0 +1,8 @@
+/assets/img/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/assets/film/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/models/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/chunks/*
+  Cache-Control: public, max-age=31536000, immutable
