@@ -60,10 +60,10 @@ SOL = [
          side=("What the thermal view shows", "Five candidates in one pass.",
                "A hot cell, a warm substring, a warm module, half a table running warm and a soiled row. Each one is a candidate until a qualified reviewer confirms it.",
                [("5", "Candidates flagged"), ("640 × 512", "Thermal resolution"), ("1", "Repair job per finding"), ("Versioned", "Customer reports")]),
-         steps=[("Schedule", "Pick the site and the purpose; the job records the aircraft, sensor and conditions."), ("Fly", "Colour and thermal capture the rows in one pass."),
+         steps=[("Schedule", "Pick the site and the purpose; the job records the aircraft, sensor and conditions."), ("Fly", "TH captures the rows in thermal, every frame time-stamped and geotagged."),
                 ("Review", "Candidates are flagged; a qualified reviewer confirms or rejects each one."), ("Repair", "Confirmed findings become repair work orders with evidence."),
                 ("Verify", "A post-repair flight checks the fix."), ("Report", "A versioned report goes to the site owner for acceptance.")],
-         cam=("TH", "Thermal", "th_field_hero_light.jpg", "product/thermal/", "A 640 × 512 uncooled LWIR core behind a stout germanium lens, with a colour camera beside it, in a rugged field-sage head."),
+         cam=("TH", "Thermal", "th_field_hero_light.jpg", "product/thermal/", "A compact thermal camera: a 640 × 512 uncooled core behind a short germanium lens, with a finned rear block that keeps it cool."),
          workspace=True, demo=True),
     dict(key="industrial", slug="industrial", name="Industrial inspection", lab="Industrial · SWIR", cams=["SW"],
          h1="Moisture, leaks and haze: <em>seen in SWIR.</em>",
@@ -220,17 +220,20 @@ for d in SOL:
 # ---------------- TH and SW product pages (same layout as Duos)
 PROD = [
     dict(key="th", slug="thermal", cam="th", name="TH", sub="Thermal", lab="Thermal · solar and electrical inspection", finish="field",
-         lead="A 640 × 512 thermal core behind a stout germanium lens, with a colour camera beside it, in a field-sage head with a thick rubber hood and top vents. Built for solar arrays, substations and electrical rooms.",
-         specs=[("Thermal core", "640 × 512, 12 µm, uncooled (placeholder)"), ("Thermal lens", "13 mm f/1.0, germanium"), ("Colour", "Mira220, 1600 × 1400"),
-                ("Body", "60 × 42 × 36 mm"), ("Weight", "61 g"), ("Output", "USB-C or Ethernet")],
-         cards=[("Optics", "Germanium and glass", "A short germanium LWIR lens with a knurled grip and an AR-coated element (the magenta-green glint), and an M12 colour lens beside it under the glass.",
-                 [("Thermal", "13 mm f/1.0, germanium"), ("Colour", "M12, Mira220")]),
-                ("Baseboard + image sensors", "Thermal core and colour sensor", "A machined thermal core module with its own window, and a Mira220 colour sensor on a small board beside it.",
-                 [("Core", "640 × 512, 12 µm"), ("Colour", "Mira220, global shutter")]),
-                ("Processing board", "Thermal pipeline", "An FPGA board runs the thermal pipeline, syncs both cameras and sends the streams out over USB-C or Ethernet.",
-                 [("Output", "USB-C or Ethernet"), ("Sync", "Thermal and colour, one trigger")]),
-                ("Externals", "Sealed head", "A flat-sided carbon-nylon body, a thick rubber hood that takes the knocks, slotted vents on top, a gasket and a status light.", [("Shell", "PA12-CF"), ("Hood", "rubber, 2 mm"), ("Vents", "two slotted banks on top")])],
-         end="Built to take a knock.", swatches=[("field", "#5f6b58"), ("graphite", "#3a3d41"), ("arctic", "#e9e9e6")], gal=("th_field_hero_light.jpg", "th_field_hero_green.jpg"), solution="solutions/solar/"),
+         lead="A compact thermal camera: a 640 × 512 core behind a short germanium lens, in a field-sage housing with a black finned rear that carries the heat away. Built for solar arrays, substations and electrical rooms.",
+         specs=[("Thermal core", "640 × 512, 12 µm, uncooled (placeholder)"), ("Lens", "13 mm f/1.0 germanium, focus locked"), ("Band", "8 to 14 µm"),
+                ("Body", "42 × 42 × 50 mm"), ("Weight", "154 g"), ("Output", "Ethernet, M12")],
+         cards=[("Optics", "Germanium lens", "A short 13 mm f/1.0 lens. Germanium passes long-wave infrared that glass blocks; its anti-reflection coating gives the pink-green glint. Focus is set and locked for flight.",
+                 [("Lens", "13 mm f/1.0"), ("Element", "germanium, AR-coated"), ("Focus", "locked")]),
+                ("Baseboard + image sensors", "The thermal core", "The sensing device: a sealed module with its own lens mount, a 640 × 512 uncooled VOx microbolometer behind a germanium window, and a readout board on its back.",
+                 [("Detector", "VOx microbolometer, 640 × 512"), ("Pixel", "12 µm"), ("Band", "8 to 14 µm")]),
+                ("Processing board", "Radiometric pipeline", "Turns raw counts into temperatures, stamps every frame with flight time and position, and streams over Ethernet.",
+                 [("Output", "Ethernet"), ("Sync", "time-stamped frames")]),
+                ("Externals", "Housing and heat sink", "A field-sage front housing with a chamfered face and an Aviac-green ring round the lens, and a black aluminium rear block with fins that shed the core's heat.",
+                 [("Front", "PA12-CF, field sage"), ("Rear", "aluminium, finned"), ("Connector", "M12")])],
+         end="Heat, made visible.", swatches=[("field", "#5f6b58")], teardown=True,
+         gal=("th_field_hero_light.jpg", "th_field_hero_green.jpg"), solution="solutions/solar/",
+         gal_head=("Built to read heat.", "A short germanium lens up front, a finned aluminium block behind to keep the core cool and stable.")),
     dict(key="sw", slug="swir", cam="sw", name="SW", sub="SWIR", lab="SWIR · industrial inspection", finish="cobalt",
          lead="A machine-vision box camera: an InGaAs short-wave infrared sensor behind a C-mount lens, focus and iris set and locked at the factory for flight. Moisture, leaks and haze, on roofs, pipe racks and plants.",
          specs=[("Sensor", "InGaAs, 640 × 512, 5 µm (placeholder)"), ("Band", "about 0.9 to 1.7 µm"), ("Lens", "C-mount, 25 mm f/1.4, fixed focus"),
@@ -240,7 +243,7 @@ PROD = [
                 ("Processing board", "SWIR pipeline", "An FPGA board corrects pixel non-uniformity, syncs capture and sends the stream out over USB-C or Ethernet.", [("Output", "USB-C or Ethernet")]),
                 ("Externals", "Sealed head", "A white box body with a black anodised front plate, a black rear rim, the Aviac mark on both sides and an M12 Ethernet connector.", [("Shell", "PA12-CF"), ("Seal", "silicone gasket")])],
                 
-         end="Locked, sealed, ready.", swatches=[("cobalt", "#ecebe8"), ("graphite", "#2b2d31"), ("sand", "#c2b7a4")], gal=("sw_cobalt_hero_light.jpg", "sw_cobalt_hero_green.jpg"), solution="solutions/industrial/"),
+         end="Locked, sealed, ready.", gal_head=("Sealed for flight.", "A fixed-focus C-mount lens on a sealed box body: nothing to knock out of focus."), swatches=[("cobalt", "#ecebe8"), ("graphite", "#2b2d31"), ("sand", "#c2b7a4")], gal=("sw_cobalt_hero_light.jpg", "sw_cobalt_hero_green.jpg"), solution="solutions/industrial/"),
 ]
 
 for d in PROD:
@@ -252,6 +255,16 @@ for d in PROD:
         view = ["0.55,0.25,6.5", "0.5,0.22,3.6", "1.0,0.3,6.5", "1.2,0.3,7.0", "1.1,0.3,7.5"][i]
         cards += f'    <article class="card" data-group="{g}" data-view="{view}"><div class="n">{i + 1} / {n} · {g.upper()}</div><h3>{h}</h3><p>{p}</p>\n      <ul>{lis}</ul></article>\n'
     dots = "<i></i>" * (n + 2)
+    teardown = "" if not d.get("teardown") else f"""
+<section class="td" id="teardown" aria-label="Teardown" style="height:420vh"><div class="pin">
+  <div class="viewer" id="{d['cam']}-td" data-src="{{{{R}}}}models/{d['cam']}/" data-finish="{d['finish']}" data-follow="{d['cam']}-hero" data-dist="3.4" aria-hidden="true"></div>
+  <div class="wrap top"><h2>Inside the {d['name']}</h2><div class="prog">{dots}<span>1 / {n + 2}</span></div></div>
+  <div class="track">
+    <article class="card on" data-view="0.9,0.22,4.6"><div class="n">TEARDOWN</div><h3>Four layers, one core.</h3><p>Scroll to take it apart. Core choice is a placeholder until a supplier is picked.</p></article>
+{cards}    <article class="card end" data-view="0.6,0.2,4.4"><div class="n" style="color:#cfe6d6">ASSEMBLED</div><h3>{d['end']}</h3><p>See what it finds on a solar farm.</p><a class="btn" href="{{{{R}}}}{d['solution']}">See it fly <span class="a">&rarr;</span></a></article>
+  </div>
+</div></section>
+"""
     html = f"""{{{{HEAD {d['name']} {d['sub']} · Aviac Technologies}}}}
 <body>
 {{{{NAV {d['key']}}}}}
@@ -262,17 +275,17 @@ for d in PROD:
     <h1 style="margin:14px 0 16px">{d['name']} <span style="color:var(--mute);font-size:.45em;letter-spacing:0">{d['sub']}</span></h1>
     <p style="font-size:18px;max-width:520px">{d['lead']}</p>
     <div class="pspecs">{specs}</div>
-    <a class="btn p" href="{{{{R}}}}{d['solution']}">See it fly <span class="a">&rarr;</span></a> <a class="btn" href="{{{{R}}}}#contact">Request a pilot</a>
+    {'<a class="btn p" href="#teardown">See inside <span class="a">&darr;</span></a> <a class="btn" href="{{{{R}}}}' + d['solution'] + '">See it fly</a>' if d.get('teardown') else '<a class="btn p" href="{{{{R}}}}' + d['solution'] + '">See it fly <span class="a">&rarr;</span></a> <a class="btn" href="{{{{R}}}}#contact">Request a pilot</a>'}
   </div>
   <div class="stage3d reveal">
     <div class="viewer" id="{d['cam']}-hero" data-src="{{{{R}}}}models/{d['cam']}/" data-finish="{d['finish']}" data-spin="1" data-zoom="1" data-dist="4.4" role="img" aria-label="{d['name']}, interactive 3D model. Drag to turn."></div>
     <span class="chip drag">Drag to turn</span>
-    <div class="swatches" data-for="#{d['cam']}-hero">{''.join(f'<button{" class=on" if f == d["finish"] else ""} data-finish="{f}" title="{f.title()}" style="background:{c}" aria-label="{f.title()}"></button>' for f, c in d["swatches"])}<span>{d['finish'].title()}</span></div>
+    {'' if len(d["swatches"]) < 2 else '<div class="swatches" data-for="#' + d['cam'] + '-hero">' + ''.join(f'<button{" class=on" if f == d["finish"] else ""} data-finish="{f}" title="{f.title()}" style="background:{c}" aria-label="{f.title()}"></button>' for f, c in d["swatches"]) + '<span>' + d['finish'].title() + '</span></div>'}
   </div>
 </div></div></header>
-
+{teardown}
 <section><div class="wrap">
-  <div class="head reveal"><h2>Same family, new band.</h2><p>The hood stands proud of the lens, so a hard landing hits rubber, not glass.</p></div>
+  <div class="head reveal"><h2>{d.get('gal_head', ('Same family, new band.', ''))[0]}</h2><p>{d.get('gal_head', ('', 'Every lens is fixed and sealed for flight.'))[1]}</p></div>
   <div class="gallery reveal"><img src="{{{{R}}}}assets/img/{d['gal'][1]}" alt="{d['name']} camera"><div class="col"><img src="{{{{R}}}}assets/img/{d['gal'][0]}" alt="{d['name']} camera"></div></div>
 </div></section>
 

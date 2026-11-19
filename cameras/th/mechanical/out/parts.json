@@ -1,87 +1,73 @@
 [
  {
-  "name": "front_shell",
-  "label": "Front shell, PA12-CF: the lens tunnel",
+  "name": "front_housing",
+  "label": "Front housing, PA12-CF, field sage",
   "group": "Externals",
-  "mass": 2.93,
+  "mass": 12.87,
   "estimated": false
  },
  {
-  "name": "hood",
-  "label": "Protective hood, overmoulded TPU: stands proud of every lens",
+  "name": "face",
+  "label": "Front face plate",
   "group": "Externals",
-  "mass": 5.61,
+  "mass": 2.36,
   "estimated": false
  },
  {
-  "name": "light_bezel",
-  "label": "Light bar bezel",
-  "group": "Externals",
-  "mass": 0.1,
-  "estimated": true
- },
- {
-  "name": "light_bar",
-  "label": "Status light bar, amber: blinks while capturing",
-  "group": "Externals",
-  "mass": 0.1,
-  "estimated": true
- },
- {
-  "name": "panel",
-  "label": "Front panel",
-  "group": "Externals",
-  "mass": 2.61,
-  "estimated": false
- },
- {
-  "name": "light_pipe",
-  "label": "Light pipe",
-  "group": "Externals",
-  "mass": 0.1,
-  "estimated": true
- },
- {
-  "name": "front_glass",
-  "label": "Front glass, gloss black, toughened",
-  "group": "Externals",
-  "mass": 2.17,
-  "estimated": false
- },
- {
-  "name": "front_window_1",
-  "label": "Lens window, AR-coated",
+  "name": "accent_ring",
+  "label": "Accent ring, Aviac green",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "glass_name",
-  "label": "Name, etched on the glass",
+  "name": "face_text",
+  "label": "Focal length, printed",
   "group": "Externals",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "gasket",
-  "label": "Silicone gasket",
+  "name": "rear_block",
+  "label": "Finned rear block, aluminium, black anodised",
   "group": "Externals",
-  "mass": 0.4,
+  "mass": 75.79,
+  "estimated": false
+ },
+ {
+  "name": "rear_conn",
+  "label": "M12 connector: power and Ethernet",
+  "group": "Externals",
+  "mass": 2.0,
   "estimated": true
  },
  {
-  "name": "front_plate",
-  "label": "Aluminium front plate",
-  "group": "Optics",
-  "mass": 5.06,
-  "estimated": false
+  "name": "rear_screw_-1_-1",
+  "label": "M2 screw",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
  },
  {
-  "name": "rear_housing",
-  "label": "Rear housing, PA12-CF",
+  "name": "rear_screw_-1_1",
+  "label": "M2 screw",
   "group": "Externals",
-  "mass": 10.91,
-  "estimated": false
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
+  "name": "rear_screw_1_-1",
+  "label": "M2 screw",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
+ },
+ {
+  "name": "rear_screw_1_1",
+  "label": "M2 screw",
+  "group": "Externals",
+  "mass": 0.1,
+  "estimated": true
  },
  {
   "name": "side_mark",
@@ -91,78 +77,29 @@
   "estimated": true
  },
  {
-  "name": "rear_screw_-1_6",
-  "label": "M2 x 10, rear",
+  "name": "side_mark_l",
+  "label": "Aviac mark, printed",
   "group": "Externals",
-  "mass": 0.27,
-  "estimated": true
- },
- {
-  "name": "rear_screw_-1_36",
-  "label": "M2 x 10, rear",
-  "group": "Externals",
-  "mass": 0.27,
-  "estimated": true
- },
- {
-  "name": "rear_screw_1_6",
-  "label": "M2 x 10, rear",
-  "group": "Externals",
-  "mass": 0.27,
-  "estimated": true
- },
- {
-  "name": "rear_screw_1_36",
-  "label": "M2 x 10, rear",
-  "group": "Externals",
-  "mass": 0.27,
-  "estimated": true
- },
- {
-  "name": "so-1",
-  "label": "Standoff",
-  "group": "Baseboard + image sensors",
-  "mass": 0.4,
-  "estimated": true
- },
- {
-  "name": "so1",
-  "label": "Standoff",
-  "group": "Baseboard + image sensors",
-  "mass": 0.4,
-  "estimated": true
- },
- {
-  "name": "lwir_mount",
-  "label": "Lens mount",
-  "group": "Optics",
-  "mass": 14.37,
-  "estimated": false
- },
- {
-  "name": "lwir_band",
-  "label": "Mount ring",
-  "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "lwir_grip",
-  "label": "Knurled grip ring",
+  "name": "tripod",
+  "label": "1/4\"-20 insert",
+  "group": "Externals",
+  "mass": 1.0,
+  "estimated": true
+ },
+ {
+  "name": "lens_barrel",
+  "label": "Lens barrel, 13 mm f/1.0, focus set and locked",
   "group": "Optics",
-  "mass": 13.83,
+  "mass": 14.71,
   "estimated": false
  },
  {
-  "name": "lwir_lip",
+  "name": "lens_lip",
   "label": "Front lip",
-  "group": "Optics",
-  "mass": 1.27,
-  "estimated": false
- },
- {
-  "name": "lwir_engrave",
-  "label": "Engraving",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
@@ -182,164 +119,73 @@
   "estimated": true
  },
  {
-  "name": "rgb_ring",
-  "label": "Lens ring",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_lip",
-  "label": "Ring chamfer",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_barrel",
-  "label": "M12 lens, colour camera",
-  "group": "Optics",
-  "mass": 1.8,
-  "estimated": true
- },
- {
-  "name": "rgb_glass",
-  "label": "Front element, multi-coated",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_element2",
-  "label": "Inner element",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_iris",
-  "label": "Iris blades",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_inner",
-  "label": "Lens interior",
-  "group": "Optics",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_back",
-  "label": "Rear group",
+  "name": "lens_engrave",
+  "label": "Engraved: Aviac",
   "group": "Optics",
   "mass": 0.0,
   "estimated": true
  },
  {
   "name": "core",
-  "label": "LWIR core, 640 x 512 uncooled VOx, 12 um (placeholder)",
+  "label": "Thermal core module: 640 x 512 uncooled VOx, 12 um (placeholder)",
   "group": "Baseboard + image sensors",
-  "mass": 16.15,
+  "mass": 38.43,
   "estimated": false
  },
  {
   "name": "core_window",
-  "label": "Microbolometer array behind its window",
+  "label": "Detector window",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "rgb_board",
-  "label": "Colour sensor board",
+  "name": "core_label",
+  "label": "Core label",
   "group": "Baseboard + image sensors",
-  "mass": 1.5,
+  "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "rgb_board_passives",
+  "name": "core_board",
+  "label": "Core readout board",
+  "group": "Baseboard + image sensors",
+  "mass": 2.0,
+  "estimated": true
+ },
+ {
+  "name": "core_board_passives",
   "label": "Passives",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "rgb_board_c0_pkg",
-  "label": "Mira220, colour",
-  "group": "Baseboard + image sensors",
-  "mass": 0.2,
-  "estimated": true
- },
- {
-  "name": "rgb_board_c0_pads",
-  "label": "Bond pads",
+  "name": "core_board_c0",
+  "label": "Readout FPGA",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "rgb_board_c0_frame",
-  "label": "Seal ring",
+  "name": "core_board_c1",
+  "label": "Flash",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "rgb_board_c0_die",
-  "label": "Pixel array, 1600 x 1400",
-  "group": "Baseboard + image sensors",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_board_c0_glass",
-  "label": "Cover glass",
-  "group": "Baseboard + image sensors",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_sensor_pkg",
-  "label": "Mira220 colour sensor",
-  "group": "Baseboard + image sensors",
-  "mass": 0.2,
-  "estimated": true
- },
- {
-  "name": "rgb_sensor_pads",
-  "label": "Bond pads",
-  "group": "Baseboard + image sensors",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_sensor_frame",
-  "label": "Seal ring",
-  "group": "Baseboard + image sensors",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_sensor_die",
-  "label": "Pixel array, 1600 x 1400",
-  "group": "Baseboard + image sensors",
-  "mass": 0.0,
-  "estimated": true
- },
- {
-  "name": "rgb_sensor_glass",
-  "label": "Cover glass",
+  "name": "core_board_c2",
+  "label": "Board-to-board",
   "group": "Baseboard + image sensors",
   "mass": 0.0,
   "estimated": true
  },
  {
   "name": "proc",
-  "label": "Processing board: radiometric pipeline, sync, USB-C / Ethernet",
+  "label": "Processing board: radiometric pipeline, time sync, Ethernet",
   "group": "Processing board",
-  "mass": 6.0,
+  "mass": 4.0,
   "estimated": true
  },
  {
@@ -351,7 +197,7 @@
  },
  {
   "name": "proc_c0",
-  "label": "FPGA, thermal pipeline",
+  "label": "Processor",
   "group": "Processing board",
   "mass": 0.0,
   "estimated": true
@@ -365,23 +211,30 @@
  },
  {
   "name": "proc_c2",
-  "label": "Flash",
+  "label": "PHY",
   "group": "Processing board",
   "mass": 0.0,
   "estimated": true
  },
  {
   "name": "proc_c3",
-  "label": "Board-to-board",
+  "label": "Connector header",
   "group": "Processing board",
   "mass": 0.0,
   "estimated": true
  },
  {
-  "name": "proc_c4",
-  "label": "USB-C",
+  "name": "so-1",
+  "label": "Standoff",
   "group": "Processing board",
-  "mass": 0.0,
+  "mass": 0.4,
+  "estimated": true
+ },
+ {
+  "name": "so1",
+  "label": "Standoff",
+  "group": "Processing board",
+  "mass": 0.4,
   "estimated": true
  }
 ]

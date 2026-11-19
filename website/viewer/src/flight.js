@@ -24,7 +24,7 @@ const SCENES = {
   spraying: {ground: 'field_rgb', layer: 'spray_coverage', layerName: 'Coverage', W: 260, alt: 3, alts: [2, 5], speed: 5, side: 0, swath: 6.5, cam: 'Duos', drone: 'hex', aft: true,
     bands: [['Left', '#2f6f4e'], ['Right', '#2f6f4e']], finds: [[80.4, 34.6, 'Missed strip'], [9.8, 74.5, 'Overlap']], findWord: 'Spray faults', title: 'Spray pass · Duos at the rear of the sprayer'},
   solar: {ground: 'solar_rgb', layer: 'solar_thermal', layerName: 'Thermal', W: 240, alt: 30, alts: [20, 45], speed: 6, side: 0.3, cam: 'TH', drone: 'quad', tint: 0xe9e9e6,
-    bands: [['Colour', '#2f6f4e'], ['LWIR 8–14 µm', '#c2410c']],
+    bands: [['LWIR 8–14 µm', '#c2410c']],
     finds: [[29.7, 25.2, 'Hot cell'], [61.6, 52.7, 'Substring warm'], [81.2, 34.2, 'Module warm'], [47.8, 79.3, 'Half table warm'], [56.2, 14.2, 'Soiling']],
     findWord: 'Hotspot candidates', title: 'Array inspection · TH thermal'},
   industrial: {ground: 'swir_visible', layer: 'swir_swir', layerName: 'SWIR', W: 160, alt: 50, alts: [30, 80], speed: 5, side: 0.3, cam: 'SW', drone: 'quad', tint: 0x2b2d31,
@@ -45,7 +45,7 @@ const M = {
   glass: phys(0x08100f, {roughness: 0.02, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0, iridescence: 1, iridescenceIOR: 1.45, iridescenceThicknessRange: [180, 520]}),
   glassFront: phys(0x050506, {roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0, transparent: true, opacity: 0.82}),
   amber: new THREE.MeshBasicMaterial({color: 0xffa040}), orange: phys(0xd8692c, {roughness: 0.4}),
-  germ: phys(0x2a2c33, {roughness: 0.18, metalness: 0.75, iridescence: 0.6, iridescenceIOR: 1.8}),
+  germ: phys(0xc86a9c, {roughness: 0.08, metalness: 0.1, clearcoat: 1, iridescence: 1, iridescenceIOR: 1.6, emissive: 0x5a2048, emissiveIntensity: 0.4}),
 };
 const box = (w, h, d, m) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
 const rbox = (w, h, d, r, m) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, Math.min(r, w / 2, h / 2, d / 2) * 0.999), m);
@@ -66,7 +66,7 @@ function lensAssembly(r) {
 function cameraHead(kind, finish) {
   // a family head with its hood, lenses toward -z (the group is pointed where the camera looks)
   const g = new THREE.Group();
-  const [w, h, d] = {MS: [0.096, 0.09, 0.08], Duos: [0.05, 0.03, 0.028], TH: [0.06, 0.042, 0.036], SW: [0.058, 0.046, 0.044]}[kind];
+  const [w, h, d] = {MS: [0.096, 0.09, 0.08], Duos: [0.05, 0.03, 0.028], TH: [0.042, 0.042, 0.05], SW: [0.058, 0.046, 0.044]}[kind];
   const bodyM = finish === 'white' ? M.white : finish === 'dark' ? M.gunmetal : M.ti;
   g.add(rbox(w, h, d, Math.min(w, h) * 0.12, bodyM));
   const hood = rbox(w * 1.06, h * 1.06, d * 0.16, Math.min(w, h) * 0.1, M.black); hood.position.z = -d / 2; g.add(hood);
@@ -74,7 +74,7 @@ function cameraHead(kind, finish) {
   const at = (x, y, r) => { const l = lensAssembly(r); l.position.set(x, y, -d / 2 - d * 0.03 + r * 1.1 - d * 0.04); g.add(l); return l; };
   if (kind === 'MS') { at(0.012, -0.004, 0.017); [0.028, 0, -0.028].forEach((y) => at(-0.032, y, 0.0075)); }
   if (kind === 'Duos') { at(-0.013, 0, 0.0065); at(0.013, 0, 0.0065); }
-  if (kind === 'TH') { const l = at(-0.009, 0, 0.011); l.children[3].material = M.germ; at(0.018, 0, 0.0065); }
+  if (kind === 'TH') { const l = at(0, 0, 0.0085); l.children[3].material = M.germ; }
   if (kind === 'SW') at(0, 0, 0.015);
   const led = box(w * 0.2, 0.0018, 0.002, M.amber); led.position.set(0, h * 0.4, -d / 2 - d * 0.04); g.add(led);
   g.userData.led = led;
