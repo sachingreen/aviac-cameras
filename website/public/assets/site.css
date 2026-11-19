@@ -26,6 +26,7 @@ p{color:var(--ink-2)}
 .nav .wrap{height:68px;display:flex;align-items:center;gap:28px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
 .brand img.m{height:28px}.brand img.w{height:15px}
+.brand .wm{font:500 24px/1 var(--serif);letter-spacing:-.01em;color:var(--ink)}
 .nav ul{display:flex;gap:4px;list-style:none;margin:0;padding:0}
 .nav ul a{display:block;padding:8px 13px;border-radius:999px;text-decoration:none;font-size:14.5px;color:var(--ink-2);transition:background .25s var(--ease),color .25s}
 .nav ul a:hover,.nav ul a.on{background:var(--sage-2);color:var(--ink)}

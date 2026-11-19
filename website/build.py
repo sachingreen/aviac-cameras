@@ -66,12 +66,12 @@ def render(text, R):
                           f'<div class="menu">{links}</div></li>')
             else:
                 items += f'<li><a href="{home}{h}">{t}</a></li>'
-        return (f'<nav class="nav"><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac Technologies, home"><img class="m" src="{R}img/mark.svg" alt="">'
-                f'<img class="w" src="{R}img/wordmark.svg" alt=""></a><ul>{items}</ul>'
+        return (f'<nav class="nav"><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="">'
+                f'<span class="wm">Aviac</span></a><ul>{items}</ul>'
                 f'<a class="btn p cta" href="{home}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>')
 
-    foot = (f'<footer><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac Technologies, home"><img class="m" src="{R}img/mark.svg" alt="" style="height:22px">'
-            f'<img class="w" src="{R}img/wordmark.svg" alt="Aviac Technologies" style="height:13px"></a>'
+    foot = (f'<footer><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="" style="height:22px">'
+            f'<span class="wm" style="font-size:19px">Aviac</span></a>'
             f'<span>aviactech@gmail.com</span><span>&copy; Aviac Technologies 2024&ndash;26. Specifications are design figures.</span></div></footer>')
     text = re.sub(r"\{\{HEAD ([^}]*)\}\}", head, text)
     text = re.sub(r"\{\{NAV (\w+)\}\}", nav, text)
