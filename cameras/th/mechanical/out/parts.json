@@ -392,6 +392,55 @@
   "estimated": true
  },
  {
+  "name": "top_fin_0",
+  "label": "Cooling fin",
+  "group": "Externals",
+  "mass": 0.49,
+  "estimated": false
+ },
+ {
+  "name": "top_fin_1",
+  "label": "Cooling fin",
+  "group": "Externals",
+  "mass": 0.49,
+  "estimated": false
+ },
+ {
+  "name": "top_fin_2",
+  "label": "Cooling fin",
+  "group": "Externals",
+  "mass": 0.49,
+  "estimated": false
+ },
+ {
+  "name": "top_fin_3",
+  "label": "Cooling fin",
+  "group": "Externals",
+  "mass": 0.49,
+  "estimated": false
+ },
+ {
+  "name": "top_fin_4",
+  "label": "Cooling fin",
+  "group": "Externals",
+  "mass": 0.49,
+  "estimated": false
+ },
+ {
+  "name": "top_fin_5",
+  "label": "Cooling fin",
+  "group": "Externals",
+  "mass": 0.49,
+  "estimated": false
+ },
+ {
+  "name": "top_fin_6",
+  "label": "Cooling fin",
+  "group": "Externals",
+  "mass": 0.49,
+  "estimated": false
+ },
+ {
   "name": "gimbal_tilt_motor",
   "label": "Tilt motor, brushless, encoder",
   "group": "Gimbal",

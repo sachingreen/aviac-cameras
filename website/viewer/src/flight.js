@@ -31,7 +31,7 @@ const SCENES = {
     bands: [['SWIR 0.9–1.7 µm', '#3a6ea5']], finds: [[70.0, 43.3, 'Ponding'], [26.2, 38.3, 'Wet insulation'], [53.8, 89.0, 'Pipe leak']],
     findWord: 'Moisture findings', title: 'Roof inspection · SW short-wave infrared'},
   construction: {ground: 'site_w3', layer: 'site_w11', layerName: 'Week 11', W: 220, alt: 60, alts: [40, 90], speed: 10, side: 0.7, cam: 'MS', drone: 'vtol',
-    bands: [['Colour map', '#2f6f4e'], ['Stereo surface', '#6b7c72']], finds: [[44.0, 36.0, 'Slab poured'], [68.0, 28.0, 'Rebar placed'], [77.0, 44.3, 'Crane installed'], [78.0, 22.0, 'Stockpile −60 %']],
+    bands: [['Colour map', '#2f6f4e'], ['Stereo surface', '#6b7c72']], finds: [[48.5, 47.5, '+9 floors of frame'], [57.0, 46.0, 'Rebar placed'], [37.5, 50.5, 'Crane climbed'], [39.0, 37.5, 'Stockpile down']],
     findWord: 'Changes since week 3', title: 'Weekly map · MS colour camera'},
 };
 

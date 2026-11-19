@@ -411,6 +411,10 @@ FINISHES = {
                 "panel": {"mat": "satin", "color": [0.11, 0.11, 0.115]}},
     "bronze": {"body": {"mat": "powder", "color": [0.115, 0.07, 0.05]}, "bumper": {"mat": "rubberised", "color": [0.015, 0.014, 0.014]},
                "panel": {"mat": "satin", "color": [0.62, 0.53, 0.36]}},
+    "ember": {"body": {"mat": "powder", "color": [0.018, 0.019, 0.021]}, "bumper": {"mat": "rubberised", "color": [0.62, 0.075, 0.004]},
+              "panel": {"mat": "glass_black", "color": [0.004, 0.004, 0.005]}},
+    "cobalt": {"body": {"mat": "gloss_white", "color": [0.80, 0.80, 0.79]}, "bumper": {"mat": "rubberised", "color": [0.012, 0.012, 0.013]},
+               "panel": {"mat": "powder", "color": [0.012, 0.012, 0.014]}},
 }
 
 

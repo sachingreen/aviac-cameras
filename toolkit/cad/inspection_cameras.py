@@ -101,33 +101,126 @@ def build_th():
     pcb("proc", -27.0, 27.0, 4.0, 38.0, 24.0, 1.2, PROC, E(10), "Processing board: radiometric pipeline, sync, USB-C / Ethernet", 6.0, comps="both", seed=90,
         ics=[(0, 21, 12, 12, 1.2, 1, "FPGA, thermal pipeline", "ic"), (-16, 28, 6, 5, 1.0, 1, "DDR", "ic"), (16, 28, 6, 5, 1.0, 1, "Flash", "ic"),
              (0, 8, 14, 3, 1.6, -1, "Board-to-board", "conn"), (0, 21, 8.9, 3.2, D - 25.2 - 0.5, 1, "USB-C", "steel")])
+    # heat-sink fins across the top: the thermal head runs a cooled pipeline, and wears it
+    for k in range(7):
+        x = -18.0 + k * 6.0
+        add(f"top_fin_{k}", rbox(x - 1.1, x + 1.1, 10.0, D - 6.0, H - 1.2, H + 3.2, 0.9, "|Y"), EXT, (0, 0, 40), finish="body", density=ALU, label="Cooling fin")
     gimbal_yoke(0.0, 14.0, H / 2, Wd / 2, H + 12.0)
     rc.export(os.path.join(REPO, "cameras", "th", "mechanical", "out"), "aviac_th")
 
 
+def ring_text(items, x, z, r, y, size, a0, a1):
+    """Numbers engraved round a lens ring, each upright on the barrel and spread from angle a0 to a1 (degrees,
+    0 = +x, 90 = +z), facing out of the surface."""
+    import math
+    sol = None
+    n = len(items)
+    for i, t in enumerate(items):
+        a = a0 + (a1 - a0) * (i / max(1, n - 1))
+        w = cq.Workplane("YZ").text(t, size, 0.12, kind="bold", halign="center", valign="center")
+        bb = w.val().BoundingBox()
+        w = w.translate((-bb.xmin + r - 0.06, -(bb.ymin + bb.ymax) / 2, -(bb.zmin + bb.zmax) / 2))
+        w = w.rotate((0, 0, 0), (1, 0, 0), 90)                      # read round the ring, not along the axis
+        w = w.rotate((0, 0, 0), (0, 1, 0), -a)                     # to its angle round the lens axis
+        w = w.translate((x, y, z))
+        sol = w if sol is None else sol.union(w)
+    return sol
+
+
+def c_mount_lens(x, z, y0):
+    """A machine-vision C-mount lens, front toward -y from the mount face at y0: bright mount ring, ribbed collar,
+    iris ring with its f-numbers, focus ring with distances, a knurled locking screw, a flared front with a filter
+    thread, and the glass stack you can look into. A cobalt band marks the SWIR coating."""
+    import math
+    G, ex = OPT, E(-70)
+    add("mount_ring", yring(x, z, y0 - 1.6, y0 + 0.4, 13.6, 11.8), G, ex, mat="steel", color=(0.75, 0.76, 0.78), mass=4.0, label="C-mount, 1-32 UN thread")
+    col = ycyl(x, z, y0 - 8.5, y0 - 1.6, 14.6)
+    for k in range(40):
+        a = 2 * math.pi * k / 40
+        col = col.cut(ycyl(x + 14.75 * math.cos(a), z + 14.75 * math.sin(a), y0 - 7.8, y0 - 2.4, 0.42))
+    add("collar", col, G, ex, mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Lens collar")
+    iris = ycyl(x, z, y0 - 15.5, y0 - 8.8, 15.6)
+    for k in range(48):
+        a = 2 * math.pi * k / 48
+        iris = iris.cut(ycyl(x + 15.75 * math.cos(a), z + 15.75 * math.sin(a), y0 - 15.0, y0 - 13.4, 0.38))
+    add("iris_ring", iris, G, ex, mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Iris ring, f/1.4 to f/16")
+    add("iris_scale", ring_text(["16", "11", "8", "5.6", "4", "2.8", "2", "1.4"], x, z, 15.6, y0 - 11.0, 1.5, 120, 235), G, ex, mat="etch",
+        color=(0.85, 0.85, 0.86), mass=0.0, label="Iris scale, engraved")
+    foc = ycyl(x, z, y0 - 28.0, y0 - 15.8, 16.6)
+    for k in range(60):
+        a = 2 * math.pi * k / 60
+        foc = foc.cut(ycyl(x + 16.75 * math.cos(a), z + 16.75 * math.sin(a), y0 - 24.5, y0 - 18.0, 0.45))
+    add("focus_ring", foc, G, ex, mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Focus ring")
+    add("focus_scale", ring_text(["0.2", "0.3", "0.5", "1", "3", "inf m"], x, z, 16.6, y0 - 26.4, 1.5, 125, 230), G, ex, mat="etch",
+        color=(0.85, 0.85, 0.86), mass=0.0, label="Focus scale, engraved")
+    add("index_mark", box(x - 16.9, x - 16.5, y0 - 15.8, y0 - 8.8, z - 0.25, z + 0.25), G, ex, mat="etch", color=(0.9, 0.9, 0.9), mass=0.0, label="Index line")
+    ts = zcyl(x, y0 - 21.0, z + 16.0, z + 21.5, 2.3)
+    for k in range(16):
+        a = 2 * math.pi * k / 16
+        ts = ts.cut(zcyl(x + 2.4 * math.cos(a), y0 - 21.0 + 2.4 * math.sin(a), z + 18.0, z + 22, 0.32))
+    add("lock_screw", ts, G, ex, mat="anodised", color=(0.02, 0.02, 0.022), mass=1.0, label="Focus lock screw, knurled")
+    flare = W(cq.Solid.makeLoft([rc.rr_wire(33.2, 33.2, 16.59, y0 - 28.0, z), rc.rr_wire(38.0, 38.0, 18.99, y0 - 36.0, z)], True)).translate((x, 0, 0)) if False else \
+        W(cq.Solid.makeCone(16.6, 19.0, 8.0, V(x, y0 - 28.0, z), V(0, -1, 0)))
+    front = flare.union(ycyl(x, z, y0 - 39.0, y0 - 36.0, 19.6))
+    for k in range(20):                                                 # fine filter-thread rings on the front lip
+        front = front.cut(yring(x, z, y0 - 38.6 + k * 0.14, y0 - 38.55 + k * 0.14, 19.7, 19.45))
+    front = front.cut(ycyl(x, z, y0 - 40, y0 - 22, 15.9))
+    add("front_barrel", front, G, ex, mat="anodised", color=(0.012, 0.012, 0.014), density=ALU, label="Front barrel, 40.5 mm filter thread")
+    add("swir_band", yring(x, z, y0 - 31.5, y0 - 30.3, 17.9, 17.0), G, ex, mat="satin", color=(0.04, 0.16, 0.55), mass=0.0, label="Cobalt band: SWIR coating, 0.9-1.7 um")
+    for k in (-1, 1):
+        add(f"front_screw_{k}", W(cq.Solid.makeCylinder(0.7, 0.6, V(x + k * 17.6, y0 - 39.1, z), V(0, 1, 0))), G, ex, mat="steel", color=(0.3, 0.3, 0.32), mass=0.0, label="Retainer screw")
+    rc.lens_stack("swir", x, z, y0 - 38.3, 14.8, G, ex, (0.24, 0.15, 0.06), depth=16.0)
+    for p_ in rc.parts:                                   # machine-vision glass: multi-coated but bright, you see the elements
+        if p_["name"] == "swir_glass":
+            p_["mat"], p_["color"] = "filterglass", (0.10, 0.12, 0.24)
+
+
 def build_sw():
+    """SW after a machine-vision box camera: a white body with rounded edges, a black front plate, a black finned
+    band along each side, and a proper C-mount lens."""
     rc.parts.clear()
-    Wd, H, D = 58.0, 46.0, 44.0
-    L = (0.0, 23.0)
-    body(Wd, H, D, [(L[0], L[1], 16.2)], "SW", 41.5, [(L[0], L[1], 17.4)])
-    lens_ring("swir", L[0], L[1], -3.8, 1.2, 34.0, 28.5, OPT, E(-70))
-    oring("swir_oring", L[0], L[1], 1.0, 15.8, 0.6, OPT, E(-88))
-    big_lens("swir", L[0], L[1], -6.1, 12.0, 13.2, (0.24, 0.15, 0.06), "SWIR lens, 25 mm f/1.4, 0.9-1.7 um coating", "Front element, SWIR AR coating")
-    # InGaAs sensor in a ceramic package with a thermo-electric cooler behind it
-    x, z, yb = L[0], L[1], 14.0
+    Wd, H, D = 54.0, 54.0, 60.0
+    Lz = H / 2
+    shell = rbox(-Wd / 2, Wd / 2, 3.0, D, 0, H, 7.0, "|Y").cut(rbox(-Wd / 2 + 2, Wd / 2 - 2, 1.0, D - 2, 2, H - 2, 5.0, "|Y"))
+    add("rear_housing", shell, EXT, E(55), finish="body", density=1.15, label="Body, PA12-CF, painted")
+    # black rear rim, like a machine-vision box camera
+    add("rear_rim", rbox(-Wd / 2 - 0.3, Wd / 2 + 0.3, D - 5.0, D + 0.4, -0.3, H + 0.3, 7.2, "|Y").cut(rbox(-Wd / 2 + 2, Wd / 2 - 2, D - 6, D + 1, 2, H - 2, 5.0, "|Y")),
+        EXT, E(70), mat="powder", color=(0.015, 0.015, 0.017), density=ALU, label="Rear rim, black anodised")
+    # the Aviac wing mark, large, printed on both sides
+    mh = 30.0
+    for sx in (-1, 1):
+        sol = None
+        for poly in rc.logo_polygons():
+            pts = [(D / 2 - 1.0 + px * mh * (1 if sx > 0 else -1), H / 2 + (py - 0.5) * mh) for (px, py) in poly]
+            w = cq.Workplane("YZ").polyline(pts).close().extrude(0.12 * sx)
+            sol = w if sol is None else sol.union(w)
+        add(f"side_mark_{sx}", sol.translate((sx * (Wd / 2 - 0.02), 0, 0)), EXT, E(55), mat="powder", color=(0.004, 0.004, 0.005), mass=0.0, label="Aviac mark, printed")
+    plate = rbox(-Wd / 2 + 2.5, Wd / 2 - 2.5, 0.0, 4.0, 2.5, H - 2.5, 4.5, "|Y")
+    plate = plate.cut(ycyl(0, Lz, -1, 5, 12.0))
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            plate = plate.cut(ycyl(sx * 17.5, Lz + sz * 17.5, -1, 1.2, 1.1))
+    add("panel", plate, EXT, E(-95), finish="panel", density=ALU, label="Front plate, black anodised")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            add(f"plate_screw_{sx}_{sz}", ycyl(sx * 17.5, Lz + sz * 17.5, -0.2, 0.9, 0.95), EXT, E(-95), mat="steel", color=(0.08, 0.08, 0.09), mass=0.1, label="M2 screw")
+    add("plate_name", rc.etch_text("SW", 2.2, 0.0, 5.0, 0.0), EXT, E(-95), mat="etch", color=(0.85, 0.85, 0.86), mass=0.0, label="Name, engraved")
+    add("light_dot", ycyl(17.5, 5.5, -0.3, 0.4, 0.9), EXT, E(-95), mat="led", color=(1.0, 0.55, 0.12), mass=0.0, label="Status light")
+    c_mount_lens(0.0, Lz, 0.0)
+    # InGaAs sensor in a ceramic package behind the mount, cooler, boards
+    x, z, yb = 0.0, Lz, 17.5
     add("swir_pkg", rbox(x - 11, x + 11, yb - 2.2, yb, z - 9.5, z + 9.5, 0.8), SEN, E(-15), mat="ceramic_dark", color=(0.10, 0.10, 0.105), mass=2.0,
         label="InGaAs SWIR sensor, 640 x 512, 5 um pixels (placeholder)")
     add("swir_frame", box(x - 7.2, x + 7.2, yb - 2.32, yb - 2.2, z - 5.9, z + 5.9).cut(box(x - 6.9, x + 6.9, yb - 5, yb + 5, z - 5.6, z + 5.6)), SEN, E(-15),
         mat="gold", color=(0.85, 0.65, 0.25), mass=0.0, label="Bond frame")
     add("swir_die", box(x - 6.6, x + 6.6, yb - 2.3, yb - 2.24, z - 5.3, z + 5.3), SEN, E(-15), mat="die_dark", color=(0.06, 0.04, 0.05), mass=0.0, label="InGaAs pixel array")
     add("swir_window", box(x - 8.6, x + 8.6, yb - 2.7, yb - 2.3, z - 7.4, z + 7.4), SEN, E(-15), mat="window", color=(0.9, 0.95, 1.0), mass=0.0, label="Sensor window")
-    pcb("sensor_board", -24.0, 24.0, 4.0, 42.0, yb, 1.4, SEN, E(-15), "Sensor board", 5.0, comps="rear", seed=95, keep=(),
-        ics=[(0, 23, 6, 6, 1.0, 1, "TEC driver", "ic"), (-14, 34, 5, 5, 1.0, 1, "ADC", "ic")])
+    pcb("sensor_board", -22.0, 22.0, 4.0, 48.0, yb, 1.4, SEN, E(-15), "Sensor board", 5.0, comps="rear", seed=95,
+        ics=[(0, 12, 6, 6, 1.0, 1, "TEC driver", "ic"), (-14, 40, 5, 5, 1.0, 1, "ADC", "ic")])
     add("tec", box(x - 9, x + 9, yb + 1.4, yb + 5.4, z - 9, z + 9), SEN, E(-5), mat="satin", color=(0.75, 0.76, 0.77), density=ALU, label="Heat spreader for the sensor's cooler")
-    pcb("proc", -25.0, 25.0, 4.0, 42.0, 30.0, 1.2, PROC, E(10), "Processing board: non-uniformity correction, sync, USB-C / Ethernet", 6.0, comps="both", seed=97,
-        ics=[(0, 23, 12, 12, 1.2, 1, "FPGA, SWIR pipeline", "ic"), (-16, 32, 6, 5, 1.0, 1, "DDR", "ic"), (16, 32, 6, 5, 1.0, 1, "Flash", "ic"),
-             (0, 23, 8.9, 3.2, D - 31.2 - 0.5, 1, "USB-C", "steel")])
-    gimbal_yoke(0.0, 18.0, H / 2, Wd / 2, H + 12.0)
+    pcb("proc", -22.0, 22.0, 4.0, 48.0, 40.0, 1.2, PROC, E(10), "Processing board: non-uniformity correction, sync, Ethernet", 6.0, comps="both", seed=97,
+        ics=[(0, 26, 12, 12, 1.2, 1, "FPGA, SWIR pipeline", "ic"), (-14, 38, 6, 5, 1.0, 1, "DDR", "ic"), (14, 38, 6, 5, 1.0, 1, "Flash", "ic")])
+    add("rear_conn", ycyl(0, 14.0, D - 0.5, D + 3.0, 5.0).cut(ycyl(0, 14.0, D, D + 4, 3.6)), EXT, E(70), mat="steel", color=(0.6, 0.6, 0.62), mass=2.0, label="M12 Ethernet / power connector")
     rc.export(os.path.join(REPO, "cameras", "sw", "mechanical", "out"), "aviac_sw")
 
 

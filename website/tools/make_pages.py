@@ -53,7 +53,7 @@ SOL = [
     dict(key="solar", slug="solar", name="Solar inspection", lab="Solar · thermal", cams=["TH"],
          h1="Find the hot cell. <em>Close the repair.</em>",
          lead="TH flies the array with a thermal core and a colour camera side by side. Hotspot candidates become reviewed findings, repair jobs and a report the site owner signs off.",
-         hero="th_arctic_hero_green.jpg", hero_alt="Aviac TH thermal camera",
+         hero="th_ember_hero_green.jpg", hero_alt="Aviac TH thermal camera",
          cmp=("solar_rgb", "solar_thermal", "RGB", "THERMAL", [(29.7, 25.2, "Hotspot candidate · one cell", "#ffe680"), (61.6, 52.7, "Substring warm", "#f0a020"),
                                                               (81.2, 34.2, "Module warm", "#f0a020"), (47.8, 79.3, "Half a table warm", "#f0a020"), (56.2, 14.2, "Soiling", "#c8a080")],
               "One array, two views", "Solar array from above in colour", "The same array in thermal with hotspot candidates"),
@@ -63,12 +63,12 @@ SOL = [
          steps=[("Schedule", "Pick the site and the purpose; the job records the aircraft, sensor and conditions."), ("Fly", "Colour and thermal capture the rows in one pass."),
                 ("Review", "Candidates are flagged; a qualified reviewer confirms or rejects each one."), ("Repair", "Confirmed findings become repair work orders with evidence."),
                 ("Verify", "A post-repair flight checks the fix."), ("Report", "A versioned report goes to the site owner for acceptance.")],
-         cam=("TH", "Thermal", "th_arctic_hero_light.jpg", "product/thermal/", "A 640 × 512 uncooled LWIR core behind a germanium lens, with a colour camera beside it."),
+         cam=("TH", "Thermal", "th_ember_hero_light.jpg", "product/thermal/", "A 640 × 512 uncooled LWIR core behind a germanium lens, with a colour camera beside it."),
          workspace=True, demo=True),
     dict(key="industrial", slug="industrial", name="Industrial inspection", lab="Industrial · SWIR", cams=["SW"],
          h1="Moisture, leaks and haze: <em>seen in SWIR.</em>",
          lead="Water absorbs strongly in the short-wave infrared, so wet insulation, ponding and leaks read dark, and haze that hides a site in daylight mostly drops away. SW brings that to roofs, pipe racks and plants.",
-         hero="sw_graphite_hero_green.jpg", hero_alt="Aviac SW SWIR camera",
+         hero="sw_cobalt_hero_green.jpg", hero_alt="Aviac SW SWIR camera",
          cmp=("swir_visible", "swir_swir", "VISIBLE", "SWIR", [(70.0, 43.3, "Ponding", "#3a6ea5"), (26.2, 38.3, "Wet insulation", "#3a6ea5"), (53.8, 89.0, "Pipe leak", "#3a6ea5")],
               "One roof, two views", "Industrial roof in hazy daylight", "The same roof in SWIR, showing moisture and a leak"),
          side=("What SWIR shows", "Water you cannot see in daylight.",
@@ -76,18 +76,18 @@ SOL = [
                [("0.9–1.7 µm", "InGaAs band"), ("640 × 512", "SWIR resolution"), ("3", "Findings"), ("Through haze", "Better contrast")]),
          steps=[("Plan", "Roofs, pipe racks, tanks and conveyors on a repeatable route."), ("Fly", "SW captures in SWIR, on a gimbal for oblique views."),
                 ("Find", "Moisture, leaks and hidden damage stand out against dry material."), ("Track", "Findings go to the dashboard with location, evidence and a repair status.")],
-         cam=("SW", "SWIR", "sw_graphite_hero_light.jpg", "product/swir/", "An InGaAs SWIR sensor behind a SWIR-coated 25 mm lens."),
+         cam=("SW", "SWIR", "sw_cobalt_hero_light.jpg", "product/swir/", "An InGaAs SWIR sensor behind a SWIR-coated 25 mm lens."),
          demo=True),
     dict(key="construction", slug="construction", name="Construction monitoring", lab="Real estate · construction", cams=["MS", "Duos"],
          h1="Every week of the build, <em>on one map.</em>",
          lead="Fly the same route every week. The colour map and stereo surface show what was built, what moved and how much material is left, for owners, lenders and site teams.",
-         hero="duos_graphite_hero_green.jpg", hero_alt="Duos stereo camera",
-         cmp=("site_w3", "site_w11", "WEEK 3", "WEEK 11", [(44.0, 36.0, "Raft slab poured", "#2f6f4e"), (68.0, 28.0, "Rebar, east bay", "#2f6f4e"),
-                                                           (77.0, 44.3, "Tower crane up", "#2f6f4e"), (78.0, 22.0, "Stockpile down about 60 %", "#2f6f4e")],
-              "One site, two dates", "Construction site at week 3, excavation", "The same site at week 11, slab and columns"),
-         side=("What changed in eight weeks", "Progress you can measure.",
-               "Slide between the two dates: the pit became a slab, columns are up, the crane is in and the stockpile shrank. Each change is measured, not guessed.",
-               [("8 weeks", "Between flights"), ("~70 %", "Slab area poured"), ("−60 %", "Stockpile volume"), ("Weekly", "Same route")]),
+         hero="demo/site_hr_w11.jpg", hero_alt="A high-rise under construction seen from a drone",
+         cmp=("site_hr_w3", "site_hr_w11", "WEEK 3", "WEEK 11", [(48.8, 28.5, "Level 14 deck: formwork", "#2f6f4e"), (56.6, 24.6, "Rebar placed", "#2f6f4e"),
+                                                           (55.9, 47.2, "Façade to level 8", "#2f6f4e"), (40.8, 21.3, "Crane climbed", "#2f6f4e"), (36.6, 58.8, "Stockpile down", "#2f6f4e")],
+              "One tower, two dates", "A tower under construction at week 3: five floors of frame", "The same tower at week 11: fourteen floors, glazed to level 8"),
+         side=("What changed in eight weeks", "Nine floors, measured.",
+               "Slide between the two dates: the frame went from five floors to fourteen, glazing reached level 8, the crane climbed and the stockpile shrank. Every change is measured from the same drone position.",
+               [("+9", "Floors of frame"), ("+6", "Floors glazed"), ("8 weeks", "Between flights"), ("Weekly", "Same route")]),
          steps=[("Fly", "The same route and height every week, so maps line up."), ("Map", "A colour orthomosaic and a stereo surface for every flight."),
                 ("Compare", "Dates side by side, with areas and volumes measured."), ("Share", "A progress report for owners, lenders and the site team.")],
          cam=("MS + Duos", "Map and depth", "ms_titanium_hero_light.jpg", "product/multispectral/", "The MS colour camera maps the site at high resolution; Duos adds close-range depth for volumes."),
@@ -219,8 +219,8 @@ for d in SOL:
 
 # ---------------- TH and SW product pages (same layout as Duos)
 PROD = [
-    dict(key="th", slug="thermal", cam="th", name="TH", sub="Thermal", lab="Thermal · solar and electrical inspection", finish="arctic",
-         lead="A 640 × 512 thermal core and a colour camera side by side, in a sealed head. Built for solar arrays, substations and electrical rooms.",
+    dict(key="th", slug="thermal", cam="th", name="TH", sub="Thermal", lab="Thermal · solar and electrical inspection", finish="ember",
+         lead="A 640 × 512 thermal core and a colour camera side by side, in a gunmetal head with cooling fins and a signal-orange hood. Built for solar arrays, substations and electrical rooms.",
          specs=[("Thermal core", "640 × 512, 12 µm, uncooled (placeholder)"), ("Thermal lens", "13 mm f/1.0, germanium"), ("Colour", "Mira220, 1600 × 1400"),
                 ("Body", "60 × 42 × 36 mm"), ("Weight", "61 g"), ("Output", "USB-C or Ethernet")],
          cards=[("Optics", "Germanium and glass", "A germanium LWIR lens with a hard DLC-coated window, and an M12 colour lens beside it, both behind the protective hood.",
@@ -231,17 +231,17 @@ PROD = [
                  [("Output", "USB-C or Ethernet"), ("Sync", "Thermal and colour, one trigger")]),
                 ("Externals", "Sealed head", "The same family body as Duos: carbon-nylon shell, rubber hood, gasket and status light.", [("Shell", "PA12-CF"), ("Seal", "silicone gasket")]),
                 ("Gimbal", "Gimbal yoke", "Pan and tilt on brushless motors, with rubber isolators under a quick-release plate.", [("Axes", "pan and tilt"), ("Gimbal", "60 g")])],
-         end="61 g of thermal.", gal=("th_arctic_hero_light.jpg", "th_arctic_hero_green.jpg"), solution="solutions/solar/"),
-    dict(key="sw", slug="swir", cam="sw", name="SW", sub="SWIR", lab="SWIR · industrial inspection", finish="graphite",
-         lead="An InGaAs short-wave infrared sensor behind a SWIR-coated lens. Moisture, leaks and haze, on roofs, pipe racks and plants.",
-         specs=[("Sensor", "InGaAs, 640 × 512, 5 µm (placeholder)"), ("Band", "about 0.9 to 1.7 µm"), ("Lens", "25 mm f/1.4, SWIR coated"),
-                ("Body", "58 × 46 × 44 mm"), ("Weight", "63 g"), ("Output", "USB-C or Ethernet")],
+         end="61 g of thermal.", swatches=[("ember", "#2b2d31"), ("graphite", "#3a3d41"), ("arctic", "#e9e9e6")], gal=("th_ember_hero_light.jpg", "th_ember_hero_green.jpg"), solution="solutions/solar/"),
+    dict(key="sw", slug="swir", cam="sw", name="SW", sub="SWIR", lab="SWIR · industrial inspection", finish="cobalt",
+         lead="A machine-vision box camera: an InGaAs short-wave infrared sensor behind a C-mount lens with real iris and focus rings. Moisture, leaks and haze, on roofs, pipe racks and plants.",
+         specs=[("Sensor", "InGaAs, 640 × 512, 5 µm (placeholder)"), ("Band", "about 0.9 to 1.7 µm"), ("Lens", "C-mount, 25 mm f/1.4, SWIR coated"),
+                ("Body", "54 × 54 × 60 mm"), ("Weight", "63 g"), ("Output", "USB-C or Ethernet")],
          cards=[("Optics", "SWIR lens", "A 25 mm f/1.4 lens with an anti-reflection coating for the short-wave infrared, behind the protective hood.", [("Lens", "25 mm f/1.4"), ("Coating", "0.9–1.7 µm")]),
                 ("Baseboard + image sensors", "InGaAs sensor", "An InGaAs sensor in a ceramic package, with a heat spreader behind it for its cooler.", [("Sensor", "InGaAs, 640 × 512"), ("Pixel", "5 µm")]),
                 ("Processing board", "SWIR pipeline", "An FPGA board corrects pixel non-uniformity, syncs capture and sends the stream out over USB-C or Ethernet.", [("Output", "USB-C or Ethernet")]),
                 ("Externals", "Sealed head", "The family body: carbon-nylon shell, rubber hood, gasket and status light.", [("Shell", "PA12-CF"), ("Seal", "silicone gasket")]),
                 ("Gimbal", "Gimbal yoke", "Pan and tilt for oblique views of walls, tanks and pipe racks.", [("Axes", "pan and tilt"), ("Gimbal", "60 g")])],
-         end="63 g of SWIR.", gal=("sw_graphite_hero_light.jpg", "sw_graphite_hero_green.jpg"), solution="solutions/industrial/"),
+         end="63 g of SWIR.", swatches=[("cobalt", "#ecebe8"), ("graphite", "#2b2d31"), ("sand", "#c2b7a4")], gal=("sw_cobalt_hero_light.jpg", "sw_cobalt_hero_green.jpg"), solution="solutions/industrial/"),
 ]
 
 for d in PROD:
@@ -268,7 +268,7 @@ for d in PROD:
   <div class="stage3d reveal">
     <div class="viewer" id="{d['cam']}-hero" data-src="{{{{R}}}}models/{d['cam']}/" data-finish="{d['finish']}" data-spin="1" data-zoom="1" data-dist="4.4" role="img" aria-label="{d['name']}, interactive 3D model. Drag to turn."></div>
     <span class="chip drag">Drag to turn</span>
-    <div class="swatches" data-for="#{d['cam']}-hero"><button{' class="on"' if d['finish'] == 'arctic' else ''} data-finish="arctic" title="Arctic" style="background:#e9e9e6" aria-label="Arctic"></button><button{' class="on"' if d['finish'] == 'graphite' else ''} data-finish="graphite" title="Graphite" style="background:#2b2d31" aria-label="Graphite"></button><button data-finish="sand" title="Sand" style="background:#c2b7a4" aria-label="Sand"></button><span>{d['finish'].title()}</span></div>
+    <div class="swatches" data-for="#{d['cam']}-hero">{''.join(f'<button{" class=on" if f == d["finish"] else ""} data-finish="{f}" title="{f.title()}" style="background:{c}" aria-label="{f.title()}"></button>' for f, c in d["swatches"])}<span>{d['finish'].title()}</span></div>
   </div>
 </div></div></header>
 
