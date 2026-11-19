@@ -169,21 +169,26 @@ def make_material(kind, color, name):
             nt.links.new(cr.outputs["Color"], b.inputs["Specular Tint"])
     elif kind == "cover_glass":     # the clear part of the front glass: same gloss, lightly tinted, AR-coated
         setp(b, color=(0.98, 0.99, 1.0), rough=0.0, trans=1.0, ior=1.05, spec=0.5, coat=0.5, coat_rough=0.0)
-    elif kind == "germanium":       # AR-coated germanium: deep magenta-violet, shifting to green and amber at the rim
-        setp(b, color=(0.2, 0.2, 0.2), metal=0.0, rough=0.25, spec=0.3, coat=1.0, coat_rough=0.02)
-        lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.5
-        cr = nt.nodes.new("ShaderNodeValToRGB"); el = cr.color_ramp.elements
-        el[0].position, el[0].color = 0.0, (0.45, 0.04, 0.55, 1)
-        el[1].position, el[1].color = 1.0, (0.85, 0.55, 0.12, 1)
-        for pos, col in ((0.45, (0.70, 0.12, 0.62)), (0.72, (0.25, 0.75, 0.55))):
-            e = el.new(pos); e.color = (*col, 1)
-        nt.links.new(lw.outputs["Facing"], cr.inputs["Fac"])
-        dk = nt.nodes.new("ShaderNodeMixRGB"); dk.blend_type = "MULTIPLY"; dk.inputs["Fac"].default_value = 1.0; dk.inputs[2].default_value = (0.12, 0.12, 0.12, 1)
-        nt.links.new(cr.outputs["Color"], dk.inputs[1]); nt.links.new(dk.outputs[0], b.inputs["Base Color"])
+    elif kind == "germanium":       # AR-coated germanium: a soft mint glow just off-centre, pink around it, dark violet rim
+        setp(b, color=(0.2, 0.2, 0.2), metal=0.0, rough=0.3, spec=0.25, coat=1.0, coat_rough=0.03)
+        tc = nt.nodes.new("ShaderNodeTexCoord")                       # TH lens centre is x -9 mm, z 21 mm; the glow sits up-left
+        sub = nt.nodes.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"; sub.inputs[1].default_value = (-0.0118, 0, 0.0238)
+        msk = nt.nodes.new("ShaderNodeVectorMath"); msk.operation = "MULTIPLY"; msk.inputs[1].default_value = (1, 0, 1)
+        ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"
+        nt.links.new(tc.outputs["Object"], sub.inputs[0]); nt.links.new(sub.outputs[0], msk.inputs[0]); nt.links.new(msk.outputs[0], ln.inputs[0])
+        cn = nt.nodes.new("ShaderNodeValToRGB"); e2 = cn.color_ramp.elements
+        e2[0].position, e2[0].color = 0.0028, (0.45, 0.92, 0.78, 1); e2[1].position, e2[1].color = 0.0090, (0.95, 0.40, 0.68, 1)
+        nt.links.new(ln.outputs["Value"], cn.inputs["Fac"])
+        lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.35
+        rim = nt.nodes.new("ShaderNodeValToRGB"); e3 = rim.color_ramp.elements
+        e3[0].position, e3[0].color = 0.0, (1, 1, 1, 1); e3[1].position, e3[1].color = 0.85, (0.22, 0.08, 0.28, 1)
+        nt.links.new(lw.outputs["Facing"], rim.inputs["Fac"])
+        mx = nt.nodes.new("ShaderNodeMixRGB"); mx.blend_type = "MULTIPLY"; mx.inputs["Fac"].default_value = 1.0
+        nt.links.new(cn.outputs["Color"], mx.inputs[1]); nt.links.new(rim.outputs["Color"], mx.inputs[2])
+        dk = nt.nodes.new("ShaderNodeMixRGB"); dk.blend_type = "MULTIPLY"; dk.inputs["Fac"].default_value = 1.0; dk.inputs[2].default_value = (0.42, 0.42, 0.42, 1)
+        nt.links.new(mx.outputs[0], dk.inputs[1]); nt.links.new(dk.outputs[0], b.inputs["Base Color"])
         if b.inputs.get("Coat Tint") is not None:
-            nt.links.new(cr.outputs["Color"], b.inputs["Coat Tint"])
-        if b.inputs.get("Specular Tint") is not None:
-            nt.links.new(cr.outputs["Color"], b.inputs["Specular Tint"])
+            nt.links.new(mx.outputs[0], b.inputs["Coat Tint"])
     elif kind == "iris":            # aperture blades: dark anodised steel with a soft sheen
         setp(b, color=(0.025, 0.025, 0.028), metal=0.7, rough=0.32)
     elif kind in ("die", "die_dark"):   # silicon pixel array: a diffraction rainbow that shifts with the viewing angle
