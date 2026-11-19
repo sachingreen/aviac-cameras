@@ -183,7 +183,7 @@
  },
  {
   "name": "nir_filter",
-  "label": "Band-pass filter, 400-940 nm",
+  "label": "Band-pass filter, 400-940 nm, interference-coated",
   "group": "Optics",
   "mass": 0.4,
   "estimated": true
@@ -193,6 +193,13 @@
   "label": "M12 lens holder",
   "group": "Optics",
   "mass": 1.2,
+  "estimated": true
+ },
+ {
+  "name": "nir_retainer",
+  "label": "Filter retaining ring, polished",
+  "group": "Optics",
+  "mass": 0.0,
   "estimated": true
  },
  {

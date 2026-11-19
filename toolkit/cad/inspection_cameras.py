@@ -178,6 +178,10 @@ def build_th():
     add("lens_engrave", ring_text(["AVIAC"], TX, zc, 10.0, -16.0, 1.3, 90, 90), OPT, E(-110), mat="etch", color=(0.85, 0.85, 0.86), mass=0.0, label="Engraved: Aviac")
     m12_lens("nir", NX, zc, -10.0, 16.0, OPT, E(-110), (0.10, 0.22, 0.20), "M12 lens, 6 mm f/2.0, NIR-corrected", filt=("400-940 nm", (0.28, 0.10, 0.16)))
     m12_holder("nir_holder", NX, zc, 6.0, 14.0, OPT, E(-90))
+    for p_ in rc.parts:                                   # the 400-940 nm filter is an interference coating on clear glass
+        if p_["name"] == "nir_filter":
+            p_["mat"], p_["label"] = "dichroic", "Band-pass filter, 400-940 nm, interference-coated"
+    add("nir_retainer", yring(NX, zc, -10.85, -10.45, 7.25, 6.6), OPT, E(-110), mat="steel", color=(0.82, 0.83, 0.85), mass=0.0, label="Filter retaining ring, polished")
     # ---- the two sensing modules
     cm = rbox(TX - 14.5, TX + 14.5, 4.0, 27.0, zc - 14.5, zc + 14.5, 1.2, "|Y").union(ycyl(TX, zc, 1.0, 4.0, 11.4))
     for sx in (-1, 1):

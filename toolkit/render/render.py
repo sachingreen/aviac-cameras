@@ -170,7 +170,7 @@ def make_material(kind, color, name):
     elif kind == "cover_glass":     # the clear part of the front glass: same gloss, lightly tinted, AR-coated
         setp(b, color=(0.98, 0.99, 1.0), rough=0.0, trans=1.0, ior=1.05, spec=0.5, coat=0.5, coat_rough=0.0)
     elif kind == "germanium":       # AR-coated germanium: a soft mint glow just off-centre, pink around it, dark violet rim
-        setp(b, color=(0.2, 0.2, 0.2), metal=0.0, rough=0.3, spec=0.25, coat=1.0, coat_rough=0.03)
+        setp(b, color=(0.2, 0.2, 0.2), metal=0.0, rough=0.04, spec=0.7, coat=1.0, coat_rough=0.0)
         tc = nt.nodes.new("ShaderNodeTexCoord")                       # TH thermal lens centre is x -13 mm, z 22 mm; the glow sits up-left
         sub = nt.nodes.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"; sub.inputs[1].default_value = (-0.0158, 0, 0.0250)
         msk = nt.nodes.new("ShaderNodeVectorMath"); msk.operation = "MULTIPLY"; msk.inputs[1].default_value = (1, 0, 1)
@@ -185,10 +185,22 @@ def make_material(kind, color, name):
         nt.links.new(lw.outputs["Facing"], rim.inputs["Fac"])
         mx = nt.nodes.new("ShaderNodeMixRGB"); mx.blend_type = "MULTIPLY"; mx.inputs["Fac"].default_value = 1.0
         nt.links.new(cn.outputs["Color"], mx.inputs[1]); nt.links.new(rim.outputs["Color"], mx.inputs[2])
-        dk = nt.nodes.new("ShaderNodeMixRGB"); dk.blend_type = "MULTIPLY"; dk.inputs["Fac"].default_value = 1.0; dk.inputs[2].default_value = (0.42, 0.42, 0.42, 1)
+        dk = nt.nodes.new("ShaderNodeMixRGB"); dk.blend_type = "MULTIPLY"; dk.inputs["Fac"].default_value = 1.0; dk.inputs[2].default_value = (0.2, 0.2, 0.2, 1)
         nt.links.new(mx.outputs[0], dk.inputs[1]); nt.links.new(dk.outputs[0], b.inputs["Base Color"])
         if b.inputs.get("Coat Tint") is not None:
             nt.links.new(mx.outputs[0], b.inputs["Coat Tint"])
+        if b.inputs.get("Specular Tint") is not None:
+            nt.links.new(cn.outputs["Color"], b.inputs["Specular Tint"])
+    elif kind == "dichroic":        # interference band-pass filter: clear glass you can see into, reflections red-gold to cyan
+        setp(b, color=(0.98, 0.97, 0.99), rough=0.0, trans=1.0, ior=1.5, spec=0.45, coat=0.8, coat_rough=0.0)
+        lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.5
+        cr = nt.nodes.new("ShaderNodeValToRGB"); el = cr.color_ramp.elements
+        el[0].position, el[0].color = 0.0, (0.55, 0.42, 0.92, 1); el[1].position, el[1].color = 1.0, (0.98, 0.62, 0.30, 1)
+        e = el.new(0.55); e.color = (0.40, 0.80, 0.95, 1)
+        nt.links.new(lw.outputs["Facing"], cr.inputs["Fac"])
+        for k in ("Coat Tint", "Specular Tint"):
+            if b.inputs.get(k) is not None:
+                nt.links.new(cr.outputs["Color"], b.inputs[k])
     elif kind == "iris":            # aperture blades: dark anodised steel with a soft sheen
         setp(b, color=(0.025, 0.025, 0.028), metal=0.7, rough=0.32)
     elif kind in ("die", "die_dark"):   # silicon pixel array: a diffraction rainbow that shifts with the viewing angle
