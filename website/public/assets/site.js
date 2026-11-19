@@ -205,108 +205,141 @@ $$('video[data-src]').forEach((v) => {
   addEventListener('scroll', onScroll, {passive: true}); onScroll();
 })();
 
-// ---------- shared spectrum chart: 0 to 2500 nm, the same for every camera; each page highlights where its camera works.
-// MS adds a zoomed panel of its six filters; Duos and TH plot the Mira220's quantum efficiency; TH extends to LWIR.
+// ---------- shared spectrum chart: 0 to 2500 nm, the same reference spectra on every page; each page overlays where its
+// camera works. MS adds a zoom on its six filters, Duos and TH plot the Mira220 QE on a right axis, TH extends to LWIR.
 (() => {
   const g2 = (nm, c, fw) => Math.exp(-4 * Math.LN2 * ((nm - c) / fw) ** 2);
-  const leaf = (nm, s = 0) => {                         // vegetation reflectance; s = stress
-    const vis = 0.05 + (0.08 + 0.05 * s) * g2(nm, 550, 70) + 0.06 * s * g2(nm, 650, 60);
-    const edge = 1 / (1 + Math.exp(-(nm - (712 - 12 * s)) / 14));
-    let r = vis + edge * (0.47 - 0.2 * s);
-    if (nm > 1000) r -= (nm - 1000) * 0.00011 + 0.05 * g2(nm, 1200, 70) + 0.17 * g2(nm, 1450, 120) + 0.26 * g2(nm, 1940, 150);
+  const veg = (nm, s = 0) => {                           // vegetation reflectance; s = stress
+    const vis = 0.04 + (0.07 + 0.05 * s) * g2(nm, 550, 75) + 0.05 * s * g2(nm, 650, 60);
+    let r = vis + (0.43 - 0.17 * s) / (1 + Math.exp(-(nm - (712 - 12 * s)) / 13));
+    if (nm > 1000) r -= (nm - 1000) * 0.00004 + 0.03 * g2(nm, 1200, 70) + 0.22 * g2(nm, 1450, 120) + 0.33 * g2(nm, 1940, 140) - 0.06 * g2(nm, 1660, 160) - 0.05 * g2(nm, 2220, 160);
     return Math.max(0.02, r);
   };
-  const water = (nm) => 0.04 + 0.42 * g2(nm, 1450, 100) + 0.6 * g2(nm, 1940, 120) + 0.08 * g2(nm, 1200, 70) + (nm > 2200 ? (nm - 2200) * 0.0012 : 0);
-  const QE = [[300, 0.57], [320, 0.63], [350, 0.63], [380, 0.70], [400, 0.85], [420, 0.89], [450, 0.90], [500, 0.94], [550, 0.94], [600, 0.90], [650, 0.86],
-              [700, 0.78], [750, 0.70], [800, 0.62], [850, 0.55], [900, 0.44], [940, 0.36], [960, 0.31], [1000, 0.20], [1050, 0.08], [1100, 0.01]];   // Mira220, typical (datasheet)
-  const qe = (nm) => { if (nm < QE[0][0] || nm >= QE[QE.length - 1][0]) return 0; let i = 1; while (QE[i][0] < nm) i++;
-    const [a, va] = QE[i - 1], [b, vb] = QE[i]; return va + (vb - va) * (nm - a) / (b - a); };
-  const MSB = [[475, 32, '#3a6fd8', 'Blue 475'], [560, 27, '#2fa14b', 'Green 560'], [668, 16, '#d8382c', 'Red 668'], [723, 12, '#a3151f', 'Red edge 723'],
-               [840, 40, '#6b1036', 'NIR 840'], [890, 30, '#43103f', 'NIR+ 890']];
+  const soil = (nm) => 0.11 + 0.1 * Math.min(1, (nm - 350) / 1100) + 0.06 * Math.max(0, (nm - 1450) / 1050) - 0.035 * g2(nm, 1420, 80) - 0.07 * g2(nm, 1920, 110) - 0.03 * g2(nm, 2200, 60);
+  const water = (nm) => Math.max(0.005, 0.07 * Math.exp(-(nm - 400) / 140));
+  const mica = (nm) => 0.45 - 0.08 * g2(nm, 1410, 40) - 0.05 * g2(nm, 1910, 50) - 0.2 * g2(nm, 2200, 28) - 0.07 * g2(nm, 2350, 40);
+  const QE = [[300, .57], [320, .63], [350, .63], [380, .70], [400, .85], [420, .89], [450, .90], [500, .94], [550, .94], [600, .90], [650, .86],
+              [700, .78], [750, .70], [800, .62], [850, .55], [900, .44], [940, .36], [960, .31], [1000, .20], [1050, .08], [1100, .01]];   // Mira220, typical
+  const qe = (nm) => { if (nm < 300 || nm >= 1100) return 0; let i = 1; while (QE[i][0] < nm) i++; const [a, va] = QE[i - 1], [b, vb] = QE[i]; return va + (vb - va) * (nm - a) / (b - a); };
+  const MSB = [[475, 32, '#3a6fd8', 'Blue'], [560, 27, '#2fa14b', 'Green'], [668, 16, '#d8382c', 'Red'], [723, 12, '#a3151f', 'Red edge'], [840, 40, '#7a2f6b', 'NIR'], [890, 30, '#43103f', 'NIR+']];
+  const COL = {veg: '#2a7f8f', vegS: '#c4862f', soil: '#d99a2b', water: '#7fb3d5', mica: '#17324d', qe: '#2f6f4e'};
   const CFG = {
-    ms: {zoom: [420, 950], filters: MSB, curve: 'leaf', legend: [...MSB.map((b) => [b[2], b[3]]), ['#16683a', 'Healthy leaf'], ['#c4862f', 'Stressed leaf']]},
-    duos: {qe: [300, 1100], curve: 'leaf', legend: [['#2f6f4e', 'Mira220 quantum efficiency'], ['#16683a', 'Leaf reflectance']]},
-    th: {qe: [400, 940], pass: [400, 940, '#7a2f6b'], lwir: [8000, 14000, '#c2410c'],
-         legend: [['#7a2f6b', 'NIR module: Mira220 behind a 400–940 nm filter'], ['#2f6f4e', 'Mira220 quantum efficiency'], ['#c2410c', 'Thermal core, 8–14 µm']]},
-    sw: {pass: [900, 1700, '#3a6ea5'], curve: 'water', legend: [['#3a6ea5', 'InGaAs SWIR, 900–1700 nm'], ['#2b5a8a', 'Water absorption']]},
-    construction: {pass: [400, 700, '#2f6f4e'], qe: [400, 1100], legend: [['#2f6f4e', 'Colour map, 400–700 nm'], ['#7c8a82', 'Duos, Mira220 response to 1000 nm']]},
+    ms: {win: [[455, 910, 'MS · six bands']], filters: MSB, zoom: [430, 940], stress: true},
+    duos: {win: [[400, 1000, 'Duos · Mira220']], qe: true},
+    th: {win: [[400, 940, 'NIR module · 400–940 nm']], qe: true, lwir: [8000, 14000]},
+    sw: {win: [[900, 1700, 'SW · InGaAs 900–1700 nm']], mica: true},
+    construction: {win: [[400, 700, 'Colour map'], [700, 1000, 'Duos NIR']], qe: true},
   };
+  const WIN = '#2f6f4e';
   function draw(cv) {
     const key = cv.dataset.band, C = CFG[key];
-    const d = Math.min(2, devicePixelRatio || 1), rr = cv.getBoundingClientRect();
-    if (C.zoom) cv.style.height = innerWidth < 760 ? '360px' : '420px';
-    cv.width = rr.width * d; cv.height = cv.getBoundingClientRect().height * d;
-    const g = cv.getContext('2d'), Wd = cv.width, H = cv.height, mono = `${10.5 * d}px JetBrains Mono, monospace`;
-    g.clearRect(0, 0, Wd, H); g.font = mono;
-    const panel = (x0, x1, top, bot, a, b, unit, opt = {}) => {
-      const X = (nm) => x0 + ((nm - a) / (b - a)) * (x1 - x0), Y = (v) => bot - v * (bot - top);
-      // regions
-      if (!opt.lwir) [[0, 400, 'UV'], [400, 700, 'Visible'], [700, 1000, 'NIR'], [1000, 2500, 'SWIR']].forEach(([ra, rb, n], i) => {
-        const L = Math.max(ra, a), R = Math.min(rb, b); if (R <= L) return;
-        g.fillStyle = i % 2 ? 'rgba(47,111,78,.035)' : 'rgba(47,111,78,.07)'; g.fillRect(X(L), top, X(R) - X(L), bot - top);
-        g.fillStyle = '#7c8a82'; g.fillText(n, X(L) + 6 * d, top + 14 * d); });
-      else { g.fillStyle = 'rgba(194,65,12,.05)'; g.fillRect(x0, top, x1 - x0, bot - top); g.fillStyle = '#7c8a82'; g.fillText('LWIR', x0 + 6 * d, top + 14 * d); }
-      // visible strip
-      if (!opt.lwir && a < 700) { const L = X(Math.max(400, a)), R = X(Math.min(700, b)); const rb = g.createLinearGradient(X(400), 0, X(700), 0);
-        [['#6a3fd0', 0], ['#3a6fd8', .2], ['#2fa14b', .45], ['#e8d43a', .65], ['#e98a2c', .8], ['#d8382c', 1]].forEach(([c, o]) => rb.addColorStop(o, c));
-        g.fillStyle = rb; g.fillRect(L, bot + 2 * d, R - L, 5 * d); }
-      // passbands
-      if (C.pass && !opt.lwir) { const [pa, pb, c] = C.pass; g.fillStyle = c + '30'; g.fillRect(X(pa), top, X(pb) - X(pa), bot - top); g.fillStyle = c; g.fillRect(X(pa), top, X(pb) - X(pa), 3 * d); }
-      if (opt.lwir) { const [la, lb, c] = C.lwir; g.fillStyle = c + '40'; g.fillRect(X(la), top, X(lb) - X(la), bot - top); g.fillStyle = c; g.fillRect(X(la), top, X(lb) - X(la), 3 * d); }
-      // MS filters: real band-pass shapes
+    const d = Math.min(2, devicePixelRatio || 1), cssW = cv.getBoundingClientRect().width, small = cssW < 560;
+    const cssH = (C.zoom ? (small ? 470 : 470) : (small ? 300 : 330));
+    cv.style.height = cssH + 'px'; cv.width = cssW * d; cv.height = cssH * d;
+    const g = cv.getContext('2d'), Wd = cv.width;
+    const fs = (small ? 9.5 : 11) * d, font = (w = 500) => `${w} ${fs}px Inter, system-ui, sans-serif`;
+    g.clearRect(0, 0, Wd, cv.height);
+    const L = (small ? 34 : 50) * d, Rr = (C.qe ? (small ? 34 : 46) : (small ? 10 : 18)) * d;
+    const text = (t, x, y, col = '#6b7a72', align = 'left', w = 500) => { g.font = font(w); g.fillStyle = col; g.textAlign = align; g.fillText(t, x, y); g.textAlign = 'left'; };
+    // a plot box: x range [a, b], y reflectance 0..ymax
+    const plot = (x0, x1, top, bot, a, b, ymax, opt = {}) => {
+      const X = (nm) => x0 + ((nm - a) / (b - a)) * (x1 - x0), Y = (v) => bot - (v / ymax) * (bot - top);
+      // spectral regions as soft blocks with labels on top, shown only when they fit
+      if (!opt.lwir) for (const [ra, rb, n] of [[0, 400, 'UV'], [400, 1000, 'VNIR'], [1000, 2500, 'SWIR']]) {
+        const l = X(Math.max(ra, a)), r = X(Math.min(rb, b)); if (r <= l) continue;
+        if (n === 'VNIR') { g.fillStyle = '#eef2f4'; g.fillRect(l, top, r - l, bot - top); }
+        g.font = font(); if (g.measureText(n).width + 10 * d < r - l && !opt.zoom) text(n, (l + r) / 2, top + 14 * d, '#8a979e', 'center');
+      } else { g.fillStyle = '#fbf1ea'; g.fillRect(x0, top, x1 - x0, bot - top); text('LWIR', (x0 + x1) / 2, top + 14 * d, '#a4704e', 'center'); }
+      // gridlines and axes
+      g.strokeStyle = '#e3e8e5'; g.lineWidth = d;
+      const yt = ymax > 0.5 ? [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6] : [0, 0.25, 0.5, 0.75, 1];
+      if (!opt.lwir) for (const v of yt) { if (v > ymax) continue; g.beginPath(); g.moveTo(x0, Y(v)); g.lineTo(x1, Y(v)); g.stroke(); if (opt.yaxis) text(v.toFixed(1), x0 - 6 * d, Y(v) + 3.5 * d, '#6b7a72', 'right'); }
+      g.strokeStyle = '#2b3a33'; g.beginPath(); g.moveTo(x0, top); g.lineTo(x0, bot); g.lineTo(x1, bot); g.stroke();
+      const step = opt.lwir ? 2000 : (b - a > 1500 ? (small ? 500 : 250) : 100);
+      for (let nm = Math.ceil(a / step) * step; nm <= b; nm += step) { const x = X(nm); g.fillStyle = '#2b3a33'; g.fillRect(x, bot, d, 4 * d);
+        text(opt.lwir ? String(nm / 1000) : String(nm), x, bot + 15 * d, '#3b4a43', 'center'); }
+      // the camera's window(s)
+      let lastEnd = -1e9, row = 0;
+      if (!opt.lwir) for (const [wa, wb, n] of C.win) {
+        const l = X(Math.max(wa, a)), r = X(Math.min(wb, b)); if (r <= l) continue;
+        g.fillStyle = 'rgba(47,111,78,.13)'; g.fillRect(l, top, r - l, bot - top); g.fillStyle = WIN; g.fillRect(l, top, r - l, 3 * d);
+        g.font = font(600); const tw = g.measureText(n).width, tx = Math.min(Math.max(l + 3 * d, x0 + 4 * d), x1 - tw - 4 * d);
+        row = tx < lastEnd + 6 * d ? row + 1 : 0; lastEnd = tx + tw;
+        if (!opt.zoom) text(n, tx, top + (30 + row * 13) * d, WIN, 'left', 600);
+      } else { const l = X(C.lwir[0]), r = X(C.lwir[1]); g.fillStyle = 'rgba(194,65,12,.18)'; g.fillRect(l, top, r - l, bot - top); g.fillStyle = '#c2410c'; g.fillRect(l, top, r - l, 3 * d);
+        text(small ? '8–14 µm' : 'Thermal · 8–14 µm', (l + r) / 2, top + 30 * d, '#c2410c', 'center', 600); }
+      // MS filters
       if (C.filters && !opt.lwir) for (const [c0, fw, col, n] of C.filters) {
+        if (c0 < a || c0 > b) continue;
         g.beginPath(); g.moveTo(X(c0 - 2 * fw), bot);
-        for (let nm = c0 - 2 * fw; nm <= c0 + 2 * fw; nm += 1) g.lineTo(X(nm), Y(0.88 * g2(nm, c0, fw) ** 0.6 * (Math.abs(nm - c0) < fw * 1.4 ? 1 : 0.2)));
-        g.lineTo(X(c0 + 2 * fw), bot); g.closePath(); g.fillStyle = col + (opt.zoom ? '55' : '88'); g.fill();
-        if (opt.zoom) { g.strokeStyle = col; g.lineWidth = 1.6 * d; g.stroke(); g.fillStyle = col; g.fillText(String(c0), X(c0) - 11 * d, Y(0.9) - 6 * d); }
+        for (let nm = c0 - 2 * fw; nm <= c0 + 2 * fw; nm += 1) g.lineTo(X(nm), Y(ymax * 0.86 * Math.pow(g2(nm, c0, fw), 0.55)));
+        g.lineTo(X(c0 + 2 * fw), bot); g.closePath(); g.fillStyle = col + (opt.zoom ? '3a' : '60'); g.fill();
+        if (opt.zoom) { g.strokeStyle = col; g.lineWidth = 1.4 * d; g.stroke(); }
       }
-      // Mira220 quantum efficiency
+      if (opt.zoom && C.filters) {                       // peak labels, staggered so neighbours never collide
+        C.filters.forEach(([c0, , col, n], i) => { const yy = top + (i % 2 ? 28 : 14) * d; text(`${c0}`, X(c0), yy, col, 'center', 600); });
+      }
+      // feature markers
+      let lastLab = -1e9;
+      if (!opt.lwir && !opt.zoom) for (const [nm, n] of [[700, 'red edge'], [1450, 'water'], [1940, 'water'], [2200, 'Al-OH']]) {
+        if (nm < a || nm > b) continue; const x = X(nm); g.strokeStyle = '#b9c3bd'; g.setLineDash([2 * d, 3 * d]); g.beginPath(); g.moveTo(x, top + 36 * d); g.lineTo(x, bot); g.stroke(); g.setLineDash([]);
+        g.font = font(); const tw = g.measureText(n).width; if (x + 3 * d > lastLab + 6 * d && x + 3 * d + tw < x1) { text(n, x + 3 * d, top + (46 + (C.win.length > 1 ? 10 : 0)) * d, '#8a979e', 'left', 500); lastLab = x + 3 * d + tw; }
+      }
+      // reference spectra
+      if (!opt.lwir) {
+        const curves = [[veg, COL.veg, 2.2], [soil, COL.soil, 1.8], [water, COL.water, 1.8]];
+        if (C.mica) curves.push([mica, COL.mica, 1.8]);
+        if (opt.zoom && C.stress) curves.splice(1, 2, [(nm) => veg(nm, 1), COL.vegS, 2.2]);
+        for (const [f, col, w] of curves) { g.strokeStyle = col; g.lineWidth = w * d; g.beginPath(); let first = true;
+          for (let nm = Math.max(350, a); nm <= b; nm += 2) { const x = X(nm), y = Y(Math.min(ymax, f(nm))); first ? g.moveTo(x, y) : g.lineTo(x, y); first = false; } g.stroke(); }
+      }
+      // Mira220 QE on a right axis
       if (C.qe && !opt.lwir) {
-        const [qa, qb] = C.qe;
-        g.beginPath(); g.moveTo(X(qa), bot); for (let nm = qa; nm <= qb; nm += 4) g.lineTo(X(nm), Y(qe(nm))); g.lineTo(X(qb), bot); g.closePath();
-        g.fillStyle = key === 'construction' ? 'rgba(124,138,130,.18)' : 'rgba(47,111,78,.16)'; g.fill();
-        g.strokeStyle = key === 'construction' ? '#7c8a82' : '#2f6f4e'; g.lineWidth = 2 * d; g.beginPath();
-        for (let nm = 300; nm <= 1100; nm += 4) { const x = X(nm), y = Y(qe(nm)); nm === 300 ? g.moveTo(x, y) : g.lineTo(x, y); } g.stroke();
-        if (key !== 'construction') for (const [nm, v] of [[550, 0.94], [850, 0.55], [940, 0.36]]) { const x = X(nm), y = Y(v); g.fillStyle = '#0f3d27'; g.beginPath(); g.arc(x, y, 3.5 * d, 0, 7); g.fill();
-          g.font = `600 ${10.5 * d}px JetBrains Mono, monospace`; g.fillText(`QE ${Math.round(v * 100)} % at ${nm} nm`, x + 8 * d, nm === 550 ? y + 16 * d : y - 6 * d); g.font = mono; }
+        const Yq = (v) => bot - v * (bot - top - 40 * d);
+        g.beginPath(); g.moveTo(X(300), bot); for (let nm = 300; nm <= 1100; nm += 4) g.lineTo(X(nm), Yq(qe(nm))); g.lineTo(X(1100), bot); g.closePath();
+        g.fillStyle = 'rgba(47,111,78,.10)'; g.fill();
+        g.strokeStyle = COL.qe; g.lineWidth = 2 * d; g.setLineDash([6 * d, 3 * d]); g.beginPath();
+        for (let nm = 300; nm <= 1100; nm += 4) { const x = X(nm), y = Yq(qe(nm)); nm === 300 ? g.moveTo(x, y) : g.lineTo(x, y); } g.stroke(); g.setLineDash([]);
+        for (const v of [0, 0.5, 1]) text(`${v * 100}%`, x1 + 5 * d, Yq(v) + 3.5 * d, COL.qe);
+        g.strokeStyle = COL.qe; g.lineWidth = d; g.beginPath(); g.moveTo(x1, top + 40 * d); g.lineTo(x1, bot); g.stroke();
+        if (!small) for (const [nm, v] of [[550, .94], [850, .55], [940, .36]]) { const x = X(nm), y = Yq(v); g.fillStyle = COL.qe; g.beginPath(); g.arc(x, y, 3 * d, 0, 7); g.fill();
+          text(`${Math.round(v * 100)}%`, x + 5 * d, y - 5 * d, COL.qe, 'left', 600); }
       }
-      // reference curves
-      if (C.curve && !opt.lwir) {
-        const draws = C.curve === 'leaf' ? (opt.zoom ? [[0, '#16683a'], [1, '#c4862f']] : [[0, '#16683a']]) : [[0, '#2b5a8a']];
-        for (const [st, col] of draws) { const f = C.curve === 'leaf' ? (nm) => leaf(nm, st) : water;
-          g.strokeStyle = col; g.lineWidth = 2.2 * d; g.beginPath(); let first = true;
-          for (let nm = Math.max(350, a); nm <= b; nm += 3) { const x = X(nm), y = Y(f(nm)); first ? g.moveTo(x, y) : g.lineTo(x, y); first = false; } g.stroke(); }
-        if (C.curve === 'water') for (const nm of [1450, 1940]) { g.fillStyle = '#2b5a8a'; g.fillText(`water ${nm}`, X(nm) - 30 * d, Y(water(nm)) - 8 * d); }
-      }
-      // axes
-      g.strokeStyle = '#c9d2cc'; g.lineWidth = d; g.beginPath(); g.moveTo(x0, bot); g.lineTo(x1, bot); g.stroke();
-      g.fillStyle = '#7c8a82';
-      const step = opt.lwir ? 2000 : (b - a > 1500 ? 500 : 100);
-      for (let nm = Math.ceil(a / step) * step; nm <= b; nm += step) { const x = X(nm); g.fillRect(x, bot, d, 5 * d);
-        const t = opt.lwir ? String(nm / 1000) : String(nm); g.fillText(t, x - g.measureText(t).width / 2, bot + 20 * d); }
-      g.fillText(unit, x1 - 16 * d, bot + 32 * d);
-      if (opt.yaxis) for (const v of [0, 0.5, 1]) { g.fillText(`${v * 100}%`, 2 * d, Y(v) + 4 * d); g.fillStyle = 'rgba(124,138,130,.25)'; g.fillRect(x0, Y(v), x1 - x0, d * (v ? 0.6 : 0)); g.fillStyle = '#7c8a82'; }
       return X;
     };
-    const P = 40 * d, R = 14 * d;
-    if (C.zoom) {                                       // overview on top, the six filters zoomed below
-      const mid = H * 0.38;
-      const X = panel(P, Wd - R, 16 * d, mid - 34 * d, 0, 2500, 'nm', {yaxis: false});
-      const [za, zb] = C.zoom;
-      g.strokeStyle = '#2f6f4e'; g.setLineDash([4 * d, 4 * d]); g.lineWidth = d; g.strokeRect(X(za), 16 * d, X(zb) - X(za), mid - 50 * d); g.setLineDash([]);
-      g.beginPath(); g.moveTo(X(za), mid - 34 * d); g.lineTo(P, mid + 2 * d); g.moveTo(X(zb), mid - 34 * d); g.lineTo(Wd - R, mid + 2 * d); g.strokeStyle = 'rgba(47,111,78,.35)'; g.stroke();
-      panel(P, Wd - R, mid + 8 * d, H - 38 * d, za, zb, 'nm', {zoom: true, yaxis: true});
+    const top = 6 * d, H = cv.height;
+    if (C.zoom) {
+      const split = H * 0.46;
+      const X = plot(L, Wd - Rr, top, split - 34 * d, 0, 2500, 0.7, {yaxis: true});
+      text('Wavelength (nm)', (L + Wd - Rr) / 2, split - 6 * d, '#3b4a43', 'center');
+      const [za, zb] = C.zoom; g.strokeStyle = 'rgba(47,111,78,.5)'; g.setLineDash([3 * d, 3 * d]); g.lineWidth = d;
+      g.strokeRect(X(za), top, X(zb) - X(za), split - 34 * d - top); g.setLineDash([]);
+      g.beginPath(); g.moveTo(X(za), split - 34 * d); g.lineTo(L, split + 8 * d); g.moveTo(X(zb), split - 34 * d); g.lineTo(Wd - Rr, split + 8 * d); g.stroke();
+      plot(L, Wd - Rr, split + 10 * d, H - 34 * d, za, zb, 0.7, {zoom: true, yaxis: true});
+      text('Zoom: the six MS filters over a healthy and a stressed leaf', (L + Wd - Rr) / 2, H - 6 * d, '#3b4a43', 'center');
     } else if (C.lwir) {
-      const lw = Math.min(220 * d, Wd * 0.26), gap = 26 * d, x1 = Wd - R - lw - gap;
-      panel(P, x1, 16 * d, H - 40 * d, 0, 2500, 'nm', {yaxis: true});
-      g.strokeStyle = '#7c8a82'; g.lineWidth = 1.5 * d;
-      for (const dx of [-4, 4]) { g.beginPath(); g.moveTo(x1 + gap / 2 + dx * d - 4 * d, H - 34 * d); g.lineTo(x1 + gap / 2 + dx * d + 4 * d, H - 46 * d); g.stroke(); }
-      panel(x1 + gap, Wd - R, 16 * d, H - 40 * d, 7000, 15000, 'µm', {lwir: true});
-    } else panel(P, Wd - R, 16 * d, H - 40 * d, 0, 2500, 'nm', {yaxis: true});
+      const lw = Math.min(small ? 80 * d : 200 * d, Wd * 0.24), gap = (C.qe ? (small ? 40 : 52) : (small ? 16 : 26)) * d, x1 = Wd - (small ? 8 : 14) * d - lw - gap;
+      plot(L, x1, top, H - 34 * d, 0, 2500, 0.7, {yaxis: true});
+      plot(x1 + gap, Wd - (small ? 8 : 14) * d, top, H - 34 * d, 7000, 15000, 0.7, {lwir: true});
+      g.strokeStyle = '#2b3a33'; g.lineWidth = 1.4 * d; for (const dx of [-3, 3]) { g.beginPath(); g.moveTo(x1 + gap / 2 + dx * d - 4 * d, H - 28 * d); g.lineTo(x1 + gap / 2 + dx * d + 4 * d, H - 40 * d); g.stroke(); }
+      text('Wavelength (nm · µm)', (L + Wd) / 2, H - 6 * d, '#3b4a43', 'center');
+    } else {
+      plot(L, Wd - Rr, top, H - 34 * d, 0, 2500, 0.7, {yaxis: true});
+      text('Wavelength (nm)', (L + Wd - Rr) / 2, H - 6 * d, '#3b4a43', 'center');
+    }
+    g.save(); g.translate(11 * d, H * (C.zoom ? 0.24 : 0.45)); g.rotate(-Math.PI / 2); text('Reflectance', 0, 0, '#3b4a43', 'center'); g.restore();
     const lg = document.querySelector(`[data-legend="${key}"]`);
-    if (lg && !lg.childElementCount) lg.innerHTML = C.legend.map(([c, n]) => `<span><i style="background:${c}"></i>${n}</span>`).join('');
+    if (lg) {
+      const items = [[COL.veg, 'Vegetation'], ...(C.stress ? [[COL.vegS, 'Stressed vegetation']] : []), [COL.soil, 'Soil'], [COL.water, 'Water']];
+      if (C.mica) items.push([COL.mica, 'White mica (Al-OH)']);
+      if (C.qe) items.push([COL.qe, 'Mira220 QE (right axis)', true]);
+      items.push(['rgba(47,111,78,.35)', 'Where the camera works', false, true]);
+      if (C.lwir) items.push(['rgba(194,65,12,.45)', 'Thermal band', false, true]);
+      lg.innerHTML = items.map(([c, n, dash, block]) => `<span><i class="${block ? 'blk' : dash ? 'dsh' : ''}" style="--c:${c}"></i>${n}</span>`).join('');
+    }
   }
   const all = $$('canvas[data-band]');
-  all.forEach(draw);
-  let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => all.forEach(draw), 150); });
+  const run = () => all.forEach(draw);
+  (document.fonts?.ready || Promise.resolve()).then(run); run();
+  let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(run, 150); });
 })();
