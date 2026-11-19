@@ -339,8 +339,8 @@ function mount(el) {
   let visible = false, last = performance.now(), simT = 0, hudT = 1;
   new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; last = performance.now(); }, {threshold: 0}).observe(el);
   const camPos = new THREE.Vector3(), camTgt = new THREE.Vector3(), offP = new THREE.Vector3(), offT = new THREE.Vector3(); let lastView = '';
-  const resize = () => { const w = el.clientWidth, h = el.clientHeight; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); };
-  new ResizeObserver(resize).observe(el); resize();
+  const resize = () => { const w = cv.clientWidth || el.clientWidth, h = cv.clientHeight || el.clientHeight; renderer.setSize(w, h, false); cam.aspect = w / Math.max(1, h); cam.updateProjectionMatrix(); };
+  new ResizeObserver(resize).observe(cv); resize();
   const tmp = new THREE.Vector3(), q = new THREE.Quaternion();
 
   function frame(now) {
@@ -411,9 +411,9 @@ function mount(el) {
     if (auto && simT - lastSwitch > 9) { lastSwitch = simT; view = view === 'drone' ? 'survey' : view === 'survey' ? 'map' : 'drone'; el.querySelectorAll('[data-v]').forEach((x) => x.classList.toggle('on', x.dataset.v === view)); }
     const span = ud.span;
     if (view === 'drone') {
-      const zf = Math.max(1, 1.6 / Math.max(0.6, cam.aspect));        // narrow canvases: step back so the whole aircraft fits
+      const zf = Math.max(0.85, 1.25 / Math.max(0.6, cam.aspect));        // narrow canvases: step back so the whole aircraft fits
       const back = dir.clone().multiplyScalar(-span * 1.35 * zf).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.9 + yaw);
-      camPos.copy(drone.position).add(back).add(new THREE.Vector3(0, span * (0.12 + pitch), 0));
+      camPos.copy(drone.position).add(back).add(new THREE.Vector3(0, span * ((cam.aspect < 1.5 ? 0.35 : 0.12) + pitch), 0));      // small screens: a little above, looking down
       camTgt.copy(drone.position).add(new THREE.Vector3(0, -span * 0.12, 0));
     } else if (view === 'survey') {
       const r = Math.max(alt * 1.7, o.swathCam * 3);
