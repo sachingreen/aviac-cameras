@@ -132,13 +132,28 @@ if (td) {
   });
 }
 
-// ---------- pilot request: a static site has no server, so it opens the visitor's mail app with everything filled in
-$$('form[data-mailto]').forEach((f) => f.addEventListener('submit', (e) => {
+// ---------- pilot request: sent to info@aviac.in through FormSubmit (a static site has no server of its own);
+// if that service cannot be reached, the visitor's mail app opens with everything filled in instead
+$$('form[data-mailto]').forEach((f) => f.addEventListener('submit', async (e) => {
   e.preventDefault();
   const v = (n) => f.elements[n]?.value?.trim() || '';
-  const body = `${v('message')}\n\n${v('name')} · ${v('org')}\n${v('email')}\nArea: ${v('acres')}\nInterested in: ${v('interest')}`;
-  location.href = `mailto:${f.dataset.mailto}?subject=${encodeURIComponent('Pilot request: ' + (v('org') || v('name')))}&body=${encodeURIComponent(body)}`;
-  $('.sent', f).hidden = false;
+  if (v('_honey')) return;                                  // bots fill the hidden field
+  const msg = $('.sent', f), btn = $('button[type=submit]', f);
+  const subject = 'Pilot request: ' + (v('org') || v('name'));
+  btn.disabled = true; btn.style.opacity = 0.6;
+  try {
+    const r = await fetch(`https://formsubmit.co/ajax/${f.dataset.mailto}`, {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json'},
+      body: JSON.stringify({_subject: subject, _template: 'table', name: v('name'), email: v('email'), company: v('org'), size: v('acres'), interested_in: v('interest'), message: v('message')})});
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || String(j.success) !== 'true') throw new Error('send failed');
+    msg.textContent = `Thank you, ${v('name').split(' ')[0] || 'we have it'}. Your request is with us at ${f.dataset.mailto}; we will reply within two working days.`;
+    f.reset();
+  } catch (err) {
+    const body = `${v('message')}\n\n${v('name')} · ${v('org')}\n${v('email')}\nSize: ${v('acres')}\nInterested in: ${v('interest')}`;
+    location.href = `mailto:${f.dataset.mailto}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    msg.textContent = `Your mail app should open with the request ready. If it does not, write to ${f.dataset.mailto}.`;
+  }
+  msg.hidden = false; btn.disabled = false; btn.style.opacity = '';
 }));
 
 // ---------- home: solutions explorer, auto-advancing until someone picks a market
@@ -162,3 +177,30 @@ $$('video[data-src]').forEach((v) => {
     } else if (loaded) v.pause();
   }), {rootMargin: '200px'}).observe(v);
 });
+
+// ---------- scroll: progress line, staggered reveals inside groups, a gentle parallax on the big photos
+(() => {
+  const bar = $('.sprog');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $$('.systems,.minis,.segs,.steps,.people,.partners,.stats,.facts,.bstats,.dgrid').forEach((g) => [...g.children].forEach((c, i) => {
+    c.style.setProperty('--d', `${Math.min(i, 6) * 0.08}s`);
+    if (!c.classList.contains('reveal') && !g.classList.contains('reveal')) { c.classList.add('reveal'); io.observe(c); }
+  }));
+  const par = reduce ? [] : $$('.band>img,.hero .pic img,.phero .pic img');
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(() => {
+      const h = document.documentElement.scrollHeight - innerHeight;
+      bar?.style.setProperty('--p', h > 0 ? (scrollY / h).toFixed(4) : 0);
+      for (const im of par) {
+        const r = im.parentElement.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > innerHeight) continue;
+        const k = (r.top + r.height / 2 - innerHeight / 2) / innerHeight;
+        im.style.transform = `translateY(${(k * -28).toFixed(1)}px) scale(1.06)`;
+      }
+      ticking = false;
+    });
+  };
+  addEventListener('scroll', onScroll, {passive: true}); onScroll();
+})();

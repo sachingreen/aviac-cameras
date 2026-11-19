@@ -98,6 +98,7 @@ TEMPLATE = """{{{{HEAD {name} · Aviac Technologies}}}}
 <body>
 {{{{NAV {key}}}}}
 
+<main id="main">
 <header class="phero"><div class="wrap"><div class="grid">
   <div class="reveal">
     <div class="lab g">{lab}{demo_tag}</div>
@@ -139,6 +140,7 @@ TEMPLATE = """{{{{HEAD {name} · Aviac Technologies}}}}
   <a class="btn p reveal" href="{{{{R}}}}#contact">Request a pilot <span class="a">&rarr;</span></a>
 </div></section>
 
+</main>
 {{{{FOOT}}}}
 <script type="module" src="{{{{R}}}}flight.js" data-root="{{{{R}}}}"></script>
 <script src="{{{{R}}}}assets/site.js"></script>
@@ -271,6 +273,7 @@ for d in PROD:
 <body>
 {{{{NAV {d['key']}}}}}
 
+<main id="main">
 <header class="phero"><div class="wrap"><div class="grid">
   <div class="reveal">
     <div class="lab g">{d['lab']}<span class="demo-tag">DEMO</span></div>
@@ -291,6 +294,7 @@ for d in PROD:
   <div class="gallery reveal"><img src="{{{{R}}}}assets/img/{d['gal'][1]}" alt="{d['name']} camera"><div class="col"><img src="{{{{R}}}}assets/img/{d['gal'][0]}" alt="{d['name']} camera"></div></div>
 </div></section>
 
+</main>
 {{{{FOOT}}}}
 <script type="module" src="{{{{R}}}}viewer.js"></script>
 <script src="{{{{R}}}}assets/site.js"></script>

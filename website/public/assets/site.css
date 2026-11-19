@@ -425,3 +425,41 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .plist b{font:500 12.5px var(--mono);color:var(--ink);letter-spacing:.02em}
 .plist span{font-size:14.5px;color:var(--ink-2)}.plist em{display:block;font-style:normal;font-weight:600;color:var(--ink);margin-bottom:2px}
 @media (max-width:900px){.ports{grid-template-columns:1fr;gap:20px}.plist li{grid-template-columns:1fr;gap:4px}}
+
+/* team: animated role icons */
+.person{display:flex;flex-direction:column}
+.person .ico{aspect-ratio:1;border-radius:var(--r);margin-bottom:12px;display:grid;place-items:center;background:linear-gradient(160deg,#eef3ef,#dce7df);border:1px solid var(--line);overflow:hidden}
+.person .ico svg{width:58%;height:58%;overflow:visible}
+.person b{font:400 22px var(--serif);font-weight:400}.person span{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--forest)}
+.cite{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:14px}
+.i-founder .path{stroke:#2f6f4e;stroke-width:2;stroke-dasharray:3 5;animation:dash 1.6s linear infinite}
+.i-founder .tgt{fill:none;stroke:#2f6f4e;stroke-width:2;animation:ping 3.2s ease-out infinite;transform-origin:56px 40px}
+.i-founder .fly path{fill:#0f3d27}
+@keyframes dash{to{stroke-dashoffset:-16}}
+@keyframes ping{0%,70%{transform:scale(1);opacity:1}100%{transform:scale(1.8);opacity:0}}
+.i-eng .ring{fill:none;stroke:#2f6f4e;stroke-width:2.4}
+.i-eng .blades{animation:iris 4s var(--ease) infinite;transform-origin:32px 32px}
+.i-eng .blades path{fill:#0f3d27;opacity:.88;stroke:#dce7df;stroke-width:1}
+.i-eng .pupil{fill:#9fd3b3;animation:pulse 4s var(--ease) infinite;transform-origin:32px 32px}
+@keyframes iris{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(60deg) scale(.82)}}
+@keyframes pulse{0%,100%{transform:scale(.6)}50%{transform:scale(1.5)}}
+.i-agro .soil{stroke:#8a6a46;stroke-width:3;stroke-linecap:round}
+.i-agro .stem{fill:none;stroke:#2f6f4e;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:30;animation:grow 4s var(--ease) infinite -1.8s}
+.i-agro .leaf{fill:#3f8d5c;transform-box:fill-box;animation:leaf 4s var(--ease) infinite -1.8s}
+.i-agro .l1{transform-origin:100% 100%}.i-agro .l2{transform-origin:0 100%;fill:#2f6f4e;animation-delay:-1.55s}
+.i-agro .bud{fill:#c4862f;transform-box:fill-box;transform-origin:center;animation:leaf 4s var(--ease) infinite -1.3s}
+@keyframes grow{0%{stroke-dashoffset:30}35%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes leaf{0%,20%{transform:scale(0)}45%,85%{transform:scale(1)}100%{transform:scale(1);opacity:0}}
+/* scroll: a reading-progress line, reveals that stagger within a group, anchors that clear the sticky nav */
+html{scroll-behavior:smooth}
+[id]{scroll-margin-top:84px}
+.sprog{position:fixed;top:0;left:0;right:0;height:2px;z-index:60;pointer-events:none}
+.sprog i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#2f6f4e,#9fd3b3);transform:scaleX(var(--p,0));transform-origin:0 50%}
+.js .reveal:not(.in){opacity:0;transform:translateY(22px)}
+.reveal{transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:var(--d,0s)}
+.skip{position:absolute;left:12px;top:-60px;z-index:70;background:var(--forest);color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none}
+.skip:focus{top:12px}
+.band>img,.hero .pic img{will-change:transform}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.person .ico *{animation:none!important}}
+
+.hp{position:absolute;left:-10000px;width:1px;height:1px;opacity:0}

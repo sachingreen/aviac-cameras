@@ -62,7 +62,20 @@ def switcher(on, R):
             f'addEventListener("touchend",e=>{{if(x===null)return;const d=e.changedTouches[0].clientX-x;x=null;if(d>90)location.href="{R}{prv[3]}";if(d<-90)location.href="{R}{nxt[3]}"}})}})();</script>')
 
 
-def render(text, R):
+SITE = os.environ.get("SITE", "https://aviac-cameras-public.vercel.app")   # set SITE to your own domain when you move hosts
+DESC = {"": "Aviac builds drone cameras with edge AI: multispectral crop monitoring, spray coverage, thermal solar inspection, SWIR industrial inspection and construction monitoring.",
+        "solutions/crop-monitoring/": "See crop stress before it shows: six-band MS camera, NDVI from the air, stressed zones pinned for scouting.",
+        "solutions/spraying/": "Know what every spray pass covered: Duos stereo camera at the back of the sprayer flags missed strips and overlaps.",
+        "solutions/solar/": "Thermal and NIR solar inspection: hotspot candidates to reviewed findings, repair jobs and a signed-off report.",
+        "solutions/industrial/": "SWIR industrial inspection: wet insulation, ponding and leaks read dark in short-wave infrared.",
+        "solutions/construction/": "Construction monitoring from the air: the same flight every week, progress and volumes measured.",
+        "product/multispectral/": "Aviac MS Agri Spectral: Sony IMX565 plus three Mira220 sensors, six bands, edge AI on board.",
+        "product/duos/": "Aviac Duos: two global-shutter Mira220 sensors on a 26 mm baseline, 28 g, for spray drones.",
+        "product/thermal/": "Aviac TH: 1 MP thermal core and a Mira220 NIR module (400 to 940 nm) in one head.",
+        "product/swir/": "Aviac SW: InGaAs short-wave infrared box camera with a fixed-focus C-mount lens."}
+
+
+def render(text, R, rel=""):
     def head(m):
         return f"""<!doctype html>
 <html lang="en">
@@ -70,7 +83,12 @@ def render(text, R):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>{m.group(1)}</title>
-<meta name="description" content="Aviac Technologies builds drone cameras with edge AI: multispectral crop monitoring, spray coverage, thermal solar inspection, SWIR industrial inspection and construction monitoring.">
+<meta name="description" content="{DESC.get(rel, DESC[''])}">
+<link rel="canonical" href="{SITE}/{rel}">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Aviac">
+<meta property="og:title" content="{m.group(1)}"><meta property="og:description" content="{DESC.get(rel, DESC[''])}">
+<meta property="og:url" content="{SITE}/{rel}"><meta property="og:image" content="{SITE}/assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#f6f8f6">
 <link rel="icon" href="{R}favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -90,13 +108,13 @@ def render(text, R):
                           f'<div class="menu">{links}</div></li>')
             else:
                 items += f'<li><a href="{home}{h}">{t}</a></li>'
-        return (f'<nav class="nav"><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="">'
+        return (f'<a class="skip" href="#main">Skip to content</a><div class="sprog" aria-hidden="true"><i></i></div><nav class="nav"><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="">'
                 f'<span class="wm">Aviac</span></a><ul>{items}</ul>'
                 f'<a class="btn p cta" href="{home}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>' + switcher(on, R))
 
     foot = (f'<footer><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="" style="height:22px">'
             f'<span class="wm" style="font-size:19px">Aviac</span></a>'
-            f'<span>aviactech@gmail.com</span><span>&copy; Aviac Technologies 2024&ndash;26. Specifications are design figures.</span></div></footer>')
+            f'<span>info@aviac.in</span><span>&copy; Aviac Technologies 2024&ndash;26. Specifications are design figures.</span></div></footer>')
     text = re.sub(r"\{\{HEAD ([^}]*)\}\}", head, text)
     text = re.sub(r"\{\{NAV (\w+)\}\}", nav, text)
     text = text.replace("{{FOOT}}", foot).replace("{{R}}", R)
@@ -129,9 +147,12 @@ for dp, _, fs in os.walk(SRC):
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         if f.endswith(".html"):
             depth = 0 if rel == "." else rel.count(os.sep) + 1
-            open(dst, "w").write(render(open(src).read(), "../" * depth))
+            open(dst, "w").write(render(open(src).read(), "../" * depth, "" if rel == "." else rel.replace(os.sep, "/") + "/"))
         else:
             shutil.copy(src, dst)
 shutil.copy(os.path.join(HERE, "vercel.json"), os.path.join(OUT, "vercel.json"))
+open(os.path.join(OUT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    + "".join(f"  <url><loc>{SITE}/{k}</loc></url>\n" for k in DESC) + "</urlset>\n")
+open(os.path.join(OUT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 total = sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fs in os.walk(OUT) for f in fs)
 print(f"website/public: {total / 1e6:.1f} MB")

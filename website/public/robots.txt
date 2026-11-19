@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://aviac-cameras-public.vercel.app/sitemap.xml
