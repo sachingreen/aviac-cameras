@@ -76,6 +76,16 @@ def render(text, R):
     text = re.sub(r"\{\{HEAD ([^}]*)\}\}", head, text)
     text = re.sub(r"\{\{NAV (\w+)\}\}", nav, text)
     text = text.replace("{{FOOT}}", foot).replace("{{R}}", R)
+    def mv(m):
+        import hashlib
+        d = os.path.join(SRC, "models", m.group(1))
+        h = hashlib.sha1()
+        for f in ("model.txt", "parts.json"):
+            fp = os.path.join(d, f)
+            if os.path.exists(fp):
+                h.update(open(fp, "rb").read())
+        return m.group(0) + f' data-v="{h.hexdigest()[:8]}"'
+    text = re.sub(r'data-src="[^"]*models/(\w+)/"', mv, text)
     for a in ("assets/site.css", "assets/site.js", "img/mark.svg", "img/wordmark.svg", "viewer.js", "flight.js"):
         text = text.replace(a + '"', f'{a}?v={V}"')
     return text

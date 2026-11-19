@@ -169,17 +169,21 @@ def make_material(kind, color, name):
             nt.links.new(cr.outputs["Color"], b.inputs["Specular Tint"])
     elif kind == "cover_glass":     # the clear part of the front glass: same gloss, lightly tinted, AR-coated
         setp(b, color=(0.98, 0.99, 1.0), rough=0.0, trans=1.0, ior=1.05, spec=0.5, coat=0.5, coat_rough=0.0)
-    elif kind == "germanium":       # AR-coated germanium: near-black, reflections tinted magenta to green with the angle
-        setp(b, color=(0.2, 0.2, 0.2), metal=0.0, rough=0.45, spec=0.1, coat=0.45, coat_rough=0.32)
-        lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.45
+    elif kind == "germanium":       # AR-coated germanium: deep magenta-violet, shifting to green and amber at the rim
+        setp(b, color=(0.2, 0.2, 0.2), metal=0.0, rough=0.25, spec=0.3, coat=1.0, coat_rough=0.02)
+        lw = nt.nodes.new("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.5
         cr = nt.nodes.new("ShaderNodeValToRGB"); el = cr.color_ramp.elements
-        el[0].position, el[0].color = 0.0, (0.95, 0.35, 0.75, 1); el[1].position, el[1].color = 1.0, (0.35, 0.95, 0.55, 1)
-        e = el.new(0.55); e.color = (0.7, 0.5, 0.95, 1)
+        el[0].position, el[0].color = 0.0, (0.45, 0.04, 0.55, 1)
+        el[1].position, el[1].color = 1.0, (0.85, 0.55, 0.12, 1)
+        for pos, col in ((0.45, (0.70, 0.12, 0.62)), (0.72, (0.25, 0.75, 0.55))):
+            e = el.new(pos); e.color = (*col, 1)
         nt.links.new(lw.outputs["Facing"], cr.inputs["Fac"])
-        sc_ = nt.nodes.new("ShaderNodeMixRGB"); sc_.blend_type = "MULTIPLY"; sc_.inputs["Fac"].default_value = 1.0; sc_.inputs[2].default_value = (0.16, 0.13, 0.17, 1)
-        nt.links.new(cr.outputs["Color"], sc_.inputs[1]); nt.links.new(sc_.outputs[0], b.inputs["Base Color"])
+        dk = nt.nodes.new("ShaderNodeMixRGB"); dk.blend_type = "MULTIPLY"; dk.inputs["Fac"].default_value = 1.0; dk.inputs[2].default_value = (0.12, 0.12, 0.12, 1)
+        nt.links.new(cr.outputs["Color"], dk.inputs[1]); nt.links.new(dk.outputs[0], b.inputs["Base Color"])
         if b.inputs.get("Coat Tint") is not None:
             nt.links.new(cr.outputs["Color"], b.inputs["Coat Tint"])
+        if b.inputs.get("Specular Tint") is not None:
+            nt.links.new(cr.outputs["Color"], b.inputs["Specular Tint"])
     elif kind == "iris":            # aperture blades: dark anodised steel with a soft sheen
         setp(b, color=(0.025, 0.025, 0.028), metal=0.7, rough=0.32)
     elif kind in ("die", "die_dark"):   # silicon pixel array: a diffraction rainbow that shifts with the viewing angle

@@ -102,7 +102,7 @@ def thermal_lens(name, x, z, y_glass, r):
     add(name + "_lip", lip, G, ex, mat="anodised", color=(0.01, 0.01, 0.012), density=ALU, label="Front lip")
     add(name + "_engrave", ring_text(["AVIAC", "13mm f/1.0", "8-14um"], x, z, r + 0.6, y_glass - 12.1, 0.9, 110, 250), G, ex, mat="etch",
         color=(0.8, 0.8, 0.82), mass=0.0, label="Engraving")
-    add(name + "_glass", dome(x, z, y_glass - 13.0, r - 2.2, 2.8), G, ex, mat="germanium", color=(0.2, 0.17, 0.24), mass=0.0, label="Germanium element, AR-coated")
+    add(name + "_glass", dome(x, z, y_glass - 13.4, r - 2.2, 4.2), G, ex, mat="germanium", color=(0.2, 0.17, 0.24), mass=0.0, label="Germanium element, AR-coated")
     add(name + "_inner", yring(x, z, y_glass - 11.5, y_glass - 9.0, r - 2.2, r - 4.0), G, ex, mat="black", color=(0, 0, 0), mass=0.0, label="Lens interior")
 
 
