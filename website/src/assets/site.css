@@ -480,3 +480,24 @@ html{scroll-behavior:smooth}
 .fly .fcam span{display:block;padding:5px 8px;font:500 10px var(--mono);letter-spacing:.06em;color:#dfeee5;background:#0f1a14}
 .fly .fp-r{top:14px}
 @media (max-width:900px){.fly .fcam{top:10px;right:10px;bottom:auto;width:132px}.fly .fcam span{font-size:8.5px;padding:3px 6px}}
+
+/* dashboard sign-in */
+.nav .signin{font-size:14.5px;color:var(--ink-2);text-decoration:none;padding:8px 12px;border-radius:999px;margin-left:auto}
+.nav .signin:hover{background:var(--sage-2);color:var(--ink)}
+.nav .signin+.cta{margin-left:6px}
+.auth{padding:54px 0 90px}
+.authgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.authside h1{font-size:clamp(40px,5vw,66px);margin:14px 0 14px}.authside h1 em{font-style:italic;color:var(--forest)}
+.authlist{list-style:none;padding:0;margin:18px 0 24px;display:grid;gap:8px}
+.authlist li{padding-left:22px;position:relative}.authlist li::before{content:'';position:absolute;left:0;top:.55em;width:10px;height:10px;border-radius:3px;background:var(--forest)}
+.authshot{width:100%;border-radius:var(--r-lg);border:1px solid var(--line);box-shadow:0 30px 60px -36px rgba(19,32,26,.45)}
+.authcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:30px;display:grid;gap:14px;box-shadow:0 30px 60px -40px rgba(19,32,26,.4)}
+.authcard h2{font-size:34px;margin:0}.authcard .sub{margin:-6px 0 4px;color:var(--mute)}
+.authcard label{display:grid;gap:6px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.authcard input[type=email],.authcard input[type=password]{font:400 16px var(--sans);padding:12px 14px;border-radius:12px;border:1px solid var(--line-2);background:var(--bg);color:var(--ink)}
+.authcard .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px}
+.authcard .chk{display:flex;align-items:center;gap:8px;font:400 13.5px var(--sans);letter-spacing:0;text-transform:none;color:var(--ink-2)}
+.authcard .row a{color:var(--forest)}
+.authcard .or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px}.authcard .or::before,.authcard .or::after{content:'';flex:1;height:1px;background:var(--line)}
+.device{text-decoration:none}
+@media (max-width:960px){.authgrid{grid-template-columns:1fr}.authshot{display:none}.nav .signin{display:none}}

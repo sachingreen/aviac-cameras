@@ -1,0 +1,39 @@
+{{HEAD Sign in · Aviac dashboard}}
+<body class="authpage">
+{{NAV home}}
+<main id="main">
+<section class="auth"><div class="wrap"><div class="authgrid">
+  <div class="authside reveal">
+    <div class="lab g">Aviac dashboard</div>
+    <h1>Every flight, <em>ready to act on.</em></h1>
+    <p>Field maps and index layers, hotspot findings, spray coverage and progress reports, from every Aviac camera in one place.</p>
+    <ul class="authlist"><li>Maps and layers from each flight</li><li>Findings with location and evidence</li><li>Reports to share with your team and customers</li></ul>
+    <img src="{{R}}assets/img/t/dashboard.jpg" alt="The Aviac dashboard" class="authshot">
+  </div>
+  <form class="authcard reveal" id="signin" novalidate>
+    <h2>Sign in</h2>
+    <p class="sub">Use the account your Aviac team set up for you.</p>
+    <label for="s-email">Email<input id="s-email" name="email" type="email" autocomplete="username" required></label>
+    <label for="s-pass">Password<input id="s-pass" name="password" type="password" autocomplete="current-password" required></label>
+    <div class="row"><label class="chk"><input type="checkbox" name="remember"> Keep me signed in</label><a href="mailto:info@aviac.in?subject=Dashboard%20password%20reset">Forgot password?</a></div>
+    <button class="btn p" type="submit" style="width:100%;justify-content:center">Sign in <span class="a">&rarr;</span></button>
+    <p class="note authmsg" role="status" aria-live="polite" hidden></p>
+    <div class="or"><span>New to Aviac?</span></div>
+    <a class="btn" href="{{R}}#contact" style="width:100%;justify-content:center">Request access</a>
+  </form>
+</div></div></section>
+</main>
+{{FOOT}}
+<script src="{{R}}assets/site.js"></script>
+<script>
+// The dashboard is being built. Nothing is sent or stored from this form yet: the sign-in hook goes here.
+document.getElementById('signin').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const m = document.querySelector('.authmsg');
+  m.textContent = 'Dashboard accounts are opening to pilot partners first. Request access and we will set yours up.';
+  m.hidden = false;
+  e.target.querySelector('#s-pass').value = '';
+});
+</script>
+</body>
+</html>

@@ -72,7 +72,8 @@ DESC = {"": "Aviac builds drone cameras with edge AI: multispectral crop monitor
         "product/multispectral/": "Aviac MS Agri Spectral: Sony IMX565 plus three Mira220 sensors, six bands, edge AI on board.",
         "product/duos/": "Aviac Duos: two global-shutter Mira220 sensors on a 26 mm baseline, 28 g, for spray drones.",
         "product/thermal/": "Aviac TH: 1 MP thermal core and a Mira220 NIR module (400 to 940 nm) in one head.",
-        "product/swir/": "Aviac SW: InGaAs short-wave infrared box camera with a fixed-focus C-mount lens."}
+        "product/swir/": "Aviac SW: InGaAs short-wave infrared box camera with a fixed-focus C-mount lens.",
+        "dashboard/": "Sign in to the Aviac dashboard: maps, findings and reports from every flight."}
 
 
 def render(text, R, rel=""):
@@ -110,7 +111,7 @@ def render(text, R, rel=""):
                 items += f'<li><a href="{home}{h}">{t}</a></li>'
         return (f'<a class="skip" href="#main">Skip to content</a><div class="sprog" aria-hidden="true"><i></i></div><nav class="nav"><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="">'
                 f'<span class="wm">Aviac</span></a><ul>{items}</ul>'
-                f'<a class="btn p cta" href="{home}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>' + switcher(on, R))
+                f'<a class="signin" href="{R}dashboard/">Sign in</a><a class="btn p cta" href="{home}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>' + switcher(on, R))
 
     foot = (f'<footer><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="" style="height:22px">'
             f'<span class="wm" style="font-size:19px">Aviac</span></a>'
