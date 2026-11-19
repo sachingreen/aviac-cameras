@@ -18,7 +18,7 @@ const CAMS = {
 };
 
 const SCENES = {
-  crop: {ground: 'field_rgb', layer: 'field_ndvi', layerName: 'NDVI', W: 1300, alt: 100, alts: [60, 120], speed: 18, side: 0.7, cam: 'MS', drone: 'vtol',
+  crop: {ground: 'field_rgb', layer: 'field_ndvi', layerName: 'NDVI', W: 735, alt: 100, alts: [60, 120], speed: 18, side: 0.7, cam: 'MS', drone: 'vtol',
     bands: [['Blue', '#3b6fd8'], ['Green', '#2e9e4f'], ['Red', '#d8433b'], ['Red edge', '#b0305a'], ['NIR', '#7a2f6b'], ['Ext NIR', '#4b2a55']],
     finds: [[81.3, 33.0, 'Stress · 0.21 ac'], [33.7, 85.9, 'Stress · 0.08 ac']], findWord: 'Stress zones', title: 'Crop survey · MS on the Aviac VTOL'},
   spraying: {ground: 'field_rgb', layer: 'spray_coverage', layerName: 'Coverage', W: 260, alt: 3, alts: [2, 5], speed: 5, side: 0, swath: 6.5, cam: 'Duos', drone: 'hex', aft: true,
@@ -136,8 +136,8 @@ function buildVTOL(kind) {
     for (const zz of [-0.32, -0.24]) { const leg = rbox(0.016, 0.33, 0.022, 0.006, M.white); leg.position.set(x + s * 0.035, -0.1, zz); leg.rotation.z = s * 0.22; g.add(leg); }
     const foot = rbox(0.05, 0.008, 0.12, 0.003, M.white); foot.position.set(x + s * 0.07, -0.265, -0.28); g.add(foot);
   }
-  const spinner = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.06, 32), M.steel); spinner.rotation.x = -Math.PI / 2; spinner.position.set(0, 0, -0.585); g.add(spinner);
-  const prop = rotor(0.17); prop.rotation.x = Math.PI / 2; prop.position.set(0, 0, -0.57); g.add(prop); spin.push(prop);
+  const spinner = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.06, 32), M.steel); spinner.rotation.x = Math.PI / 2; spinner.position.set(0, 0, 0.585); g.add(spinner);
+  const prop = rotor(0.17); prop.rotation.x = Math.PI / 2; prop.position.set(0, 0, 0.57); g.add(prop); spin.push(prop);
   const cam = cameraHead(kind, kind === 'MS' ? 'ti' : 'white');
   cam.rotation.x = -Math.PI / 2;                    // lenses straight down (nadir), back face up against the belly
   cam.position.set(0, -0.084 - 0.05, -0.15); g.add(cam);
@@ -199,6 +199,7 @@ function mount(el) {
   const W = S.W, H = S.W * 0.75;
   el.innerHTML = `
   <canvas class="fly-c" aria-label="${S.title}: an animated drone survey"></canvas>
+  <div class="fcam"><canvas width="220" height="165"></canvas><span>Camera view · ${S.layerName.toLowerCase()} as it is processed</span></div>
   <div class="fly-hud">
     <div class="fp fp-l"><div class="fh">Mission <b class="live">● live</b></div><div class="fbig"><b data-k="area">0</b><span data-k="areaU"></span></div>
       <div class="fbar"><i data-k="bar"></i></div><dl><dt>Pass</dt><dd data-k="pass"></dd><dt>Flight time</dt><dd data-k="time"></dd><dt>Frames</dt><dd data-k="frames"></dd><dt>Sim speed</dt><dd data-k="timex"></dd></dl>
@@ -321,6 +322,7 @@ function mount(el) {
 
   // HUD helpers
   const mini = el.querySelector('.fmini'), mx = mini.getContext('2d');
+  const camv = el.querySelector('.fcam canvas'), cx2 = camv.getContext('2d');
   const off = document.createElement('canvas'); off.width = 240; off.height = 180; const ox = off.getContext('2d');
   const gImg = new Image(); gImg.src = IMG(S.ground); const lImg = new Image(); lImg.src = IMG(S.layer);
   const fmt = (v, d = 0) => v.toLocaleString('en-US', {maximumFractionDigits: d, minimumFractionDigits: d});
@@ -336,7 +338,8 @@ function mount(el) {
   cv.addEventListener('pointerup', () => (drag = null));
 
   // ---- loop (paused when off screen)
-  let visible = false, last = performance.now(), simT = 0, hudT = 1;
+  let visible = false, last = performance.now(), simT = 0, hudT = 1, camT = 1;
+  const off2 = document.createElement('canvas');
   new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; last = performance.now(); }, {threshold: 0}).observe(el);
   const camPos = new THREE.Vector3(), camTgt = new THREE.Vector3(), offP = new THREE.Vector3(), offT = new THREE.Vector3(); let lastView = '';
   const resize = () => { const w = cv.clientWidth || el.clientWidth, h = cv.clientHeight || el.clientHeight; renderer.setSize(w, h, false); cam.aspect = w / Math.max(1, h); cam.updateProjectionMatrix(); };
@@ -371,6 +374,27 @@ function mount(el) {
     for (let i = 0; i < 4; i++) { put(camWorld); put(corners[i]); put(corners[i]); put(corners[(i + 1) % 4]); }
     fpGeo.attributes.position.needsUpdate = true;
     fpFill.position.set(c.x, 0.05, c.z); fpFill.scale.set(fw, fl, 1); fpFill.rotation.z = -heading;
+    if (gImg.complete && lImg.complete && (camT += dt) > 0.08) {
+      // the ground under the footprint, seen straight down along the flight line: colour where not yet processed,
+      // the analysed layer where it has been
+      camT = 0;
+      const iw = gImg.naturalWidth, ih = gImg.naturalHeight, sx = iw / W, sz = ih / H;
+      const draw = (img, alphaOnly) => {
+        cx2.save(); cx2.translate(110, 82.5); cx2.rotate(-Math.atan2(dir.x, -dir.z));
+        const k = 220 / (fw * sx); cx2.scale(k, k);
+        cx2.drawImage(img, -(c.x / W + 0.5) * iw, -(c.z / H + 0.5) * ih, iw, ih);
+        cx2.restore();
+      };
+      cx2.globalCompositeOperation = 'source-over'; cx2.fillStyle = '#6f7d4c'; cx2.fillRect(0, 0, 220, 165);
+      draw(gImg);
+      cx2.save(); cx2.globalCompositeOperation = 'source-over';
+      off2.width = 220; off2.height = 165; const o2 = off2.getContext('2d');
+      o2.save(); o2.translate(110, 82.5); o2.rotate(-Math.atan2(dir.x, -dir.z)); const k2 = 220 / (fw * sx); o2.scale(k2, k2);
+      o2.drawImage(mask, -(c.x / W + 0.5) * iw, -(c.z / H + 0.5) * ih, iw, ih); o2.globalCompositeOperation = 'source-in';
+      o2.drawImage(lImg, -(c.x / W + 0.5) * iw, -(c.z / H + 0.5) * ih, iw, ih); o2.restore();
+      cx2.drawImage(off2, 0, 0); cx2.restore();
+      cx2.strokeStyle = 'rgba(255,255,255,.7)'; cx2.lineWidth = 1; cx2.beginPath(); cx2.moveTo(110, 72); cx2.lineTo(110, 93); cx2.moveTo(99.5, 82.5); cx2.lineTo(120.5, 82.5); cx2.stroke();
+    }
     fp.visible = fpFill.visible = view !== 'drone' || S.alt < 10 || true;
 
     // paint the analysed layer: the strip under the footprint (the spray swath for the sprayer)

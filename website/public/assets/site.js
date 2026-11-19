@@ -204,3 +204,90 @@ $$('video[data-src]').forEach((v) => {
   };
   addEventListener('scroll', onScroll, {passive: true}); onScroll();
 })();
+
+// ---------- shared spectrum chart: 0 to 2500 nm, the same for every camera; each page highlights where its camera works.
+// TH adds a broken-axis panel for long-wave infrared (8 to 14 um).
+(() => {
+  const BANDS = {
+    ms: {bands: [[463, 487, '#3a6fd8', 'Blue 475'], [548, 572, '#2fa14b', 'Green 560'], [658, 678, '#d8382c', 'Red 668'], [718, 728, '#a3151f', 'Red edge 723'],
+                 [830, 850, '#6b1036', 'NIR 840'], [880, 900, '#43103f', 'NIR+ 890']], curve: 'leaf'},
+    duos: {bands: [[400, 1000, '#2f6f4e', 'Mira220, 400–1000 nm']], resp: true, curve: 'leaf'},
+    th: {bands: [[400, 940, '#7a2f6b', 'NIR module, 400–940 nm']], lwir: [8000, 14000, '#c2410c', 'Thermal, 8–14 µm']},
+    sw: {bands: [[900, 1700, '#3a6ea5', 'InGaAs SWIR, 900–1700 nm']], curve: 'water'},
+    construction: {bands: [[400, 700, '#2f6f4e', 'Colour map, 400–700 nm'], [700, 1000, '#7c8a82', 'Duos NIR, to 1000 nm']]},
+  };
+  const leaf = (nm) => {                                   // a healthy leaf: green bump, red trough, red edge, NIR plateau, water dips in SWIR
+    const vis = 0.05 + 0.08 * Math.exp(-(((nm - 550) / 40) ** 2));
+    const edge = 1 / (1 + Math.exp(-(nm - 715) / 14));
+    let r = vis + edge * 0.47;
+    if (nm > 1000) r -= (nm - 1000) * 0.00011 + 0.05 * Math.exp(-(((nm - 1200) / 45) ** 2)) + 0.17 * Math.exp(-(((nm - 1450) / 70) ** 2)) + 0.26 * Math.exp(-(((nm - 1940) / 90) ** 2));
+    return Math.max(0.02, r);
+  };
+  const water = (nm) => 0.04 + 0.42 * Math.exp(-(((nm - 1450) / 60) ** 2)) + 0.6 * Math.exp(-(((nm - 1940) / 70) ** 2)) + 0.08 * Math.exp(-(((nm - 1200) / 40) ** 2)) + (nm > 2200 ? (nm - 2200) * 0.0012 : 0);
+  function draw(cv) {
+    const key = cv.dataset.band, cfg = BANDS[key];
+    const d = Math.min(2, devicePixelRatio || 1), r = cv.getBoundingClientRect();
+    cv.width = r.width * d; cv.height = r.height * d;
+    const g = cv.getContext('2d'), Wd = cv.width, H = cv.height, P = 34 * d, top = 18 * d, bot = H - 40 * d;
+    const lw = cfg.lwir ? Math.min(220 * d, Wd * 0.26) : 0, gap = cfg.lwir ? 26 * d : 0;
+    const x0 = P, x1 = Wd - P - lw - gap;
+    const X = (nm) => x0 + (nm / 2500) * (x1 - x0), Y = (v) => bot - v * (bot - top);
+    const mono = `${10.5 * d}px JetBrains Mono, monospace`;
+    g.clearRect(0, 0, Wd, H);
+    // regions
+    const regions = [[0, 400, 'UV'], [400, 700, 'Visible'], [700, 1000, 'NIR'], [1000, 2500, 'SWIR']];
+    regions.forEach(([a, b, n], i) => { g.fillStyle = i % 2 ? 'rgba(47,111,78,.035)' : 'rgba(47,111,78,.07)'; g.fillRect(X(a), top, X(b) - X(a), bot - top);
+      g.fillStyle = '#7c8a82'; g.font = mono; g.fillText(n, X(a) + 6 * d, top + 14 * d); });
+    // visible rainbow strip on the axis
+    const rb = g.createLinearGradient(X(400), 0, X(700), 0);
+    [['#6a3fd0', 0], ['#3a6fd8', .2], ['#2fa14b', .45], ['#e8d43a', .65], ['#e98a2c', .8], ['#d8382c', 1]].forEach(([c, o]) => rb.addColorStop(o, c));
+    g.fillStyle = rb; g.fillRect(X(400), bot + 2 * d, X(700) - X(400), 5 * d);
+    // the camera's bands
+    for (const [a, b, c] of cfg.bands) {
+      if (cfg.resp) {                                      // a broad sensor response: a soft hump
+        g.beginPath(); g.moveTo(X(a), bot);
+        for (let nm = a; nm <= b; nm += 5) g.lineTo(X(nm), Y(0.82 * Math.exp(-(((nm - 560) / 240) ** 2)) + 0.04));
+        g.lineTo(X(b), bot); g.closePath(); g.fillStyle = c + '40'; g.fill(); g.strokeStyle = c; g.lineWidth = 2 * d; g.stroke();
+      } else { g.fillStyle = c + (b - a > 60 ? '33' : '55'); g.fillRect(X(a), top, Math.max(2 * d, X(b) - X(a)), bot - top);
+        g.fillStyle = c; g.fillRect(X(a), top, Math.max(2 * d, X(b) - X(a)), 3 * d); }
+    }
+    // reference curve
+    if (cfg.curve) {
+      const f = cfg.curve === 'leaf' ? leaf : water;
+      g.strokeStyle = cfg.curve === 'leaf' ? '#16683a' : '#2b5a8a'; g.lineWidth = 2.2 * d; g.beginPath();
+      for (let nm = 350; nm <= 2500; nm += 5) { const x = X(nm), y = Y(f(nm)); nm === 350 ? g.moveTo(x, y) : g.lineTo(x, y); }
+      g.stroke();
+      if (cfg.curve === 'water') for (const nm of [1450, 1940]) { g.fillStyle = '#2b5a8a'; g.font = mono; g.fillText(`water ${nm}`, X(nm) - 30 * d, Y(water(nm)) - 8 * d); }
+    }
+    // axis
+    g.strokeStyle = '#c9d2cc'; g.lineWidth = d; g.beginPath(); g.moveTo(x0, bot); g.lineTo(x1, bot); g.stroke();
+    g.fillStyle = '#7c8a82'; g.font = mono;
+    for (let nm = 0; nm <= 2500; nm += 500) { const x = X(nm); g.fillRect(x, bot, d, 5 * d); g.fillText(nm, x - g.measureText(String(nm)).width / 2, bot + 22 * d); }
+    g.fillText('nm', x1 - 16 * d, bot + 34 * d);
+    // LWIR extension panel, after a broken axis
+    if (cfg.lwir) {
+      const [a, b, c] = cfg.lwir, L0 = x1 + gap, L1 = Wd - P;
+      const XL = (nm) => L0 + ((nm - 7000) / 8000) * (L1 - L0);
+      g.strokeStyle = '#7c8a82'; g.lineWidth = 1.5 * d;
+      for (const dx of [-4, 4]) { g.beginPath(); g.moveTo(x1 + gap / 2 + dx * d - 4 * d, bot + 6 * d); g.lineTo(x1 + gap / 2 + dx * d + 4 * d, bot - 6 * d); g.stroke(); }
+      g.fillStyle = 'rgba(194,65,12,.05)'; g.fillRect(L0, top, L1 - L0, bot - top);
+      g.fillStyle = c + '40'; g.fillRect(XL(a), top, XL(b) - XL(a), bot - top); g.fillStyle = c; g.fillRect(XL(a), top, XL(b) - XL(a), 3 * d);
+      g.fillStyle = '#7c8a82'; g.fillText('LWIR', L0 + 6 * d, top + 14 * d);
+      g.strokeStyle = '#c9d2cc'; g.lineWidth = d; g.beginPath(); g.moveTo(L0, bot); g.lineTo(L1, bot); g.stroke();
+      for (const um of [8, 10, 12, 14]) { const x = XL(um * 1000); g.fillStyle = '#7c8a82'; g.fillRect(x, bot, d, 5 * d); g.fillText(`${um}`, x - 5 * d, bot + 22 * d); }
+      g.fillText('µm', L1 - 16 * d, bot + 34 * d);
+    }
+    // legend
+    const lg = document.querySelector(`[data-legend="${key}"]`);
+    if (lg && !lg.childElementCount) {
+      const items = cfg.bands.map(([, , c, n]) => [c, n]);
+      if (cfg.lwir) items.push([cfg.lwir[2], cfg.lwir[3]]);
+      if (cfg.curve === 'leaf') items.push(['#16683a', 'Healthy leaf reflectance']);
+      if (cfg.curve === 'water') items.push(['#2b5a8a', 'Water absorption']);
+      lg.innerHTML = items.map(([c, n]) => `<span><i style="background:${c}"></i>${n}</span>`).join('');
+    }
+  }
+  const all = $$('canvas[data-band]');
+  all.forEach(draw);
+  let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => all.forEach(draw), 150); });
+})();

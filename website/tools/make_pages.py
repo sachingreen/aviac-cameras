@@ -119,7 +119,7 @@ TEMPLATE = """{{{{HEAD {name} · Aviac Technologies}}}}
   </div>
 </div></section>
 
-<section id="fly" style="padding-top:30px"><div class="wrap">
+{spec}<section id="fly" style="padding-top:30px"><div class="wrap">
   <div class="head reveal"><h2>Watch it fly.</h2><p>{fly_text}</p></div>
   <div class="fly reveal" data-scene="{key}"></div>
   <p class="note" style="margin-top:10px">Live simulation. Drag to look around; change the height to see the ground detail and swath change. Time runs faster than real flight.</p>
@@ -153,6 +153,9 @@ FLY = {"crop": "MS rides fixed and nadir under the Aviac VTOL and flies a lawnmo
        "solar": "TH flies the rows at 30 m with thermal and colour side by side. Hotspot candidates are pinned as the footprint passes over them, ready for review.",
        "industrial": "SW scans the roof in short-wave infrared. Ponding, wet insulation and a pipe leak appear in the SWIR layer as it builds.",
        "construction": "MS maps the site on the same route as every week. This week's map is laid over week 3, and every change is pinned."}
+
+SPEC_HTML = {'ms': '<section class="specsec"><div class="wrap"><div class="specwrap reveal"><div class="spechead"><div><div class="lab g">Spectrum · 0 to 2500 nm</div><h2>Where MS sees.</h2></div><p>Six narrow bands from blue to near infrared. Nothing past 1000 nm: that is where crop stress shows first.</p></div><canvas data-band="ms" role="img" aria-label="Six MS bands between 475 and 890 nm, on a 0 to 2500 nm scale, over a healthy leaf\'s reflectance"></canvas><div class="speclegend" data-legend="ms"></div></div></div></section>\n\n', 'duos': '<section class="specsec"><div class="wrap"><div class="specwrap reveal"><div class="spechead"><div><div class="lab g">Spectrum · 0 to 2500 nm</div><h2>Where Duos sees.</h2></div><p>Two Mira220 sensors, visible through near infrared. Stereo needs detail and contrast, not narrow bands.</p></div><canvas data-band="duos" role="img" aria-label="The Mira220 response from 400 to 1000 nm, on a 0 to 2500 nm scale, over a leaf\'s reflectance"></canvas><div class="speclegend" data-legend="duos"></div></div></div></section>\n\n', 'th': '<section class="specsec"><div class="wrap"><div class="specwrap reveal"><div class="spechead"><div><div class="lab g">Spectrum · 0 to 2500 nm</div><h2>Where TH sees.</h2></div><p>A NIR module from 400 to 940 nm, and a thermal core far beyond: long-wave infrared, 8 to 14 µm, where heat itself glows.</p></div><canvas data-band="th" role="img" aria-label="The NIR module at 400 to 940 nm on a 0 to 2500 nm scale, with an extension showing the thermal band at 8 to 14 micrometres"></canvas><div class="speclegend" data-legend="th"></div></div></div></section>\n\n', 'sw': '<section class="specsec"><div class="wrap"><div class="specwrap reveal"><div class="spechead"><div><div class="lab g">Spectrum · 0 to 2500 nm</div><h2>Where SW sees.</h2></div><p>Short-wave infrared, 900 to 1700 nm. Water absorbs hard at 1450 nm, so wet material reads dark.</p></div><canvas data-band="sw" role="img" aria-label="The InGaAs SWIR band from 900 to 1700 nm on a 0 to 2500 nm scale, with water\'s absorption peaks"></canvas><div class="speclegend" data-legend="sw"></div></div></div></section>\n\n', 'construction': '<section class="specsec"><div class="wrap"><div class="specwrap reveal"><div class="spechead"><div><div class="lab g">Spectrum · 0 to 2500 nm</div><h2>Where it sees.</h2></div><p>Colour from MS for the map, and Duos visible and near infrared for depth. Construction stays in the visible.</p></div><canvas data-band="construction" role="img" aria-label="Colour mapping bands from 400 to 700 nm and the Duos response to 1000 nm, on a 0 to 2500 nm scale"></canvas><div class="speclegend" data-legend="construction"></div></div></div></section>\n\n'}
+SOL_SPEC = {"crop": "ms", "spraying": "duos", "solar": "th", "industrial": "sw", "construction": "construction"}
 
 PILOT = {"crop": "farm", "spraying": "farm", "solar": "site", "industrial": "plant", "construction": "project"}
 
@@ -213,7 +216,7 @@ for d in SOL:
     c = d["cam"]
     demo_tag = '<span class="demo-tag">DEMO</span>' if d.get("demo") else ""
     html = TEMPLATE.format(name=d["name"], key=d["key"], lab=d["lab"], demo_tag=demo_tag, h1=d["h1"], lead=d["lead"], hero=d["hero"], hero_alt=d["hero_alt"],
-                           compare=cmp, fly_text=FLY[d['key']], s0=s0, s1=s1, s2=s2, stats=stats, extra=extra, how=how, steps=steps, cam_href=c[3], cam_img=c[2], cam_name=c[0],
+                           compare=cmp, spec=SPEC_HTML[SOL_SPEC[d['key']]], fly_text=FLY[d['key']], s0=s0, s1=s1, s2=s2, stats=stats, extra=extra, how=how, steps=steps, cam_href=c[3], cam_img=c[2], cam_name=c[0],
                            cam_sub=c[1], cam_text=c[4], pilot_word=PILOT[d["key"]])
     out = os.path.join(SRC, "solutions", d["slug"]); os.makedirs(out, exist_ok=True)
     open(os.path.join(out, "index.html"), "w").write(html)
@@ -289,7 +292,7 @@ for d in PROD:
   </div>
 </div></div></header>
 {teardown}
-{PORTS_HTML.get(d['cam'], '')}<section><div class="wrap">
+{SPEC_HTML.get(d['cam'], '')}{PORTS_HTML.get(d['cam'], '')}<section><div class="wrap">
   <div class="head reveal"><h2>{d.get('gal_head', ('Same family, new band.', ''))[0]}</h2><p>{d.get('gal_head', ('', 'Every lens is fixed and sealed for flight.'))[1]}</p></div>
   <div class="gallery reveal"><img src="{{{{R}}}}assets/img/{d['gal'][1]}" alt="{d['name']} camera"><div class="col"><img src="{{{{R}}}}assets/img/{d['gal'][0]}" alt="{d['name']} camera"></div></div>
 </div></section>

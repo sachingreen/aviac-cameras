@@ -147,7 +147,7 @@ for dp, _, fs in os.walk(SRC):
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         if f.endswith(".html"):
             depth = 0 if rel == "." else rel.count(os.sep) + 1
-            open(dst, "w").write(render(open(src).read(), "../" * depth, "" if rel == "." else rel.replace(os.sep, "/") + "/"))
+            open(dst, "w").write(render(open(src).read(), "/" if f == "404.html" else "../" * depth, "" if rel == "." else rel.replace(os.sep, "/") + "/"))
         else:
             shutil.copy(src, dst)
 shutil.copy(os.path.join(HERE, "vercel.json"), os.path.join(OUT, "vercel.json"))
