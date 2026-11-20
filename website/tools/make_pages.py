@@ -7,6 +7,20 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SRC = os.path.join(REPO, "website", "src")
 
 
+def STAGE(d):
+    """Hero photo (Blender render) + colour swatches that swap the photo and the teardown model's finish."""
+    cam, finish, R = d['cam'], d['finish'], "{{R}}"
+    base = f"{R}assets/img/{cam}_{finish}_hero_light"
+    img = (f'<img id="{cam}-hero" class="hshot" src="{base}.jpg" srcset="{base}_800.jpg 800w, {base}.jpg 1600w" '
+           f'sizes="(max-width:960px) 92vw, 640px" width="1600" height="1000" fetchpriority="high" alt="' + d['name'] + f' in {finish}">')
+    sw = ''
+    if len(d["swatches"]) > 1:
+        sw = (f'<div class="swatches" data-for="#{cam}-hero">' + ''.join(
+            f'<button{" class=on" if f == finish else ""} data-finish="{f}" data-img="{R}assets/img/{cam}_{f}_hero_light" title="{f.title()}" style="background:{c}" aria-label="{f.title()}"></button>'
+            for f, c in d["swatches"]) + f'<span>{finish.title()}</span></div>')
+    return f'<div class="stage reveal">\n    {img}\n    {sw}\n  </div>'
+
+
 def pin(x, y, label, color):
     side = " lft" if x > 66 else ""
     return f'<span class="pin{side}" style="left:{x}%;top:{y}%"><i style="background:{color}"></i><b>{label}</b></span>'
@@ -40,7 +54,7 @@ SOL = [
     dict(key="spraying", slug="spraying", name="Spraying", lab="Spray drones · stereo", cams=["Duos"],
          h1="Know what every pass <em>actually covered.</em>",
          lead="Duos rides on a gimbal at the back of the spray drone, looking at what was just sprayed. Stereo depth measures canopy and boom height, and every pass is logged as coverage.",
-         hero="duos_arctic_hero_green.jpg", hero_alt="Duos stereo camera",
+         hero="duos_graphite_hero_green.jpg", hero_alt="Duos stereo camera",
          cmp=("field_rgb", "spray_coverage", "RGB", "COVERAGE", [(80.4, 34.6, "Missed strip · one boom width", "#f5761a"), (9.8, 74.5, "Overlap · double dose", "#1a4d9e")],
               "One farm, sprayed", "Aerial view of the farm in colour", "Spray coverage map: sprayed area, one missed strip and one overlap"),
          side=("What the coverage map shows", "Re-spray one strip, not the field.",
@@ -48,7 +62,7 @@ SOL = [
                [("97.6 %", "Covered"), ("0.4 ac", "Missed strip"), ("0.3 ac", "Overlap"), ("26 mm", "Stereo baseline")]),
          steps=[("Mount", "Duos sits on its gimbal yoke at the rear of the sprayer, facing aft at the boom."), ("Measure", "Stereo depth gives canopy height and boom height on every frame."),
                 ("Map", "Each pass becomes a coverage strip on the field map."), ("Fix", "Missed strips and overlaps are flagged before the drone lands.")],
-         cam=("Duos", "Stereo", "duos_arctic_hero_light.jpg", "product/duos/", "Two global-shutter Mira220 sensors on a 26 mm baseline in a 28 g head, on a two-axis gimbal."),
+         cam=("Duos", "Stereo", "duos_graphite_hero_light.jpg", "product/duos/", "Two global-shutter Mira220 sensors on a 26 mm baseline in a 28 g head, on a two-axis gimbal."),
          film="duos_sprayer"),
     dict(key="solar", slug="solar", name="Solar inspection", lab="Solar · thermal", cams=["TH"],
          h1="Find the hot cell. <em>Close the repair.</em>",
@@ -237,7 +251,7 @@ PROD = [
                 ("Externals", "Housing and heat sink", "A field-sage housing with one dark faceplate, fixed from inside so no screws show: both lenses sit flush behind polished bezels, with a label plate by the thermal lens. A black finned aluminium shell behind sheds the core's heat. At the back: power and both streams on one M12 PoE GigE cable, a locking USB-C for setup and a microSD slot that keeps frames if the link drops.",
                  [("Faceplate", "aluminium, fixed from inside"), ("Rear", "aluminium, finned"), ("Ports", "PoE GigE (M12 X-coded) · USB-C · microSD")])],
          end="Heat and NIR, in one pass.", swatches=[("field", "#5f6b58")], teardown=True,
-         gal=("th_field_hero_light.jpg", "th_field_hero_green.jpg"), solution="solutions/solar/",
+         gal=("th_field_lens_closeup.jpg", "th_field_hero_green.jpg"), solution="solutions/solar/",
          gal_head=("Two modules, one head.", "Thermal finds the hot cell; the NIR frame shows exactly which module it is on.")),
     dict(key="sw", slug="swir", cam="sw", name="SWIRL", sub="SWIR", lab="SWIR · industrial inspection", finish="graphite",
          lead="A machine-vision box camera: an InGaAs short-wave infrared sensor behind a C-mount lens, focus and iris set and locked at the factory for flight. Moisture, leaks and haze, on roofs, pipe racks and plants.",
@@ -248,7 +262,7 @@ PROD = [
                 ("Processing board", "SWIR pipeline", "An FPGA board corrects pixel non-uniformity, syncs capture and sends the stream out over USB-C or Ethernet.", [("Output", "USB-C or Ethernet")]),
                 ("Externals", "Box body and ports", "A graphite box body with a black anodised front plate and rear rim, the Aviac mark on both sides. At the back: power and data on one M12 PoE GigE cable, a locking USB-C for setup and a microSD slot that keeps frames if the link drops.", [("Body", "54 × 54 × 60 mm"), ("Ports", "PoE GigE (M12 X-coded) · USB-C · microSD"), ("Lens", "C-mount, fixed focus")])],
                 
-         end="Locked, sealed, ready.", teardown=True, gal_head=("Sealed for flight.", "A fixed-focus C-mount lens on a sealed box body: nothing to knock out of focus."), swatches=[("graphite", "#2b2d31")], gal=("sw_graphite_hero_light.jpg", "sw_graphite_hero_green.jpg"), solution="solutions/industrial/"),
+         end="Locked, sealed, ready.", teardown=True, gal_head=("Sealed for flight.", "A fixed-focus C-mount lens on a sealed box body: nothing to knock out of focus."), swatches=[("graphite", "#2b2d31")], gal=(None, "sw_graphite_hero_green.jpg"), solution="solutions/industrial/"),
 ]
 
 PORTS_HTML = {'th': '<section id="ports"><div class="wrap"><div class="ports reveal"><div class="pimg"><img src="{{R}}assets/img/th_rear.jpg" alt="The back of the TH camera: its connectors" loading="lazy" width="1600" height="1000"></div><div class="pbody"><div class="lab g">At the back</div><h2>One rugged cable to the drone.</h2><p>Power and both streams on one M12, with setup and a backup recorder beside it.</p><ul class="plist"><li><b>M12 X-coded · PoE GigE</b><span><em>Power and data</em>power and both the thermal and NIR streams on one locking cable to the gimbal</span></li><li><b>USB-C</b><span><em>Setup</em>locking; configure palettes, sync and alarms on the bench</span></li><li><b>microSD</b><span><em>Backup recording</em>keeps radiometric frames on board if the link drops</span></li></ul></div></div></div></section>\n\n', 'sw': '<section id="ports"><div class="wrap"><div class="ports reveal"><div class="pimg"><img src="{{R}}assets/img/sw_rear.jpg" alt="The back of the SWIRL camera: its connectors" loading="lazy" width="1600" height="1000"></div><div class="pbody"><div class="lab g">At the back</div><h2>One rugged cable to the drone.</h2><p>Power and data on one M12, with setup and a backup recorder beside it.</p><ul class="plist"><li><b>M12 X-coded · PoE GigE</b><span><em>Power and data</em>power and the SWIR stream on one locking cable to the gimbal or airframe</span></li><li><b>USB-C</b><span><em>Setup</em>locking; set exposure and correction on the bench</span></li><li><b>microSD</b><span><em>Backup recording</em>keeps frames on board if the link drops</span></li></ul></div></div></div></section>\n\n'}
@@ -285,16 +299,12 @@ for d in PROD:
     <div class="pspecs">{specs}</div>
     {'<a class="btn p" href="#teardown">See inside <span class="a">&darr;</span></a> <a class="btn" href="{{R}}' + d['solution'] + '">See it fly</a>' if d.get('teardown') else '<a class="btn p" href="{{R}}' + d['solution'] + '">See it fly <span class="a">&rarr;</span></a> <a class="btn" href="{{R}}#contact">Request a pilot</a>'}
   </div>
-  <div class="stage3d reveal">
-    <div class="viewer" id="{d['cam']}-hero" data-src="{{{{R}}}}models/{d['cam']}/" data-finish="{d['finish']}" data-spin="1" data-zoom="1" data-dist="4.4" role="img" aria-label="{d['name']}, interactive 3D model. Drag to turn."></div>
-    <span class="chip drag">Drag to turn</span>
-    {'' if len(d["swatches"]) < 2 else '<div class="swatches" data-for="#' + d['cam'] + '-hero">' + ''.join(f'<button{" class=on" if f == d["finish"] else ""} data-finish="{f}" title="{f.title()}" style="background:{c}" aria-label="{f.title()}"></button>' for f, c in d["swatches"]) + '<span>' + d['finish'].title() + '</span></div>'}
-  </div>
+  {STAGE(d)}
 </div></div></header>
 {teardown}
 {SPEC_HTML.get(d['cam'], '')}<section><div class="wrap">
   <div class="head reveal"><h2>{d.get('gal_head', ('Same family, new band.', ''))[0]}</h2><p>{d.get('gal_head', ('', 'Every lens is fixed and sealed for flight.'))[1]}</p></div>
-  <div class="gallery reveal"><img src="{{{{R}}}}assets/img/{d['gal'][1]}" alt="{d['name']} camera"><div class="col"><img src="{{{{R}}}}assets/img/{d['gal'][0]}" alt="{d['name']} camera"></div></div>
+  <div class="gallery{' one' if not d['gal'][0] else ''} reveal"><img src="{{{{R}}}}assets/img/{d['gal'][1]}" alt="{d['name']} camera" loading="lazy">{'' if not d['gal'][0] else '<div class="col"><img src="{{R}}assets/img/' + d['gal'][0] + '" alt="' + d['name'] + ' camera" loading="lazy"></div>'}</div>
 </div></section>
 
 </main>

@@ -515,3 +515,12 @@ html{scroll-behavior:smooth}
   .nav.open .menu a{padding:10px 12px;border-radius:12px}
   .nav.open li:not(.dd)>a{padding:12px;border-radius:12px;margin-top:4px}
 }
+
+/* product hero: a studio render instead of a live 3D model; the teardown below is the 3D */
+.stage{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#141412;aspect-ratio:16/10;box-shadow:0 30px 60px -30px rgba(20,30,25,.35)}
+.stage .hshot{display:block;width:100%;height:100%;object-fit:cover;transition:opacity .35s var(--ease)}
+.stage .hshot.swap{opacity:.25}
+.stage .swatches span{color:#e9ece8}
+.stage .swatches button{border-color:rgba(255,255,255,.85)}
+.gallery.one{grid-template-columns:1fr}
+.viewer canvas{opacity:0;transition:opacity .9s var(--ease)}.viewer.ready canvas{opacity:1}

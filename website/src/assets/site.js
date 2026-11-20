@@ -70,9 +70,16 @@ $$('.swatches').forEach((sw) => {
   $$('button', sw).forEach((b) => b.addEventListener('click', () => {
     $$('button', sw).forEach((x) => x.classList.toggle('on', x === b));
     $('span', sw).textContent = b.title;
-    const v = window.Aviac?.viewers?.[target.id];
-    v ? v.setFinish(b.dataset.finish) : (target.dataset.finish = b.dataset.finish);
-    $$(`.viewer[data-follow="${target.id}"]`).forEach((f) => window.Aviac?.viewers?.[f.id]?.setFinish(b.dataset.finish));
+    if (target.tagName === 'IMG' && b.dataset.img) {               // studio photo: load the new one, then cross-fade
+      const base = b.dataset.img, n = new Image();
+      n.sizes = target.sizes; n.srcset = `${base}_800.jpg 800w, ${base}.jpg 1600w`; n.src = base + '.jpg';
+      target.classList.add('swap');
+      (n.decode ? n.decode() : Promise.resolve()).catch(() => {}).then(() => {
+        target.srcset = n.srcset; target.src = n.src; target.alt = target.alt.replace(/ in \w+$/, ' in ' + b.dataset.finish);
+        target.classList.remove('swap');
+      });
+    }
+    $$(`.viewer[data-follow="${target.id}"]`).forEach((f) => { f.dataset.finish = b.dataset.finish; window.Aviac?.viewers?.[f.id]?.setFinish(b.dataset.finish); });
   }));
 });
 

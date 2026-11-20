@@ -206,7 +206,11 @@ async function mount(el) {
   camera.position.copy(home).multiplyScalar(fit()); camT.copy(camera.position);
   el.classList.add('ready');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let onScreen = true, running = false;
+  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; if (onScreen && !running) loop(); }, {rootMargin: '100px'}).observe(el);
   const loop = () => {
+    if (!onScreen) { running = false; return; }                  // off screen: stop drawing, resume when it comes back
+    running = true;
     const a = reduce ? 1 : 0.08;
     k += (kT - k) * a;
     for (const r of parts) {
@@ -228,7 +232,7 @@ async function mount(el) {
   loop();
 }
 
-// model downloads: shared between the hero and teardown viewers, low priority, cancelled when the page is left
+// model downloads: shared between viewers of the same model, low priority, cancelled when the page is left
 const ctl = new AbortController(), cache = {};
 addEventListener('pagehide', () => ctl.abort());
 function load(base, v) {
@@ -238,5 +242,5 @@ function load(base, v) {
 const afterLoad = (fn) => (document.readyState === 'complete' ? fn() : addEventListener('load', fn, {once: true}));
 const io = new IntersectionObserver((es) => es.forEach((e) => {
   if (e.isIntersecting && !e.target.dataset.started) { e.target.dataset.started = '1'; mount(e.target).catch((err) => { if (err.name !== 'AbortError') { e.target.classList.add('failed'); console.error(err); } }); }
-}), {rootMargin: '300px'});
+}), {rootMargin: '200% 0px'});                         // the teardown is built while the visitor reads the top of the page
 afterLoad(() => document.querySelectorAll('.viewer[data-src]').forEach((v) => io.observe(v)));
