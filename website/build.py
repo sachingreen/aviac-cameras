@@ -29,7 +29,7 @@ NAV = [("solutions", "Solutions", "#solutions", [("crop", "Crop monitoring", "so
 def _ver():
     import hashlib
     h = hashlib.sha1()
-    for f in ("assets/site.css", "assets/site.js", "viewer.js", "flight.js"):   # every versioned script, so a viewer change gets a new URL
+    for f in ("assets/site.css", "assets/site.js", "viewer.js", "flight.js", "story.js", "models/vtol.glb"):   # every versioned script, so a viewer change gets a new URL
         h.update(open(os.path.join(SRC, f), "rb").read())
     h.update(svg_mark(GREEN).encode()); h.update(svg_wordmark(GREEN).encode())
     return h.hexdigest()[:8]
@@ -129,7 +129,7 @@ def render(text, R, rel=""):
                 h.update(open(fp, "rb").read())
         return m.group(0) + f' data-v="{h.hexdigest()[:8]}"'
     text = re.sub(r'data-src="[^"]*models/(\w+)/"', mv, text)
-    for a in ("assets/site.css", "assets/site.js", "img/mark.svg", "img/wordmark.svg", "viewer.js", "flight.js"):
+    for a in ("assets/site.css", "assets/site.js", "img/mark.svg", "img/wordmark.svg", "viewer.js", "flight.js", "story.js", "models/vtol.glb"):
         text = text.replace(a + '"', f'{a}?v={V}"')
     return text
 
