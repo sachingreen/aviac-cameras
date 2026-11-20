@@ -526,3 +526,17 @@ html{scroll-behavior:smooth}
 .viewer canvas{opacity:0;transition:opacity .9s var(--ease)}.viewer.ready canvas{opacity:1}
 .stage .swatches{left:14px;bottom:14px;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(18,20,18,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .stage .swatches button{width:24px;height:24px}
+
+/* phones: the systems bar is a fixed row of four, no sideways scrolling to fight with the page scroll */
+@media (max-width:760px){
+  .sysbar .wrap{padding-top:8px;padding-bottom:8px}
+  .sysbar .sb-arrow{display:none}
+  .sb-row{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;overflow:visible;scroll-snap-type:none}
+  .sb-row a{flex:none;flex-direction:column;gap:5px;padding:6px 4px 7px;text-align:center;border-radius:12px;min-width:0}
+  .sb-row img{width:100%;height:auto;aspect-ratio:3/2;border-radius:8px}
+  .sb-row span{font-size:0;line-height:0}
+  .sb-row span b{font-size:15px;line-height:1.1}
+}
+/* desktop teardown: cards only as tall as their content, so the model gets the room above them */
+@media (min-width:761px){.track{align-items:flex-end}.card{padding:18px 22px}.card h3{font-size:26px;margin:4px 0 6px}.card p{margin:0 0 10px}.card ul{gap:2px}.card li{padding:5px 0 1px}}
+.prog span{white-space:nowrap}

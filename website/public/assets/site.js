@@ -113,9 +113,19 @@ if (td) {
       cards.forEach((c, j) => c.classList.toggle('on', j === i));
       bars.forEach((b, j) => b.classList.toggle('on', j <= i));
       label.textContent = `${String(i + 1)} / ${cards.length}`;
+      layout();
     }
     apply(i);
   };
+  // desktop: the model's stage ends above the cards, whatever height the cards take on this screen
+  const stage = $('.viewer', td);
+  const layout = () => {
+    if (innerWidth > 760) { stage.style.bottom = Math.max(...cards.map((c) => c.offsetHeight)) + 56 + 16 + 'px'; stage.style.height = ''; }
+    else { stage.style.bottom = cards[Math.max(0, last)].offsetHeight + 16 + 12 + 'px'; stage.style.height = 'auto'; }   // phones: just above the card on show
+  };
+  layout();
+  document.fonts?.ready.then(layout);
+  addEventListener('resize', layout);
   addEventListener('scroll', tick, {passive: true});
   addEventListener('resize', tick);
   setInterval(tick, 400);                               // also picks up the viewer once it has loaded
