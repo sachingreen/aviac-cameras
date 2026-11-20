@@ -545,7 +545,7 @@ html{scroll-behavior:smooth}
 .fly .fcam{transition:top .4s var(--ease)}
 
 /* ---------- home: the scroll hero (story.js). A pinned 3D stage, three lines that type themselves, then the paper panel ---------- */
-.sh{position:relative;height:420vh;background:#0b0f0c}
+.sh{position:relative;height:300vh;background:#0b0f0c}
 .sh-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .sh-sky{position:absolute;inset:0;background:linear-gradient(180deg,#26344f 0%,#5d5a73 26%,#c47c5e 48%,#eaa36e 58%,#f1c792 68%,#e6b185 100%)}
 .sh-night{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#0d2219,#040a07 70%);opacity:0}
@@ -571,7 +571,7 @@ html{scroll-behavior:smooth}
 .shstats{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:44px;padding-top:22px;border-top:1px solid var(--line)}
 .shstats b{display:block;font:400 26px var(--serif);color:var(--ink)}.shstats span{font-size:13px;color:var(--mute)}
 @media (max-width:900px){
-  .sh{height:380vh}
+  .sh{height:280vh}
   .sh-line,.sh-line.sh-r{left:20px;right:20px;bottom:14vh;text-align:left}
   .sh-t{font-size:34px}.sh-s{letter-spacing:.08em}
   .sh-hud{right:16px;top:84px}
@@ -638,3 +638,11 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 @media (max-width:700px){.mast span:nth-child(2){display:none}}
 .sh{padding:0}
 @media (max-width:900px){.sh-card{top:84px;bottom:auto;left:16px;right:16px}}
+
+/* finding card: four rows */
+.sh-card ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:5px;min-width:250px}
+.sh-card li{display:grid;grid-template-columns:10px 1fr auto;gap:9px;align-items:center;font-size:13.5px;color:var(--ink-2)}
+.sh-card li i{width:9px;height:9px;border-radius:50%}
+.sh-card li em{font:500 11px var(--mono);font-style:normal;color:var(--mute)}
+.sh-tag{color:#141210}
+@media (max-width:700px){.sh-tag{display:none}}
