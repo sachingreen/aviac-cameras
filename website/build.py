@@ -123,7 +123,7 @@ def render(text, R, rel=""):
         import hashlib
         d = os.path.join(SRC, "models", m.group(1))
         h = hashlib.sha1()
-        for f in ("model.txt", "parts.json"):
+        for f in ("model.bin", "parts.json"):
             fp = os.path.join(d, f)
             if os.path.exists(fp):
                 h.update(open(fp, "rb").read())

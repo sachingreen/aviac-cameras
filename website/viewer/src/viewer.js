@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {toCreasedNormals} from 'three/addons/utils/BufferGeometryUtils.js';
+import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
 
 function knurlTexture() {
   const c = document.createElement('canvas');
@@ -132,19 +133,22 @@ async function mount(el) {
   const controls = new OrbitControls(camera, renderer.domElement);
   Object.assign(controls, {enableDamping: true, enablePan: false, enableZoom: el.dataset.zoom === '1', autoRotate: el.dataset.spin === '1', autoRotateSpeed: 0.8});
 
-  const [data, txt] = await load(base, el.dataset.v || '');
-  const raw = atob(txt), u8 = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; i++) u8[i] = raw.charCodeAt(i);
-  const i16 = new Int16Array(u8.buffer);
+  const [data, bin] = await load(base, el.dataset.v || '');
+  const src = new Uint8Array(bin);
   const root = new THREE.Group();
   scene.add(root);
   const parts = [];
   for (const p of data.parts) {
-    const pos = new Float32Array(p.k * 3);
-    for (let i = 0; i < p.k * 3; i++) pos[i] = i16[p.o * 3 + i] * 1e-5;              // 0.01 mm -> metres
+    // meshopt-compressed indexed mesh: Int16 x y z + pad, 0.01 mm units
+    const vb = new Int16Array(p.v * 4), big = p.v > 65535, ib = big ? new Uint32Array(p.i) : new Uint16Array(p.i);
+    MeshoptDecoder.decodeVertexBuffer(new Uint8Array(vb.buffer), p.v, 8, src.subarray(p.vo, p.vo + p.vl));
+    MeshoptDecoder.decodeIndexBuffer(new Uint8Array(ib.buffer), p.i, big ? 4 : 2, src.subarray(p.io, p.io + p.il));
+    const pos = new Float32Array(p.v * 3);
+    for (let i = 0; i < p.v; i++) { pos[i * 3] = vb[i * 4] * 1e-5; pos[i * 3 + 1] = vb[i * 4 + 1] * 1e-5; pos[i * 3 + 2] = vb[i * 4 + 2] * 1e-5; }   // -> metres
     let geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo = toCreasedNormals(geo, 0.6);
+    geo.setIndex(new THREE.BufferAttribute(ib, 1));
+    geo = toCreasedNormals(geo, 0.6);                                   // un-indexes and creases, same look as before
     if (p.m === 'pcb') boardUV(geo);
     const mesh = new THREE.Mesh(geo);
     root.add(mesh);
@@ -229,7 +233,7 @@ const ctl = new AbortController(), cache = {};
 addEventListener('pagehide', () => ctl.abort());
 function load(base, v) {
   const opt = {signal: ctl.signal, priority: 'low'};
-  return (cache[base] ??= Promise.all([fetch(base + 'parts.json?v=' + v, opt).then((r) => r.json()), fetch(base + 'model.txt?v=' + v, opt).then((r) => r.text())]));
+  return (cache[base] ??= Promise.all([fetch(base + 'parts.json?v=' + v, opt).then((r) => r.json()), fetch(base + 'model.bin?v=' + v, opt).then((r) => r.arrayBuffer()), MeshoptDecoder.ready]));
 }
 const afterLoad = (fn) => (document.readyState === 'complete' ? fn() : addEventListener('load', fn, {once: true}));
 const io = new IntersectionObserver((es) => es.forEach((e) => {

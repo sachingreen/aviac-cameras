@@ -2,7 +2,7 @@
 """Pack the CAD models for the website viewer.
 
 Reads cameras/<cam>/mechanical/out/model.js (+ finishes.json) and writes website/src/models/<cam>/:
-  model.txt   base64 of Int16 vertex positions, 0.01 mm units, three.js axes (x right, y up, z toward the viewer)
+  model.bin   meshopt-compressed indexed mesh (via tools/encode_models.mjs); intermediate model.txt holds base64 of Int16 vertex positions, 0.01 mm units, three.js axes (x right, y up, z toward the viewer)
   parts.json  per part: name, label, group, material, colour, finish role, explode (mm, three axes), offset, count
 Parts in hidden groups (the DLS puck that lives on the drone) are left out.
 """
@@ -37,5 +37,9 @@ def pack(cam):
     print(cam, len(parts), "parts", off, "verts", round(len(buf) * 4 / 3 / 1e6, 2), "MB")
 
 
-for cam in (sys.argv[1:] or ["ms", "duos", "th", "sw"]):
+cams = sys.argv[1:] or ["ms", "duos", "th", "sw"]
+for cam in cams:
     pack(cam)
+# weld, reorder and meshopt-compress into model.bin (removes model.txt)
+import subprocess
+subprocess.run(["node", os.path.join(REPO, "website", "tools", "encode_models.mjs"), *cams], check=True)
