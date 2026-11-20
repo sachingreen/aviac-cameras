@@ -554,13 +554,14 @@ html{scroll-behavior:smooth}
 .sh-stage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:52%;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(4,8,6,.55));z-index:1}
 .sh-line{position:absolute;left:max(24px,6vw);bottom:13vh;max-width:min(980px,80vw);opacity:0;pointer-events:none;z-index:2;will-change:opacity}
 .sh-line.sh-r{left:auto;right:max(24px,6vw);text-align:right}
-.sh-t{margin:0;font:400 clamp(34px,5vw,78px)/1.04 var(--serif);letter-spacing:-.025em;color:#fff;text-shadow:0 2px 30px rgba(0,0,0,.25);text-wrap:balance}
+@media (min-width:901px){.sh-line.sh-r .sh-t{margin-left:auto}}
+.sh-t{margin:0;max-width:14em;font:400 clamp(34px,min(5vw,8.6vh),78px)/1.04 var(--serif);letter-spacing:-.025em;color:#fff;text-shadow:0 2px 30px rgba(0,0,0,.25);text-wrap:balance}
 .sh-t span{opacity:0;transition:opacity .25s}
 .sh-t span.on{opacity:1}.sh-t span.cur{opacity:1;color:#a8f08a}
 .sh-s{margin-top:18px;font:500 11.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.75)}
 .sh-hud{position:absolute;right:28px;top:96px;z-index:2;display:grid;justify-items:end;padding:12px 14px;border-radius:12px;background:rgba(6,14,10,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);font:500 10.5px var(--mono);letter-spacing:.1em;color:rgba(255,255,255,.7);opacity:0}
 .sh-hud b{font:400 34px var(--serif);letter-spacing:0;color:#fff}.sh-hud em{font-style:normal}
-.sh-tag{position:absolute;left:0;top:0;z-index:2;margin:-44px 0 0 18px;padding:6px 10px;border-radius:8px;background:#ff8a5c;color:#1a0d06;font:500 11.5px var(--mono);white-space:nowrap;opacity:0;pointer-events:none}
+.sh-tag{position:absolute;left:0;top:0;z-index:2;margin:0;will-change:transform,opacity;padding:6px 10px;border-radius:8px;background:#ff8a5c;color:#1a0d06;font:500 11.5px var(--mono);white-space:nowrap;opacity:0;pointer-events:none}
 .sh-hint{position:absolute;left:50%;bottom:28px;z-index:2;transform:translateX(-50%);font:500 10.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.8)}
 .sh-hint::after{content:'';display:block;width:1px;height:34px;margin:10px auto 0;background:linear-gradient(#fff,transparent);animation:shdrip 1.8s infinite}
 @keyframes shdrip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
@@ -651,3 +652,5 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 .sh-poster{position:absolute;inset:0;background:var(--poster) center/cover no-repeat;filter:blur(10px);transform:scale(1.06)}
 @media (max-aspect-ratio:4/5){.sh-poster{background-image:var(--poster-m)}}
 .sh-card .sh-sub{font:500 10.5px var(--mono);letter-spacing:.06em;color:var(--mute)}
+/* wide screens: the labels on the zones carry the list, so the card stays a compact headline clear of the zones */
+@media (min-width:701px){.sh-card ul{display:none}.sh-card{padding:14px 18px 13px}}

@@ -57,19 +57,45 @@ function film() {
   const lines = $$('.sh-line', hero).map((el) => ({el, t: typer($('.sh-t', el)), a: +el.dataset.a, b: +el.dataset.b}));
   const hud = $('.sh-hud'), hudB = $('.sh-hud b'), card = $('.sh-card'), bandEls = $$('.sh-bands i');
   const LABEL = {nitrogen: ['Nitrogen deficit · 110 m²', '#ffa431'], water: ['Water stress · 200 m²', '#5aa7ff'], pest: ['Pest damage · 40 m²', '#ff5a4a'], yield: ['High-yield zone · 150 m²', '#5fe08a']};
-  let pins = null, tags = [];
+  // each label hangs above its zone (from the zone's far edge) or below it (from the near edge), both exported from Blender for
+  // every frame. It takes whichever spot is clear of the aircraft, the card, the HUD, the words and the other labels, and glides
+  // across when that changes, so nothing ever sits on top of anything else.
+  let pins = null, near = null, tags = [];
   fetch(base + 'pins.json').then((r) => r.json()).then((j) => {
-    pins = j.pins;
-    tags = j.order.map((k) => { const d = document.createElement('div'); d.className = 'sh-tag'; d.textContent = LABEL[k][0]; d.style.background = LABEL[k][1]; stage.appendChild(d); return d; });
+    pins = j.pins; near = j.near || null;
+    tags = j.order.map((k) => {
+      const d = document.createElement('div'); d.className = 'sh-tag'; d.textContent = LABEL[k][0];
+      d.style.background = LABEL[k][1]; stage.appendChild(d); return {el: d, side: 0, w: 0, h: 0, css: 'off', op: ''};
+    });
+    measure();
   }).catch(() => {});
 
   let W = 0, H = 0, dpr = 1;
-  const resize = () => { dpr = Math.min(1.5, devicePixelRatio || 1); W = stage.clientWidth; H = stage.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); draw(true); };
+  // what the labels must keep clear of, measured once per layout (positions relative to the stage)
+  const nav = $('.nav');
+  const walls = {top: 8, card: null, hud: null, words: []};
+  function measure() {
+    const sr = stage.getBoundingClientRect(), rel = (r) => ({l: r.left - sr.left, t: r.top - sr.top, r: r.right - sr.left, b: r.bottom - sr.top});
+    walls.top = nav ? nav.offsetHeight + 8 : 8;
+    walls.card = rel(card.getBoundingClientRect()); walls.hud = rel(hud.getBoundingClientRect());
+    walls.words = lines.map((L) => {                                     // one box per rendered line of each sentence
+      const rows = new Map();
+      $$('.sh-t span, .sh-s', L.el).forEach((g) => {
+        const r = g.getBoundingClientRect(); if (!r.width) return;
+        const k = Math.round(r.top), o = rows.get(k);
+        rows.set(k, o ? {l: Math.min(o.l, r.left), t: Math.min(o.t, r.top), r: Math.max(o.r, r.right), b: Math.max(o.b, r.bottom)} : {l: r.left, t: r.top, r: r.right, b: r.bottom});
+      });
+      return [...rows.values()].map((r) => rel({left: r.l - 6, top: r.t - 4, right: r.r + 6, bottom: r.b + 4}));
+    });
+    tags.forEach((t) => { t.w = t.el.offsetWidth; t.h = t.el.offsetHeight; });
+  }
+  const resize = () => { dpr = Math.min(1.5, devicePixelRatio || 1); W = stage.clientWidth; H = stage.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); draw(true); measure(); };
   addEventListener('resize', resize);
+  if (document.fonts) document.fonts.ready.then(measure);
   const cover = (im) => { const s = Math.max(W / im.width, H / im.height), w = im.width * s, h = im.height * s; return {x: (W - w) / 2, y: (H - h) / 2, w, h}; };
   const nearest = (i) => { for (let d = 0; d < N; d++) { if (frames[i - d]) return i - d; if (frames[i + d]) return i + d; } return -1; };
   const prog = () => { const r = hero.getBoundingClientRect(); return clamp(-r.top / (hero.offsetHeight - innerHeight)); };
-  let pS = 0, lastDrawn = -1;
+  let pS = 0, lastDrawn = -1, cov = null;
 
   function draw(force) {
     const f = pS * (N - 1), i0 = Math.floor(f), fr = f - i0;
@@ -79,34 +105,71 @@ function film() {
     const key = a * 100 + (blend ? Math.round(fr * 24) : 0);
     if (!force && key === lastDrawn) return; lastDrawn = key;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const c = cover(frames[a]);
+    const c = cov = cover(frames[a]);
     ctx.globalAlpha = 1; ctx.drawImage(frames[a], c.x, c.y, c.w, c.h);
     if (blend) { ctx.globalAlpha = fr; ctx.drawImage(frames[i0 + 1], c.x, c.y, c.w, c.h); ctx.globalAlpha = 1; }
-    // finding labels sit on the rendered rings (positions exported from Blender for every frame)
-    const P = pins && pins[String(Math.round(f) + 1)];
+  }
+
+  const ov = (a, b) => (b ? Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l)) * Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t)) : 0);
+  // the six spots a label can take around its zone: above or below it, centred, to the right or to the left of the anchor
+  const SPOTS = [[0, 0], [1, 0], [0, 1], [1, 1], [0, -1], [1, -1]], PREF = [0, 30, 60, 90, 60, 90];
+  function placeTags(dt, cA, hA) {
+    const c = cov; if (!c || !pins || !tags.length) return;
+    const f = pS * (N - 1), fk = String(Math.round(f) + 1), P = pins[fk], Q = near ? near[fk] : P;
+    if (!P || !Q) return;
+    const D = P[4], dx = c.x + D[0] * c.w, dy = c.y + (1 - D[1]) * c.h;              // the aircraft: its pin and wingspan on screen
+    const plane = portrait ? {l: dx - 0.23 * c.w, r: dx + 0.28 * c.w, t: dy - 0.085 * c.h, b: dy + 0.06 * c.h} : {l: dx - 0.15 * c.w, r: dx + 0.18 * c.w, t: dy - 0.15 * c.h, b: dy + 0.11 * c.h};
+    const words = walls.words.flatMap((rows, i) => (+lines[i].el.style.opacity > 0.05 ? rows : []));
+    const placed = [], ease = 1 - Math.exp(-dt / 0.14), fade = 1 - Math.exp(-dt / 0.2), cardW = 1.5 * ss(0.8, 0.85, pS);  // the card's spot is kept free just before it lands
     tags.forEach((t, k) => {
-      const show = ss(0.75 + 0.025 * k, 0.79 + 0.025 * k, pS);
-      if (!P || !P[k] || P[k][2] < 0 || show < 0.01) { t.style.opacity = 0; return; }
-      t.style.opacity = show.toFixed(3);
-      t.style.transform = `translate(${clamp(c.x + P[k][0] * c.w, 4, W - t.offsetWidth - 26).toFixed(1)}px, ${(c.y + (1 - P[k][1]) * c.h).toFixed(1)}px)`;
+      const show = ss(0.75 + 0.025 * k, 0.79 + 0.025 * k, pS), A = P[k], B = Q[k];
+      if (!A || !B || A[2] < 0 || show < 0.01) { if (t.css !== 'off') { t.el.style.opacity = 0; t.css = 'off'; t.op = ''; } return; }
+      const boxes = SPOTS.map(([below, h]) => {
+        const p = below ? B : A, ax = c.x + p[0] * c.w, ay = c.y + (1 - p[1]) * c.h;
+        const l = clamp(h === 0 ? ax - t.w / 2 : h > 0 ? ax + 18 : ax - 18 - t.w, 8, W - t.w - 8);
+        const tp = clamp(below ? ay + 14 : ay - 18 - t.h, walls.top, H - t.h - 8);
+        return {l, t: tp, r: l + t.w, b: tp + t.h};
+      });
+      const cost = boxes.map((b, i) => PREF[i] + ov(b, plane) + cardW * ov(b, walls.card) + hA * ov(b, walls.hud)
+        + words.reduce((s, w) => s + 1.2 * ov(b, w), 0) + placed.reduce((s, o) => s + 0.8 * ov(b, o), 0));
+      let best = 0; cost.forEach((v, i) => { if (v < cost[best]) best = i; });
+      const first = t.css === 'off' || !t.wt;
+      if (first) { t.side = best; t.wt = SPOTS.map((_, i) => +(i === best)); }                // first sight: straight to its spot
+      else {
+        if (cost[best] + 120 < cost[t.side]) t.side = best;                                   // a little hysteresis, so it never flickers
+        t.wt = t.wt.map((v, i) => v + (+(i === t.side) - v) * ease);
+      }
+      // when even the best spot is crowded (a short screen, the zone passing under the aircraft), the label waits until it is clear
+      const crowd = (cost[t.side] - PREF[t.side]) / (t.w * t.h);
+      if (first) t.clear = +(crowd < 0.03); else if (crowd > 0.12) t.clear = 0; else if (crowd < 0.03) t.clear = 1;
+      t.vis = first ? t.clear : t.vis + (t.clear - t.vis) * fade;
+      const sum = t.wt.reduce((s, v) => s + v, 0) || 1;
+      let x = 0, y = 0; boxes.forEach((b, i) => { x += b.l * t.wt[i] / sum; y += b.t * t.wt[i] / sum; });
+      if (t.vis > 0.3) placed.push({l: x, t: y, r: x + t.w, b: y + t.h});
+      const css = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`, op = (show * t.vis).toFixed(3);
+      if (css !== t.css) { t.el.style.transform = css; t.css = css; }
+      if (op !== t.op) { t.el.style.opacity = op; t.op = op; }
     });
   }
 
-  let onScreen = true;
-  new IntersectionObserver(([e]) => { const was = onScreen; onScreen = e.isIntersecting; if (onScreen && !was) requestAnimationFrame(tick); }).observe(hero);
-  function tick() {
+  let onScreen = true, last = 0;
+  new IntersectionObserver(([e]) => { const was = onScreen; onScreen = e.isIntersecting; if (onScreen && !was) { last = 0; requestAnimationFrame(tick); } }).observe(hero);
+  function tick(now) {
     if (!onScreen) return;
+    const dt = last ? Math.min(0.1, (now - last) / 1000) : 1; last = now;
     pS = prog();
     draw(false);
     lines.forEach((L) => {
       L.t(clamp((pS - L.a) / ((L.b - L.a) * 0.72)));
       L.el.style.opacity = (ss(L.a - 0.015, L.a, pS) * (1 - ss(L.b, L.b + 0.03, pS))).toFixed(3);
     });
-    const cA = ss(0.84, 0.92, pS);
-    hud.style.opacity = (ss(0.22, 0.28, pS) * (1 - cA)).toFixed(3);                  // the finding card takes over from the HUD
-    hudB.textContent = `${Math.round(ss(0.26, 0.8, pS) * 100)} %`;
+    const cA = ss(0.84, 0.92, pS), hA = ss(0.22, 0.28, pS) * (1 - ss(0.775, 0.8, pS));
+    // the survey completes, the HUD bows out, then the findings are labelled and summed up in the card
+    hud.style.opacity = hA.toFixed(3);
+    hudB.textContent = `${Math.round(ss(0.26, 0.76, pS) * 100)} %`;
     bandEls.forEach((el, i) => el.classList.toggle('on', pS > 0.26 + i * 0.035));
     card.style.opacity = cA.toFixed(3); card.style.transform = `translateY(${((1 - cA) * 18).toFixed(1)}px)`;
+    placeTags(dt, cA, hA);
     requestAnimationFrame(tick);
   }
   resize(); requestAnimationFrame(tick);
