@@ -37,12 +37,12 @@ function film() {
   const load = (i) => new Promise((res) => {
     if (frames[i]) return res();
     const im = new Image(); im.decoding = 'async';
-    im.onload = () => { frames[i] = im; res(); }; im.onerror = () => res(); im.src = src(i);
+    im.onload = () => { (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { frames[i] = im; res(); }); }; im.onerror = () => res(); im.src = src(i);
   });
   // progressive: the first frame, then coarse to fine
   (async () => {
     await load(0); hero.classList.add('sh-ready'); draw(true);
-    for (const step of [16, 8, 4, 2, 1]) {
+    for (const step of [12, 6, 3, 1]) {
       const batch = []; for (let i = 0; i < N; i += step) if (!frames[i]) batch.push(i);
       for (let k = 0; k < batch.length; k += 6) await Promise.all(batch.slice(k, k + 6).map(load));
     }
@@ -51,7 +51,8 @@ function film() {
 
   const lines = $$('.sh-line', hero).map((el) => ({el, t: typer($('.sh-t', el)), a: +el.dataset.a, b: +el.dataset.b}));
   const hud = $('.sh-hud'), hudB = $('.sh-hud b'), card = $('.sh-card'), bandEls = $$('.sh-bands i');
-  const tags = ['Stress · 0.21 ac', 'Stress · 0.08 ac'].map((t) => { const d = document.createElement('div'); d.className = 'sh-tag'; d.textContent = t; stage.appendChild(d); return d; });
+  const FIND = [['Nitrogen deficit · 0.21 ac', '#ffa431'], ['Water stress · 0.6 ac', '#5aa7ff'], ['Pest damage · 0.08 ac', '#ff5a4a'], ['High-yield zone · 3.4 ac', '#5fe08a']];
+  const tags = FIND.map(([t, c]) => { const d = document.createElement('div'); d.className = 'sh-tag'; d.textContent = t; d.style.background = c; stage.appendChild(d); return d; });
 
   let W = 0, H = 0, dpr = 1;
   const resize = () => { dpr = Math.min(2, devicePixelRatio || 1); W = stage.clientWidth; H = stage.clientHeight; cv.width = W * dpr; cv.height = H * dpr; draw(true); };
@@ -61,7 +62,7 @@ function film() {
     const s = Math.max(W / im.width, H / im.height), w = im.width * s, h = im.height * s;
     let fx = 0.5;
     if (W < H && pins) {                                                  // portrait: centre the crop on the aircraft
-      const d = pins[String(Math.round(pS * (N - 1)) + 1)]?.[2];
+      const d = pins[String(Math.round(pS * (N - 1)) + 1)]?.at(-1);
       if (d) { const cx = clamp(d[0], 0.18, 0.82); fx = clamp((cx * w - W / 2) / (w - W), 0, 1); }
     }
     return {x: (W - w) * fx, y: (H - h) * 0.5, w, h};
@@ -81,7 +82,7 @@ function film() {
     ctx.globalAlpha = 1; ctx.drawImage(frames[a], c.x, c.y, c.w, c.h);
     if (b !== a && a === i0 && fr > 0.02) { ctx.globalAlpha = fr; ctx.drawImage(frames[b], c.x, c.y, c.w, c.h); ctx.globalAlpha = 1; }
     // stress labels follow the rendered rings
-    const P = pins && pins[String(Math.round(f) + 1)], show = ss(0.8, 0.86, pS);
+    const P = pins && pins[String(Math.round(f) + 1)], show = ss(0.8, 0.87, pS);
     tags.forEach((t, k) => {
       if (!P || !P[k] || P[k][2] < 0) { t.style.opacity = 0; return; }
       t.style.opacity = show.toFixed(3);
@@ -94,18 +95,17 @@ function film() {
   function tick() {
     if (!onScreen) return;
     const p = prog();
-    pS += (p - pS) * (CAPTURE ? 1 : 0.16);
-    if (Math.abs(p - pS) < 0.0004) pS = p;
+    pS = p;
     draw(false);
     lines.forEach((L) => {
       L.t(clamp((pS - L.a) / ((L.b - L.a) * 0.72)));
       L.el.style.opacity = (ss(L.a - 0.015, L.a, pS) * (1 - ss(L.b, L.b + 0.03, pS))).toFixed(3);
     });
-    const cEnd = ss(0.84, 0.92, pS);
-    hud.style.opacity = (ss(0.2, 0.26, pS) * (innerWidth < 900 ? 1 - cEnd : 1)).toFixed(3);   // phones: the finding card takes the HUD's place
-    hudB.textContent = `${Math.round(Math.max(clamp((pS - 0.22) / 0.3) * 0.35, ss(0.47, 0.82, pS)) * 100)} %`;
-    bandEls.forEach((el, i) => el.classList.toggle('on', pS > 0.22 + i * 0.035));
-    const cA = ss(0.84, 0.92, pS); card.style.opacity = cA.toFixed(3); card.style.transform = `translateY(${((1 - cA) * 18).toFixed(1)}px)`;
+    const cEnd = ss(0.86, 0.94, pS);
+    hud.style.opacity = (ss(0.24, 0.3, pS) * (innerWidth < 900 ? 1 - cEnd : 1)).toFixed(3);   // phones: the finding card takes the HUD's place
+    hudB.textContent = `${Math.round(Math.max(clamp((pS - 0.26) / 0.3) * 0.35, ss(0.55, 0.86, pS)) * 100)} %`;
+    bandEls.forEach((el, i) => el.classList.toggle('on', pS > 0.26 + i * 0.035));
+    const cA = ss(0.86, 0.94, pS); card.style.opacity = cA.toFixed(3); card.style.transform = `translateY(${((1 - cA) * 18).toFixed(1)}px)`;
     requestAnimationFrame(tick);
   }
   resize(); requestAnimationFrame(tick);
