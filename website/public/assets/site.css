@@ -540,3 +540,5 @@ html{scroll-behavior:smooth}
 /* desktop teardown: cards only as tall as their content, so the model gets the room above them */
 @media (min-width:761px){.track{align-items:flex-end}.card{padding:18px 22px}.card h3{font-size:26px;margin:4px 0 6px}.card p{margin:0 0 10px}.card ul{gap:2px}.card li{padding:5px 0 1px}}
 .prog span{white-space:nowrap}
+/* phones: gallery photos stacked at their own 16:10 shape, never stretched or overlapping */
+@media (max-width:960px){.gallery,.gallery .col{display:grid;grid-template-columns:1fr;gap:12px}.gallery img{height:auto;aspect-ratio:16/10}}
