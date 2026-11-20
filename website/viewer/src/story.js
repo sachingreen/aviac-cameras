@@ -56,7 +56,7 @@ function film() {
 
   const lines = $$('.sh-line', hero).map((el) => ({el, t: typer($('.sh-t', el)), a: +el.dataset.a, b: +el.dataset.b}));
   const hud = $('.sh-hud'), hudB = $('.sh-hud b'), card = $('.sh-card'), bandEls = $$('.sh-bands i');
-  const LABEL = {nitrogen: ['Nitrogen deficit · 0.21 ac', '#ffa431'], water: ['Water stress · 0.6 ac', '#5aa7ff'], pest: ['Pest damage · 0.08 ac', '#ff5a4a'], yield: ['High-yield zone · 3.4 ac', '#5fe08a']};
+  const LABEL = {nitrogen: ['Nitrogen deficit · 110 m²', '#ffa431'], water: ['Water stress · 200 m²', '#5aa7ff'], pest: ['Pest damage · 40 m²', '#ff5a4a'], yield: ['High-yield zone · 150 m²', '#5fe08a']};
   let pins = null, tags = [];
   fetch(base + 'pins.json').then((r) => r.json()).then((j) => {
     pins = j.pins;
@@ -83,8 +83,9 @@ function film() {
     ctx.globalAlpha = 1; ctx.drawImage(frames[a], c.x, c.y, c.w, c.h);
     if (blend) { ctx.globalAlpha = fr; ctx.drawImage(frames[i0 + 1], c.x, c.y, c.w, c.h); ctx.globalAlpha = 1; }
     // finding labels sit on the rendered rings (positions exported from Blender for every frame)
-    const P = pins && pins[String(Math.round(f) + 1)], show = ss(0.76, 0.84, pS);
+    const P = pins && pins[String(Math.round(f) + 1)];
     tags.forEach((t, k) => {
+      const show = ss(0.75 + 0.025 * k, 0.79 + 0.025 * k, pS);
       if (!P || !P[k] || P[k][2] < 0 || show < 0.01) { t.style.opacity = 0; return; }
       t.style.opacity = show.toFixed(3);
       t.style.transform = `translate(${clamp(c.x + P[k][0] * c.w, 4, W - t.offsetWidth - 26).toFixed(1)}px, ${(c.y + (1 - P[k][1]) * c.h).toFixed(1)}px)`;
@@ -102,7 +103,7 @@ function film() {
       L.el.style.opacity = (ss(L.a - 0.015, L.a, pS) * (1 - ss(L.b, L.b + 0.03, pS))).toFixed(3);
     });
     const cA = ss(0.84, 0.92, pS);
-    hud.style.opacity = (ss(0.22, 0.28, pS) * (portrait ? 1 - cA : 1)).toFixed(3);   // phones: the finding card takes the HUD's place
+    hud.style.opacity = (ss(0.22, 0.28, pS) * (1 - cA)).toFixed(3);                  // the finding card takes over from the HUD
     hudB.textContent = `${Math.round(ss(0.26, 0.8, pS) * 100)} %`;
     bandEls.forEach((el, i) => el.classList.toggle('on', pS > 0.26 + i * 0.035));
     card.style.opacity = cA.toFixed(3); card.style.transform = `translateY(${((1 - cA) * 18).toFixed(1)}px)`;

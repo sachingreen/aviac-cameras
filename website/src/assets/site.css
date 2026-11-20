@@ -650,3 +650,4 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 /* hero v4: an instant blurred poster of the first frame (inline, no request) under the canvas */
 .sh-poster{position:absolute;inset:0;background:var(--poster) center/cover no-repeat;filter:blur(10px);transform:scale(1.06)}
 @media (max-aspect-ratio:4/5){.sh-poster{background-image:var(--poster-m)}}
+.sh-card .sh-sub{font:500 10.5px var(--mono);letter-spacing:.06em;color:var(--mute)}
