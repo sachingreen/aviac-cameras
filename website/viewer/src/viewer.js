@@ -117,7 +117,8 @@ const ease = (x) => x * x * (3 - 2 * x);
 async function mount(el) {
   const base = el.dataset.src;
   const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, powerPreference: 'high-performance'});
-  renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+  let dpr = Math.min(2, devicePixelRatio || 1);
+  renderer.setPixelRatio(dpr);
   renderer.toneMapping = THREE.AgXToneMapping;
   renderer.toneMappingExposure = 1.1;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -180,10 +181,15 @@ async function mount(el) {
   const fit = () => Math.max(1, Math.pow(1 / Math.max(0.2, camera.aspect), 0.9)) * (innerWidth < 760 ? 1.3 : 1);     // narrow screens: step back
   let k = 0, kT = 0, focus = null;
   const look = new THREE.Vector3(), lookT = new THREE.Vector3(), camT = home.clone();
+  // drawing on demand: the loop runs while something moves (the teardown easing, a part fading, the camera gliding or
+  // settling after a drag) and sleeps once everything is still, until the page or the visitor moves it again
+  let onScreen = true, running = false, need = 2, live = false;
+  const wake = () => { need = Math.max(need, 2); if (live && onScreen && !running) { running = true; requestAnimationFrame(loop); } };
   const api = {
-    setFinish,
-    explode(v) { kT = v; },
+    setFinish(name) { setFinish(name); wake(); },
+    explode(v) { if (v !== kT) { kT = v; wake(); } },              // calls that change nothing do not wake the loop
     focus(g, at) {
+      if (g === focus && !at) return;
       focus = g;
       if (g) {
         const b = new THREE.Box3();
@@ -191,45 +197,67 @@ async function mount(el) {
         b.getCenter(lookT);
       } else lookT.set(0, 0, 0);
       if (at) camT.copy(at).multiplyScalar(R);
+      wake();
     },
-    view(az, el2, d) { camT.set(Math.sin(az) * Math.cos(el2), Math.sin(el2), Math.cos(az) * Math.cos(el2)).multiplyScalar(R * d * fit()); },
+    view(az, el2, d) {
+      const was = camT.clone();
+      camT.set(Math.sin(az) * Math.cos(el2), Math.sin(el2), Math.cos(az) * Math.cos(el2)).multiplyScalar(R * d * fit());
+      if (camT.distanceTo(was) > R * 1e-4) wake();
+    },
     driven: false,
   };
   (window.Aviac ??= {viewers: {}}).viewers[el.id || base] = api;
 
   const resize = () => {
     const w = el.clientWidth, h = el.clientHeight;
-    renderer.setSize(w, h); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix();
+    renderer.setSize(w, h); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); wake();
   };
   new ResizeObserver(resize).observe(el);
   resize();
   camera.position.copy(home).multiplyScalar(fit()); camT.copy(camera.position);
-  el.classList.add('ready');
+  controls.addEventListener('start', wake); controls.addEventListener('change', wake);
+  // every shader is compiled before the first frame (in parallel where the browser allows it), so the reveal never stutters
+  try { await renderer.compileAsync(scene, camera); } catch (e) { /* no parallel compile here: the first frame compiles */ }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let onScreen = true, running = false;
-  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; if (onScreen && !running) loop(); }, {rootMargin: '100px'}).observe(el);
-  const loop = () => {
-    if (!onScreen) { running = false; return; }                  // off screen: stop drawing, resume when it comes back
+  const camWant = new THREE.Vector3(), eps = R * 2e-4;
+  let fT = 0, fSum = 0, fN = 0, lastNow = 0;
+  function loop(now) {
+    if (!onScreen) { running = false; lastNow = 0; return; }     // off screen: stop drawing, resume when it comes back
     running = true;
-    const a = reduce ? 1 : 0.08;
+    // easing by time, not by frame, so the teardown moves at the same pace on a 60 Hz, a 120 Hz or a struggling screen
+    const dt = lastNow ? Math.min(0.1, (now - lastNow) / 1000) : 1 / 60; lastNow = now;
+    const a = reduce ? 1 : 1 - Math.pow(0.92, dt * 60);
+    let moving = Math.abs(kT - k) > 1e-4;
     k += (kT - k) * a;
+    const ek = ease(Math.min(1, k));
     for (const r of parts) {
-      r.mesh.position.copy(r.e).multiplyScalar(ease(Math.min(1, k)));
+      r.mesh.position.copy(r.e).multiplyScalar(ek);
       const want = !focus || r.p.g === focus ? 1 : 0.12;
+      if (Math.abs(want - r.dim) > 1e-3) moving = true;
       r.dim += (want - r.dim) * a;
       r.mesh.material.opacity = r.dim * (r.base ?? 1);
       r.mesh.material.depthWrite = r.dim > 0.5;
       r.mesh.visible = r.dim > 0.02;
     }
     if (api.driven) {
+      camWant.copy(camT).add(look);
+      if (look.distanceTo(lookT) > eps || camera.position.distanceTo(camWant) > eps) moving = true;
       look.lerp(lookT, a); controls.target.copy(look);
-      camera.position.lerp(camT.clone().add(look), a);
+      camera.position.lerp(camWant, a);
     }
-    controls.update();
+    const changed = controls.update();
+    if (!(moving || changed || need > 0 || controls.autoRotate)) { running = false; fT = 0; lastNow = 0; return; }   // all still: sleep
+    if (need > 0) need--;
     renderer.render(scene, camera);
+    // a GPU that cannot hold about 40 fps at this size gets fewer pixels, a quarter step at a time (never below 1.25x)
+    if (fT && now - fT < 120) { fSum += now - fT; fN++; }
+    fT = now;
+    if (fN >= 45) { const avg = fSum / fN; fSum = fN = 0; if (avg > 25 && dpr > 1.25) { dpr = Math.max(1.25, dpr - 0.25); renderer.setPixelRatio(dpr); resize(); } }
     requestAnimationFrame(loop);
-  };
-  loop();
+  }
+  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; if (onScreen) wake(); }, {rootMargin: '100px'}).observe(el);
+  el.classList.add('ready'); live = true;
+  wake();
 }
 
 // model downloads: shared between viewers of the same model, low priority, cancelled when the page is left

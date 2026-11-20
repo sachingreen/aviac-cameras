@@ -1,8 +1,19 @@
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' https://formsubmit.co; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
 /assets/img/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 /assets/film/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/assets/film/v4/*
+  Cache-Control: public, max-age=31536000, immutable
+/assets/film/v4m/*
+  Cache-Control: public, max-age=31536000, immutable
 /models/*
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  Cache-Control: public, max-age=31536000, immutable
 /chunks/*
   Cache-Control: public, max-age=31536000, immutable

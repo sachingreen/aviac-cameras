@@ -33,7 +33,8 @@ function typer(el) {
 function film() {
   const stage = $('.sh-stage'), cv = $('.sh-gl'), ctx = cv.getContext('2d', {alpha: false});
   const N = +hero.dataset.frames, ext = hero.dataset.ext || 'webp';
-  const portrait = innerWidth / innerHeight < 0.8;                       // phones: their own portrait film, the drone framed for it
+  const portrait = innerWidth / innerHeight <= 0.8;                      // phones: their own portrait film, the drone framed for it
+  const conn = navigator.connection, STEP = conn && (conn.saveData || /2g$/.test(conn.effectiveType || '')) ? 2 : 1;   // data saver: every other frame
   const base = portrait && hero.dataset.filmM ? hero.dataset.filmM : hero.dataset.film;
   const frames = new Array(N).fill(null);
   const src = (i) => `${base}f${String(i + 1).padStart(3, '0')}.${ext}`;
@@ -46,8 +47,8 @@ function film() {
   // the opening first, in order (that is where the scroll starts), then every 8th, 4th, 2nd frame across the film
   const order = [], seen = new Uint8Array(N);
   const push = (i) => { if (i >= 0 && i < N && !seen[i]) { seen[i] = 1; order.push(i); } };
-  for (let i = 0; i < Math.min(N, 40); i++) push(i);
-  for (const step of [8, 4, 2, 1]) for (let i = 0; i < N; i += step) push(i);
+  for (let i = 0; i < Math.min(N, 40); i += STEP) push(i);
+  for (const step of [8, 4, 2, 1]) if (step >= STEP) for (let i = 0; i < N; i += step) push(i);
   let next = 0;
   const worker = async () => {
     while (next < order.length) { const i = order[next++]; await load(i); if (i === 0) { hero.classList.add('sh-ready'); draw(true); } }
@@ -55,7 +56,7 @@ function film() {
   for (let k = 0; k < 6; k++) worker();
 
   const lines = $$('.sh-line', hero).map((el) => ({el, t: typer($('.sh-t', el)), a: +el.dataset.a, b: +el.dataset.b}));
-  const hud = $('.sh-hud'), hudB = $('.sh-hud b'), card = $('.sh-card'), bandEls = $$('.sh-bands i');
+  const hud = $('.sh-hud'), hudB = $('.sh-hud b'), card = $('.sh-card'), bandEls = $$('.sh-bands i'), hint = $('.sh-hint');
   const LABEL = {nitrogen: ['Nitrogen deficit · 110 m²', '#ffa431'], water: ['Water stress · 200 m²', '#5aa7ff'], pest: ['Pest damage · 40 m²', '#ff5a4a'], yield: ['High-yield zone · 150 m²', '#5fe08a']};
   // each label hangs above its zone (from the zone's far edge) or below it (from the near edge), both exported from Blender for
   // every frame. It takes whichever spot is clear of the aircraft, the card, the HUD, the words and the other labels, and glides
@@ -98,16 +99,16 @@ function film() {
   let pS = 0, lastDrawn = -1, cov = null;
 
   function draw(force) {
-    const f = pS * (N - 1), i0 = Math.floor(f), fr = f - i0;
-    const a = nearest(i0);
+    const f = pS * (N - 1), i0 = Math.floor(f / STEP) * STEP, i1 = Math.min(N - 1, i0 + STEP), fr = (f - i0) / STEP;
+    const a = frames[i0] ? i0 : nearest(Math.round(f));
     if (a < 0 || !W) return;
-    const blend = a === i0 && frames[i0 + 1] && fr > 0.03 && fr < 0.97;        // cross-fade only between two real neighbours
+    const blend = a === i0 && i1 > i0 && frames[i1] && fr > 0.03 && fr < 0.97;   // cross-fade only between two loaded neighbours
     const key = a * 100 + (blend ? Math.round(fr * 24) : 0);
     if (!force && key === lastDrawn) return; lastDrawn = key;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const c = cov = cover(frames[a]);
     ctx.globalAlpha = 1; ctx.drawImage(frames[a], c.x, c.y, c.w, c.h);
-    if (blend) { ctx.globalAlpha = fr; ctx.drawImage(frames[i0 + 1], c.x, c.y, c.w, c.h); ctx.globalAlpha = 1; }
+    if (blend) { ctx.globalAlpha = fr; ctx.drawImage(frames[i1], c.x, c.y, c.w, c.h); ctx.globalAlpha = 1; }
   }
 
   const ov = (a, b) => (b ? Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l)) * Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t)) : 0);
@@ -169,6 +170,7 @@ function film() {
     hudB.textContent = `${Math.round(ss(0.26, 0.76, pS) * 100)} %`;
     bandEls.forEach((el, i) => el.classList.toggle('on', pS > 0.26 + i * 0.035));
     card.style.opacity = cA.toFixed(3); card.style.transform = `translateY(${((1 - cA) * 18).toFixed(1)}px)`;
+    if (hint) hint.style.opacity = (1 - ss(0.015, 0.06, pS)).toFixed(3);              // the hint has done its job once scrolling starts
     placeTags(dt, cA, hA);
     requestAnimationFrame(tick);
   }
@@ -204,7 +206,7 @@ function lightSection() {
   let li = 0;
   const show = (i) => {
     li = i; const L = LAY[i];
-    $('.lc-a', box).style.backgroundImage = `url(${IMG}${L.a}.jpg)`; $('.lc-b', box).style.backgroundImage = `url(${IMG}${L.b}.jpg)`;
+    $('.lc-a', box).style.backgroundImage = `url(${IMG}${L.a}.webp)`; $('.lc-b', box).style.backgroundImage = `url(${IMG}${L.b}.webp)`;
     rows.forEach((r, j) => r.classList.toggle('on', j === L.row));
   };
   show(0);

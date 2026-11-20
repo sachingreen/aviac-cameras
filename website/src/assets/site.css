@@ -12,6 +12,7 @@
 html{scroll-behavior:smooth;background:var(--bg)}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{max-width:100%;display:block}
+picture{display:contents}picture>source{display:none}
 a{color:inherit}
 .wrap{max-width:var(--max);margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
 h1,h2,h3,h4{font-family:var(--serif);font-weight:400;letter-spacing:-.015em;line-height:1.06;margin:0;text-wrap:balance}
@@ -337,8 +338,8 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .xpanes{position:relative;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:4/3;background:#1d2a22;isolation:isolate}
 .xp{position:absolute;inset:0;opacity:0;transition:opacity .7s var(--ease);color:#fff;text-decoration:none;pointer-events:none}
 .xp.on{opacity:1;pointer-events:auto}
-.xp>img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.04);transition:transform 7s linear}
-.xp.on>img{transform:scale(1.0)}
+.xp>img,.xp>picture>img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.04);transition:transform 7s linear}
+.xp.on>img,.xp.on>picture>img{transform:scale(1.0)}
 .xp::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,20,14,0) 45%,rgba(10,20,14,.78) 100%)}
 .xin{position:absolute;right:16px;top:16px;width:22%;aspect-ratio:4/3;border-radius:10px;overflow:hidden;border:2px solid rgba(255,255,255,.85);box-shadow:0 10px 24px -10px rgba(0,0,0,.6);z-index:2}
 .xin img{width:100%;height:100%;object-fit:cover;display:block}.xin i{position:absolute;left:6px;bottom:5px;font:500 9.5px var(--mono);font-style:normal;letter-spacing:.08em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
@@ -367,14 +368,14 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .h2row .lead{font-size:clamp(17px,1.4vw,20px);max-width:600px;margin:0}
 .h2row .ctas{margin:0;flex:none}
 .band{position:relative;border-radius:calc(var(--r-lg) + 6px);overflow:hidden;aspect-ratio:21/9;background:#0c1510;isolation:isolate}
-.band>img{width:100%;height:100%;object-fit:cover;object-position:60% 50%;display:block;transform:scale(1.06);animation:settle 2.6s var(--ease) forwards}
+.band>img,.band>picture>img{width:100%;height:100%;object-fit:cover;object-position:60% 50%;display:block;transform:scale(1.06);animation:settle 2.6s var(--ease) forwards}
 .band .chip{position:absolute;left:22px;top:20px}
 .band::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,12,9,.55),rgba(6,12,9,0) 55%);pointer-events:none}
 .bstats{position:absolute;left:0;bottom:0;width:min(560px,50%);z-index:2;display:grid;grid-template-columns:1fr 1fr;padding:0 28px 26px;gap:22px 28px;color:#fff}
 .bstats div{border-top:1px solid rgba(255,255,255,.28);padding-top:14px}
 .bstats b{display:block;font:400 clamp(24px,2.4vw,34px) var(--serif)}
 .bstats span{font-size:13px;color:rgba(255,255,255,.72)}
-@media (max-width:960px){.band{aspect-ratio:4/5}.band>img{object-position:72% 50%}.bstats{width:auto;right:0;grid-template-columns:1fr 1fr;padding:0 18px 16px}.band::after{background:linear-gradient(180deg,rgba(6,12,9,0) 40%,rgba(6,12,9,.8))}.h2row{align-items:flex-start}}
+@media (max-width:960px){.band{aspect-ratio:4/5}.band>img,.band>picture>img{object-position:72% 50%}.bstats{width:auto;right:0;grid-template-columns:1fr 1fr;padding:0 18px 16px}.band::after{background:linear-gradient(180deg,rgba(6,12,9,0) 40%,rgba(6,12,9,.8))}.h2row{align-items:flex-start}}
 .band .chip{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.25)}
 
 /* product pages: system switcher */
@@ -410,7 +411,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 /* phones: hero stats sit under the photo, not over it */
 @media (max-width:960px){
   .band{aspect-ratio:auto;background:#0f1a14}
-  .band>img{aspect-ratio:4/3;height:auto;object-position:70% 50%}
+  .band>img,.band>picture>img{aspect-ratio:4/3;height:auto;object-position:70% 50%}
   .band::after{display:none}
   .bstats{position:relative;width:auto;padding:18px 18px 20px;gap:16px 18px}
 }
@@ -461,7 +462,7 @@ html{scroll-behavior:smooth}
 .reveal{transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:var(--d,0s)}
 .skip{position:absolute;left:12px;top:-60px;z-index:70;background:var(--forest);color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none}
 .skip:focus{top:12px}
-.band>img,.hero .pic img{will-change:transform}
+.band>img,.band>picture>img,.hero .pic img{will-change:transform}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.person .ico *{animation:none!important}}
 
 .hp{position:absolute;left:-10000px;width:1px;height:1px;opacity:0}
@@ -654,3 +655,130 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 .sh-card .sh-sub{font:500 10.5px var(--mono);letter-spacing:.06em;color:var(--mute)}
 /* wide screens: the labels on the zones carry the list, so the card stays a compact headline clear of the zones */
 @media (min-width:701px){.sh-card ul{display:none}.sh-card{padding:14px 18px 13px}}
+
+/* ---------- buttons: one rhythm everywhere ---------- */
+.ctas{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.btn{min-height:46px;justify-content:center;-webkit-tap-highlight-color:transparent;user-select:none;
+  transition:background-color .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease),box-shadow .35s var(--ease),transform .25s var(--ease)}
+@media (hover:hover){
+  .btn:hover{border-color:var(--ink-2);background-color:#fff;box-shadow:0 12px 24px -18px rgba(19,32,26,.55);transform:translateY(-1px)}
+  .btn.p:hover{background-color:var(--forest-2);border-color:var(--forest-2);box-shadow:0 14px 28px -16px rgba(0,76,30,.7)}
+  .nav .cta:hover,.nav .btn.p.cta:hover{background-color:#2a2925;border-color:#2a2925}
+  .card.end .btn:hover{background-color:#fff;border-color:#fff}
+}
+.btn:active{transform:translateY(0) scale(.97);box-shadow:none;transition-duration:.1s}
+.btn:focus-visible{outline:2px solid var(--forest);outline-offset:3px;border-radius:999px}
+.btn[disabled]{opacity:.55;pointer-events:none}
+/* phones: a primary and a secondary action stack, full width, never touching */
+@media (max-width:520px){
+  .ctas{flex-direction:column;align-items:stretch;gap:10px}
+  .ctas>.btn{width:100%}
+}
+/* segmented controls read as one control; their parts get comfortable touch heights */
+.tog button{transition:background-color .25s var(--ease),color .25s,box-shadow .25s}
+.xtabs{gap:8px}
+@media (max-width:960px){.burger{display:grid;place-items:center;min-width:44px;min-height:44px;padding:0}}
+@media (pointer:coarse){
+  .tog button{padding:12px 16px}
+  .fly .fctl{gap:8px;padding:6px}
+  .fly .fctl button{padding:12px 15px}
+  .fly .fctl input{height:36px}
+  .brand{min-height:44px}
+  .swatches button{position:relative}
+  .swatches button::after{content:'';position:absolute;inset:-9px;border-radius:50%}
+  .authcard .row a{padding:11px 0}
+  .authcard .chk input{width:20px;height:20px}
+}
+
+/* ---------- In the field: the dashboard on an iPad Pro, landscape ---------- */
+.ipad{display:block;max-width:1120px;margin:0 auto;text-decoration:none;container-type:inline-size;-webkit-tap-highlight-color:transparent}
+.ipad-body{position:relative;display:block;padding:22px;padding:2.2cqw;border-radius:44px;border-radius:4.2cqw;background:linear-gradient(180deg,#131417,#08090b);
+  box-shadow:0 0 0 1.5px #8e939a,0 0 0 3px #e4e6ea,0 0 0 4px #aeb2b9,inset 0 0 0 1px rgba(255,255,255,.06),
+    0 54px 90px -44px rgba(19,32,26,.5),0 24px 40px -28px rgba(19,32,26,.38);
+  transition:transform .7s var(--ease),box-shadow .7s var(--ease)}
+.ipad-cam{position:absolute;left:50%;top:8px;top:.8cqw;width:6px;width:.6cqw;height:6px;height:.6cqw;transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#3b4658 0,#151a22 45%,#050608 70%);box-shadow:0 0 0 1px rgba(255,255,255,.05)}
+.ipad-screen{position:relative;display:flex;flex-direction:column;justify-content:center;aspect-ratio:3/2;overflow:hidden;background:#fff;border-radius:22px;border-radius:2.1cqw;isolation:isolate}
+.ipad-screen picture,.ipad-screen img{display:block;width:100%;height:auto}
+.ipad-screen::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.07) 50%,transparent 60%)}
+.ipad-status{position:absolute;left:0;right:0;top:0;height:3.6cqw;display:flex;align-items:center;justify-content:space-between;padding:0 2.8cqw;
+  font:600 11px/1 var(--sans);font-size:1.05cqw;color:#121212;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.ipad-sys{display:flex;align-items:center;gap:.55cqw}
+.ipad-sys b{font-weight:600}
+.ipad-sys svg{display:block;height:1cqw;width:auto;fill:currentColor;color:#121212}
+.ipad-home{position:absolute;left:50%;bottom:1.1cqw;width:12cqw;height:.42cqw;transform:translateX(-50%);border-radius:99px;background:rgba(0,0,0,.32)}
+@media (hover:hover){
+  .ipad:hover .ipad-body{transform:translateY(-6px);box-shadow:0 0 0 1.5px #8e939a,0 0 0 3px #e4e6ea,0 0 0 4px #aeb2b9,inset 0 0 0 1px rgba(255,255,255,.06),
+    0 70px 110px -48px rgba(19,32,26,.55),0 30px 46px -30px rgba(19,32,26,.4)}
+}
+.ipad:focus-visible{outline:none}.ipad:focus-visible .ipad-body{outline:2px solid var(--forest);outline-offset:8px}
+@media (max-width:600px){
+  .ipad-body{box-shadow:0 0 0 1px #8e939a,0 0 0 2px #e4e6ea,0 0 0 2.6px #aeb2b9,0 34px 60px -30px rgba(19,32,26,.5)}
+}
+
+/* ---------- price on request: every camera is quoted by email ---------- */
+.quote{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 16px;margin-top:16px;padding:8px 18px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.quote-n{grid-column:1/-1}
+.quote-v,.quote-a{white-space:nowrap}
+.quote-t{display:flex;align-items:baseline;gap:10px}
+.quote-k{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.quote-v{font:400 21px var(--serif);color:var(--ink)}
+.quote-n{font-size:13px;color:var(--mute)}
+.quote-a{grid-column:2;grid-row:1;display:inline-flex;align-items:center;gap:8px;min-height:44px;font:500 14.5px var(--sans);color:var(--forest);text-decoration:none}
+.quote-a .a{transition:transform .3s var(--ease)}
+@media (hover:hover){.quote-a:hover{color:var(--forest-2)}.quote-a:hover .a{transform:translateX(3px)}}
+.mprice{margin-top:10px;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.minis-q{display:flex;align-items:center;justify-content:space-between;gap:14px 24px;flex-wrap:wrap;margin-top:22px;padding:18px 22px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.minis-q p{margin:0;max-width:560px}
+@media (max-width:520px){
+  .quote{padding:6px 16px 12px}
+  .minis-q{padding:16px}.minis-q .btn{width:100%}
+}
+@media (max-width:400px){.quote{grid-template-columns:1fr;padding:13px 16px 4px}.quote-a{grid-column:1;grid-row:3}}
+
+/* ---------- phones and tablets: the story is centred under the aircraft, in step with the film ---------- */
+@media (max-width:900px){
+  .sh-line,.sh-line.sh-r{left:20px;right:20px;bottom:15vh;text-align:center}
+  .sh-line .sh-t,.sh-line.sh-r .sh-t{margin-left:auto;margin-right:auto}
+  .sh-hud{left:50%;right:auto;transform:translateX(-50%);justify-items:center;text-align:center}
+}
+@media (max-width:700px){
+  .sh-t{font-size:clamp(30px,9.2vw,38px);line-height:1.08}
+  .sh-s{margin-top:14px;font-size:10.5px;letter-spacing:.1em}
+  .sh-card{left:16px;right:16px;top:78px;padding:13px 15px 12px}
+  .sh-card b{font-size:23px}
+  .sh-card ul{grid-template-columns:1fr 1fr;gap:5px 14px;min-width:0;margin-top:8px}
+  .sh-card li{grid-template-columns:8px 1fr auto;gap:7px;font-size:12.5px}
+  .sh-card li i{width:8px;height:8px}
+}
+@media (max-width:400px){
+  .sh-card{top:74px;padding:11px 14px 10px;gap:2px}
+  .sh-card b{font-size:21px}
+  .sh-card ul{gap:4px 12px;margin-top:6px}
+  .sh-card li{grid-template-columns:8px 1fr;row-gap:0;align-items:start;line-height:1.3}
+  .sh-card li i{margin-top:5px}
+  .sh-card li em{grid-column:2;justify-self:start}
+  .sh-card .sh-sub{display:none}
+}
+
+/* ---------- phones: tighter rhythm between sections, partners as a clean list, the team as compact rows ---------- */
+@media (max-width:600px){
+  section{padding:56px 0}
+  .head{margin-bottom:28px}
+  .partners,.pgroup .partners{grid-template-columns:1fr;gap:10px}
+  .partner{min-height:0;padding:16px 18px;gap:4px;justify-content:flex-start}
+  .people{grid-template-columns:1fr;gap:12px}
+  .person{display:grid;grid-template-columns:64px 1fr;column-gap:16px;align-items:center}
+  .person .ico{grid-row:1/span 2;width:64px;margin:0;border-radius:14px}
+  .person b{align-self:end;font-size:20px}
+  .person span{align-self:start}
+}
+
+/* ---------- narrow phones (down to 320 px): nothing may force the page wider than the screen ---------- */
+.form input,.form textarea,.form select,.authcard input[type=email],.authcard input[type=password]{width:100%;min-width:0;max-width:100%}
+.form label,.authcard label{min-width:0;grid-template-columns:minmax(0,1fr)}
+.form,.authcard,.contact>*,.authgrid>*{min-width:0}
+@media (max-width:960px){.hero .grid,.bands,.systems,.dgrid,.team,.contact,.phero .grid,.cambox,.pgroup,.authgrid{grid-template-columns:minmax(0,1fr)}}
+/* the market explorer on phones: a square pane, so the caption never reaches the tags at the top */
+@media (max-width:560px){.xpanes{aspect-ratio:1/1}.xcap{left:18px;right:18px;bottom:18px}}
+@media (max-width:360px){.xcap .txt{font-size:15px}.xin{width:19%}}

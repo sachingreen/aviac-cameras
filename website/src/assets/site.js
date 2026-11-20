@@ -71,11 +71,14 @@ $$('.swatches').forEach((sw) => {
     $$('button', sw).forEach((x) => x.classList.toggle('on', x === b));
     $('span', sw).textContent = b.title;
     if (target.tagName === 'IMG' && b.dataset.img) {               // studio photo: load the new one, then cross-fade
-      const base = b.dataset.img, n = new Image();
-      n.sizes = target.sizes; n.srcset = `${base}_800.jpg 800w, ${base}.jpg 1600w`; n.src = base + '.jpg';
+      const base = b.dataset.img, n = new Image(), pic = target.parentElement.tagName === 'PICTURE' ? $('source', target.parentElement) : null;
+      const ext = /\.webp(\?|$)/.test(target.currentSrc || '') ? 'webp' : 'jpg';          // preload whichever format this browser shows
+      n.sizes = target.sizes; n.srcset = `${base}_800.${ext} 800w, ${base}.${ext} 1600w`; n.src = `${base}.${ext}`;
       target.classList.add('swap');
       (n.decode ? n.decode() : Promise.resolve()).catch(() => {}).then(() => {
-        target.srcset = n.srcset; target.src = n.src; target.alt = target.alt.replace(/ in \w+$/, ' in ' + b.dataset.finish);
+        if (pic) pic.srcset = `${base}_800.webp 800w, ${base}.webp 1600w`;
+        target.srcset = `${base}_800.jpg 800w, ${base}.jpg 1600w`; target.src = base + '.jpg';
+        target.alt = target.alt.replace(/ in \w+$/, ' in ' + b.dataset.finish);
         target.classList.remove('swap');
       });
     }
@@ -90,10 +93,11 @@ if (td) {
   const stages = cards.map((c) => c.dataset.group || null);
   const views = cards.map((c) => (c.dataset.view || '0.6,0.2,3.2').split(',').map(Number));
   const mobile = () => false;                           // one behaviour everywhere: scrolling drives the stages
-  let last = -1;
+  let last = -1, applied = -1, appliedTo = null;
   const apply = (i) => {
     const v = window.Aviac?.viewers?.[vid];
-    if (!v) return;
+    if (!v || (i === applied && v === appliedTo)) return;     // only real changes reach the model, so it can rest between them
+    applied = i; appliedTo = v;
     v.driven = true;
     const end = i === cards.length - 1;
     v.explode(i === 0 || end ? 0 : 1);
@@ -127,8 +131,8 @@ if (td) {
   document.fonts?.ready.then(layout);
   addEventListener('resize', layout);
   addEventListener('scroll', tick, {passive: true});
-  addEventListener('resize', tick);
-  setInterval(tick, 400);                               // also picks up the viewer once it has loaded
+  addEventListener('resize', () => { applied = -1; tick(); });   // a new size re-frames the model
+  const pick = setInterval(() => { tick(); if (appliedTo) clearInterval(pick); }, 400);   // picks up the viewer once it has loaded
   // mobile: swipe the cards, the visible one drives the model
   const tio = new IntersectionObserver((es) => es.forEach((e) => {
     if (!mobile() || !e.isIntersecting) return;
@@ -157,7 +161,7 @@ $$('form[data-mailto]').forEach((f) => f.addEventListener('submit', async (e) =>
   const v = (n) => f.elements[n]?.value?.trim() || '';
   if (v('_honey')) return;                                  // bots fill the hidden field
   const msg = $('.sent', f), btn = $('button[type=submit]', f);
-  const subject = 'Pilot request: ' + (v('org') || v('name'));
+  const subject = (/quote/i.test(v('interest')) ? 'Quote request: ' : 'Pilot request: ') + (v('org') || v('name'));
   btn.disabled = true; btn.style.opacity = 0.6;
   try {
     const r = await fetch(`https://formsubmit.co/ajax/${f.dataset.mailto}`, {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json'},
@@ -361,3 +365,36 @@ $$('video[data-src]').forEach((v) => {
   (document.fonts?.ready || Promise.resolve()).then(run); run();
   let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(run, 150); });
 })();
+
+// ---------- product pages: arrow keys and a clear sideways swipe step to the neighbouring system. Registered last, so a
+// section that uses the arrows itself (the teardown) handles them first and this one stands aside.
+{
+  const prev = $('.sb-edge.l'), next = $('.sb-edge.r');
+  if (prev && next) {
+    addEventListener('keydown', (e) => {
+      if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey || e.target.closest('input,textarea,select,[contenteditable]')) return;
+      if (e.key === 'ArrowLeft') location.href = prev.href;
+      if (e.key === 'ArrowRight') location.href = next.href;
+    });
+    let x0 = null, y0 = 0;
+    addEventListener('touchstart', (e) => { x0 = e.target.closest('.viewer,.cmpimg,.fly,.td,.sb-row,.gallery') ? null : e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
+    addEventListener('touchend', (e) => {
+      if (x0 === null) return;
+      const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
+      if (Math.abs(dx) < 90 || Math.abs(dx) < 2 * Math.abs(dy)) return;                 // a scroll that drifts sideways is not a swipe
+      location.href = dx > 0 ? prev.href : next.href;
+    });
+  }
+}
+
+// ---------- dashboard sign-in: accounts are opening to pilot partners first; nothing is sent or stored from this form
+{
+  const f = $('#signin');
+  if (f) f.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const m = $('.authmsg', f);
+    m.textContent = 'Dashboard accounts are opening to pilot partners first. Request access and we will set yours up.';
+    m.hidden = false;
+    $('#s-pass', f).value = '';
+  });
+}

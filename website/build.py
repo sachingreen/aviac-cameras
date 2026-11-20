@@ -2,6 +2,7 @@
 """Build the Aviac website into website/public.
 
   python3 website/tools/pack_models.py      # after a CAD change: repacks src/models/
+  python3 website/tools/webp.py             # after adding or changing a photo: WebP versions and thumbnails
   (cd website/viewer && node build.mjs)     # after a viewer change: rebuilds src/viewer.js
   python3 website/build.py
 
@@ -53,15 +54,12 @@ def switcher(on, R):
         return ""
     i = keys.index(on)
     prv, nxt = SYSTEMS_ORDER[(i - 1) % 4], SYSTEMS_ORDER[(i + 1) % 4]
-    row = "".join(f'<a href="{R}{h}"{" class=on aria-current=page" if k == on else ""}><img src="{R}assets/img/t/{img}" alt="" width="54" height="38"><span><b>{n}</b>{sub}</span></a>'
+    row = "".join(f'<a href="{R}{h}"{" class=on aria-current=page" if k == on else ""}><img src="{R}assets/img/t/s/{img}" alt="" width="54" height="38" decoding="async"><span><b>{n}</b>{sub}</span></a>'
                   for k, n, sub, h, img in SYSTEMS_ORDER)
     return (f'<div class="sysbar"><div class="wrap"><a class="sb-arrow" href="{R}{prv[3]}" aria-label="Previous system: {prv[1]}">&larr;</a>'
             f'<nav class="sb-row" aria-label="Systems">{row}</nav><a class="sb-arrow" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}">&rarr;</a></div></div>'
             f'<a class="sb-edge l" href="{R}{prv[3]}" aria-label="Previous system: {prv[1]}"><span>&larr;</span><b>{prv[1]}</b></a>'
-            f'<a class="sb-edge r" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}"><b>{nxt[1]}</b><span>&rarr;</span></a>'
-            f'<script>addEventListener("keydown",e=>{{if(e.target.closest("input,textarea,select"))return;if(e.key==="ArrowLeft")location.href="{R}{prv[3]}";if(e.key==="ArrowRight")location.href="{R}{nxt[3]}"}});'
-            f'(()=>{{let x=null;addEventListener("touchstart",e=>{{if(!e.target.closest(".viewer,.cmpimg,.fly"))x=e.touches[0].clientX}},{{passive:true}});'
-            f'addEventListener("touchend",e=>{{if(x===null)return;const d=e.changedTouches[0].clientX-x;x=null;if(d>90)location.href="{R}{prv[3]}";if(d<-90)location.href="{R}{nxt[3]}"}})}})();</script>')
+            f'<a class="sb-edge r" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}"><b>{nxt[1]}</b><span>&rarr;</span></a>')
 
 
 SITE = os.environ.get("SITE", "https://aviac.in")   # set SITE to your own domain when you move hosts
@@ -133,7 +131,36 @@ def render(text, R, rel=""):
     text = re.sub(r'data-src="[^"]*models/(\w+)/"', mv, text)
     for a in ("assets/site.css", "assets/site.js", "img/mark.svg", "img/wordmark.svg", "viewer.js", "flight.js", "story.js", "models/vtol.glb"):
         text = text.replace(a + '"', f'{a}?v={V}"')
-    return text
+    return webpify(text)
+
+
+def webpify(html):
+    """Every <img> whose JPEG candidates all have a WebP twin (tools/webp.py) is wrapped in <picture>: browsers take the
+    WebP (40 to 70 % lighter), anything older keeps the JPEG. Images already inside a <picture> are left alone."""
+    def twin(u):
+        path = u.split('?')[0]
+        if 'assets/img/' not in path or not re.search(r'\.jpe?g$', path):
+            return None
+        local = os.path.join(SRC, 'assets', 'img', path.split('assets/img/', 1)[1])
+        return re.sub(r'\.jpe?g', '.webp', u, count=1) if os.path.exists(re.sub(r'\.jpe?g$', '.webp', local)) else None
+    out, pos = [], 0
+    for m in re.finditer(r'<img\b[^>]*>', html):
+        tag, before = m.group(0), html[:m.start()]
+        if before.rfind('<picture') > before.rfind('</picture>'):
+            continue
+        src, srcset, sizes = (re.search(rf'\s{k}="([^"]+)"', tag) for k in ('src', 'srcset', 'sizes'))
+        if not src:
+            continue
+        cands = [c.strip() for c in srcset.group(1).split(',')] if srcset else [src.group(1)]
+        webs = [twin(c.split()[0]) for c in cands]
+        if not all(webs):
+            continue
+        wset = ', '.join(w + ''.join(' ' + d for d in c.split()[1:]) for w, c in zip(webs, cands))
+        source = f'<source type="image/webp" srcset="{wset}"' + (f' sizes="{sizes.group(1)}"' if sizes else '') + '>'
+        out.append(html[pos:m.start()] + '<picture>' + source + tag + '</picture>')
+        pos = m.end()
+    out.append(html[pos:])
+    return ''.join(out)
 
 
 if os.path.isdir(OUT):

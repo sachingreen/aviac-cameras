@@ -18,6 +18,9 @@ Before going live
    submits it, FormSubmit emails info@aviac.in an activation link - click it once, and every request
    after that arrives in the inbox. If FormSubmit cannot be reached, the visitor's mail app opens instead.
 3. HTTPS: turn it on at your host (the 3D viewers and films need a normal https page).
+4. Security headers: vercel.json, _headers and .htaccess send the same set (a Content Security Policy, nosniff,
+   frame and referrer rules). The policy allows this site, Google Fonts and FormSubmit only; if you add another
+   service (analytics, a chat widget), add its host to Content-Security-Policy in all three files.
 
 Pages
   /                         home
@@ -27,3 +30,5 @@ Pages
 
 Editing
   The source is in the repository under website/src and website/tools; build.py writes this folder.
+  New or changed photos: run  python3 website/tools/webp.py  before build.py; it writes the WebP versions
+  (40 to 70 % lighter) that the pages serve, with the JPEG kept as the fallback.

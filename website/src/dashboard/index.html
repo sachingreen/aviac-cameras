@@ -1,6 +1,6 @@
 {{HEAD Sign in · Aviac dashboard}}
 <body class="authpage">
-{{NAV home}}
+{{NAV dashboard}}
 <main id="main">
 <section class="auth"><div class="wrap"><div class="authgrid">
   <div class="authside reveal">
@@ -25,15 +25,5 @@
 </main>
 {{FOOT}}
 <script src="{{R}}assets/site.js"></script>
-<script>
-// The dashboard is being built. Nothing is sent or stored from this form yet: the sign-in hook goes here.
-document.getElementById('signin').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const m = document.querySelector('.authmsg');
-  m.textContent = 'Dashboard accounts are opening to pilot partners first. Request access and we will set yours up.';
-  m.hidden = false;
-  e.target.querySelector('#s-pass').value = '';
-});
-</script>
 </body>
 </html>

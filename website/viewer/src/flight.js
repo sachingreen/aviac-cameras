@@ -8,7 +8,7 @@ import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeomet
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 const R = (document.querySelector('script[data-root]')?.dataset.root) ?? '';
-const IMG = (n) => `${R}assets/img/demo/${n}.jpg`;
+const IMG = (n) => `${R}assets/img/demo/${n}.webp`;
 
 const CAMS = {
   MS: {name: 'MS · IMX565 colour', px: 2.74e-6, f: 0.016, n: 4128},
@@ -210,14 +210,15 @@ function mount(el) {
     <div class="fbands">${S.bands.map(([n, c]) => `<span><i style="background:${c}"></i>${n}</span>`).join('')}</div>
     <div class="fctl">
       <button data-a="play" aria-label="Pause">❚❚</button>
-      <div class="fseg"><button data-v="drone" class="on">Drone</button><button data-v="survey">Survey</button><button data-v="map">Map</button></div>
+      <div class="fseg" role="group" aria-label="View"><button data-v="survey" class="on" aria-pressed="true">Survey</button><button data-v="map" aria-pressed="false">Map</button></div>
       <label>Height <input type="range" min="${S.alts[0]}" max="${S.alts[1]}" step="${S.alts[1] > 20 ? 5 : 0.5}" value="${S.alt}"></label>
     </div>
   </div>`;
   const cv = el.querySelector('.fly-c');
   const $ = (k) => el.querySelector(`[data-k="${k}"]`);
   const renderer = new THREE.WebGLRenderer({canvas: cv, antialias: true, powerPreference: 'low-power'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+  let dpr = Math.min(devicePixelRatio || 1, 1.75);
+  renderer.setPixelRatio(dpr);
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
   const scene = new THREE.Scene();
@@ -310,7 +311,7 @@ function mount(el) {
     $('finds').innerHTML = ''; $('nf').textContent = '0';
     dist = 12; frames = 0;
   };
-  let dist = 0, frames = 0, playing = true, view = 'drone', auto = true, lastSwitch = 0;
+  let dist = 0, frames = 0, playing = true, view = 'survey', auto = true, lastSwitch = 0;
   let dScale = 1;
   replan();
 
@@ -338,7 +339,8 @@ function mount(el) {
 
   // controls
   el.querySelector('[data-a="play"]').addEventListener('click', (e) => { playing = !playing; e.currentTarget.textContent = playing ? '❚❚' : '▶'; e.currentTarget.setAttribute('aria-label', playing ? 'Pause' : 'Play'); });
-  el.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { view = b.dataset.v; auto = false; el.querySelectorAll('[data-v]').forEach((x) => x.classList.toggle('on', x === b)); }));
+  const markView = () => el.querySelectorAll('[data-v]').forEach((x) => { x.classList.toggle('on', x.dataset.v === view); x.setAttribute('aria-pressed', String(x.dataset.v === view)); });
+  el.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { view = b.dataset.v; auto = false; markView(); }));
   el.querySelector('input[type=range]').addEventListener('change', (e) => { alt = +e.target.value; replan(); });
   let drag = null, yaw = 0, pitch = 0;
   cv.addEventListener('pointerdown', (e) => { drag = [e.clientX, e.clientY, yaw, pitch]; auto = false; cv.setPointerCapture(e.pointerId); });
@@ -348,18 +350,26 @@ function mount(el) {
   // ---- loop (paused when off screen)
   let visible = false, last = performance.now(), simT = 0, hudT = 1, camT = 1;
   const off2 = document.createElement('canvas');
-  new IntersectionObserver((es) => { visible = es[es.length - 1].isIntersecting; last = performance.now(); }, {threshold: 0}).observe(el);
+  let looping = false, fT = 0, fSum = 0, fN = 0;
+  new IntersectionObserver((es) => {
+    visible = es[es.length - 1].isIntersecting; last = performance.now();
+    if (visible && !looping) { looping = true; fT = 0; requestAnimationFrame(frame); }              // off screen the loop stops entirely
+  }, {threshold: 0}).observe(el);
   const camPos = new THREE.Vector3(), camTgt = new THREE.Vector3(), offP = new THREE.Vector3(), offT = new THREE.Vector3(); let lastView = '';
   const resize = () => { const w = cv.clientWidth || el.clientWidth, h = cv.clientHeight || el.clientHeight; renderer.setSize(w, h, false); cam.aspect = w / Math.max(1, h); cam.updateProjectionMatrix(); };
   new ResizeObserver(resize).observe(cv); resize();
   const tmp = new THREE.Vector3(), q = new THREE.Quaternion();
 
   function frame(now) {
+    if (!visible) { looping = false; return; }
     requestAnimationFrame(frame);
-    if (!visible) return;
+    // a GPU that cannot hold about 40 fps here gets fewer pixels, a quarter step at a time (never below 1x)
+    if (fT && now - fT < 120) { fSum += now - fT; fN++; }
+    fT = now;
+    if (fN >= 60) { const avg = fSum / fN; fSum = fN = 0; if (avg > 25 && dpr > 1) { dpr = Math.max(1, dpr - 0.25); renderer.setPixelRatio(dpr); resize(); } }
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     const o = plan.o;
-    const tx = view === 'drone' ? Math.min(plan.timex, 3) : view === 'survey' ? Math.max(1, plan.timex / 3) : plan.timex;
+    const tx = view === 'survey' ? Math.max(1, plan.timex / 3) : plan.timex;
     if (playing) { simT += dt * tx / plan.timex; dist += S.speed * tx * dt; if (dist >= plan.len) { replan(); } }
     const {p, dir} = at(dist);
     const flyAlt = alt + (S.drone === 'hex' ? 0.6 : 0);
@@ -403,7 +413,6 @@ function mount(el) {
       cx2.drawImage(off2, 0, 0); cx2.restore();
       cx2.strokeStyle = 'rgba(255,255,255,.7)'; cx2.lineWidth = 1; cx2.beginPath(); cx2.moveTo(110, 72); cx2.lineTo(110, 93); cx2.moveTo(99.5, 82.5); cx2.lineTo(120.5, 82.5); cx2.stroke();
     }
-    fp.visible = fpFill.visible = view !== 'drone' || S.alt < 10 || true;
 
     // paint the analysed layer: the strip under the footprint (the spray swath for the sprayer)
     if (playing) {
@@ -440,18 +449,12 @@ function mount(el) {
     }
 
     // camera views; the auto tour cycles them until someone takes over
-    if (auto && simT - lastSwitch > 9) { lastSwitch = simT; view = view === 'drone' ? 'survey' : view === 'survey' ? 'map' : 'drone'; el.querySelectorAll('[data-v]').forEach((x) => x.classList.toggle('on', x.dataset.v === view)); }
+    if (auto && simT - lastSwitch > 9) { lastSwitch = simT; view = view === 'survey' ? 'map' : 'survey'; markView(); }
     const span = ud.span;
-    if (view === 'drone') {
-      const zf = Math.max(1, 1.3 / Math.max(0.6, cam.aspect));          // narrow canvases: step back a little more
-      const dist = Math.max(span * (cam.aspect < 1.5 ? 2.4 : 3.2), 4) * zf;                        // far enough to see the whole aircraft and its footprint
-      const back = dir.clone().multiplyScalar(-dist).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.75 + yaw);
-      camPos.copy(drone.position).add(back).add(new THREE.Vector3(0, dist * (0.55 + pitch), 0));
-      camTgt.copy(drone.position).add(new THREE.Vector3(0, -dist * 0.06, 0));
-    } else if (view === 'survey') {
+    if (view === 'survey') {
       const r = Math.max(alt * 1.7, o.swathCam * 3);
       camPos.copy(drone.position).add(new THREE.Vector3(Math.sin(0.9 + yaw) * r, alt * (0.5 + pitch), Math.cos(0.9 + yaw) * r));
-      camTgt.copy(c).lerp(drone.position, 0.35);
+      camTgt.copy(c).lerp(drone.position, 0.55);                // the aircraft in the upper third, its footprint below, clear of the band chips
     } else {
       camPos.set(Math.sin(yaw) * H * 0.2, H * 1.55, H * 0.45);
       camTgt.set(0, 0, 0);
@@ -459,13 +462,13 @@ function mount(el) {
     const k2 = 1 - Math.pow(0.03, dt);
     const rel = view === 'map' ? camPos.clone() : camPos.clone().sub(drone.position);
     const relT = view === 'map' ? camTgt.clone() : camTgt.clone().sub(drone.position);
-    if (lastView !== view) { el.classList.toggle('vmap', view === 'map'); placeInset(); offP.copy(rel); offT.copy(relT); lastView = view; cam.near = view === 'drone' ? 0.05 : view === 'survey' ? 0.5 : 5; cam.updateProjectionMatrix(); }
+    if (lastView !== view) { el.classList.toggle('vmap', view === 'map'); placeInset(); offP.copy(rel); offT.copy(relT); lastView = view; cam.near = view === 'survey' ? 0.5 : 5; cam.updateProjectionMatrix(); }
     offP.lerp(rel, k2); offT.lerp(relT, k2);
     if (view === 'map') { cam.position.copy(offP); cam.lookAt(offT); }
     else { cam.position.copy(drone.position).add(offP); cam.lookAt(tmp.copy(drone.position).add(offT)); }
     // survey and map views: the aircraft is drawn larger than life so it reads as a small model, not a speck
     // (about 7% of the view across)
-    const want = view === 'drone' ? 1 : Math.max(1, cam.position.distanceTo(drone.position) * (view === 'survey' ? 0.1 : 0.07) / ud.span);
+    const want = Math.max(1, cam.position.distanceTo(drone.position) * (view === 'survey' ? 0.1 : 0.07) / ud.span);
     dScale += (want - dScale) * (1 - Math.pow(0.02, dt));
     drone.scale.setScalar(dScale);
     drone.position.y = Math.max(drone.position.y, ud.span * dScale * 0.45);     // a low sprayer drawn large still clears the ground
@@ -516,7 +519,6 @@ function mount(el) {
       finds.forEach((f) => { if (f.found) { mx.strokeStyle = '#d7301f'; mx.lineWidth = 2; mx.beginPath(); mx.arc((f.p.x / W + 0.5) * 240, (f.p.z / H + 0.5) * 180, 6, 0, 7); mx.stroke(); } });
     }
   }
-  requestAnimationFrame(frame);
 }
 
 document.querySelectorAll('.fly[data-scene]').forEach((el) => {
