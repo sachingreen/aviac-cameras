@@ -8,6 +8,7 @@ const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const nav = $('.nav');
 addEventListener('scroll', () => nav?.classList.toggle('scrolled', scrollY > 10), {passive: true});
 $('.burger')?.addEventListener('click', () => nav.classList.toggle('open'));
+$$('.nav ul a').forEach((l) => l.addEventListener('click', () => nav.classList.remove('open')));   // close after choosing
 
 // reveals (content stays visible without JS)
 const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && e.target.classList.add('in')), {threshold: 0.12});
