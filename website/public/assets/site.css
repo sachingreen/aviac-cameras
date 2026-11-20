@@ -545,7 +545,7 @@ html{scroll-behavior:smooth}
 .fly .fcam{transition:top .4s var(--ease)}
 
 /* ---------- home: the scroll hero (story.js). A pinned 3D stage, three lines that type themselves, then the paper panel ---------- */
-.sh{position:relative;height:1100vh;background:#0b0f0c;margin-top:-68px}
+.sh{position:relative;height:420vh;background:#0b0f0c}
 .sh-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .sh-sky{position:absolute;inset:0;background:linear-gradient(180deg,#26344f 0%,#5d5a73 26%,#c47c5e 48%,#eaa36e 58%,#f1c792 68%,#e6b185 100%)}
 .sh-night{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#0d2219,#040a07 70%);opacity:0}
@@ -571,7 +571,7 @@ html{scroll-behavior:smooth}
 .shstats{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:44px;padding-top:22px;border-top:1px solid var(--line)}
 .shstats b{display:block;font:400 26px var(--serif);color:var(--ink)}.shstats span{font-size:13px;color:var(--mute)}
 @media (max-width:900px){
-  .sh{height:960vh}
+  .sh{height:380vh}
   .sh-line,.sh-line.sh-r{left:20px;right:20px;bottom:14vh;text-align:left}
   .sh-t{font-size:34px}.sh-s{letter-spacing:.08em}
   .sh-hud{right:16px;top:84px}
@@ -606,3 +606,35 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
   .lc-axis span:nth-child(2),.lc-axis span:nth-child(4){display:none}
   .lc-waves{height:140px}.lc-axis{margin-top:-24px}
 }
+
+/* hero: MS's six bands light up as the scan runs; the finding card at the end */
+.sh-bands{display:flex;gap:4px;margin-top:8px}
+.sh-bands i{font:500 9.5px var(--mono);font-style:normal;letter-spacing:.04em;padding:4px 6px;border-radius:6px;color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.18);transition:all .4s var(--ease)}
+.sh-bands i.on{color:#fff;background:var(--c);border-color:var(--c);box-shadow:0 0 14px -2px var(--c)}
+.sh-card{position:absolute;left:max(24px,6vw);top:110px;z-index:2;display:grid;gap:4px;padding:16px 18px;border-radius:14px;background:rgba(246,248,246,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 24px 50px -24px rgba(0,0,0,.5);opacity:0;border-left:3px solid #ff8a5c}
+.sh-card .sh-ck{font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#b2452a}
+.sh-card b{font:400 28px var(--serif);color:var(--ink)}.sh-card span{font-size:13.5px;color:var(--ink-2)}
+@media (max-width:900px){.sh-bands i{font-size:8.5px;padding:3px 4px}.sh-card{left:16px;right:auto;top:auto;bottom:34vh}}
+
+/* the film canvas fades in over the CSS sunset once the first frame is ready */
+.sh-stage .sh-sky{background:linear-gradient(180deg,#e9d2b6 0%,#efc596 48%,#a88a58 60%,#5b5a33 100%)}
+
+/* ---------- editorial top bar (site-wide): wordmark left, spaced uppercase links centred, black pill, a rule below ---------- */
+.nav{background:rgba(246,248,246,.9);border-bottom:1px solid var(--ink)}
+.nav.scrolled{border-color:var(--ink)}
+.nav .cta,.nav .btn.p.cta{background:#14130f;border-color:#14130f;color:#fff;border-radius:999px}
+@media (hover:hover){.nav .cta:hover{background:#2a2925}}
+.nav .signin{font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase}
+@media (min-width:961px){
+  .nav .wrap{height:66px}
+  .nav ul{margin:0 auto;gap:20px}
+  .nav ul>li>a{font:500 11px var(--mono);letter-spacing:.17em;text-transform:uppercase;color:var(--ink);padding:9px 4px;border-radius:0;background:none!important;border-bottom:1px solid transparent}
+  .nav ul>li>a.on,.nav ul>li>a:hover{border-bottom-color:var(--ink)}
+  .nav ul>li>a .car{display:none}
+}
+/* masthead strip under the bar on the home page */
+.mast{border-bottom:1px solid var(--line-2);background:var(--bg)}
+.mast .wrap{display:flex;justify-content:space-between;padding-top:9px;padding-bottom:9px;font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--mute)}
+@media (max-width:700px){.mast span:nth-child(2){display:none}}
+.sh{padding:0}
+@media (max-width:900px){.sh-card{top:84px;bottom:auto;left:16px;right:16px}}
