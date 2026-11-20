@@ -524,3 +524,5 @@ html{scroll-behavior:smooth}
 .stage .swatches button{border-color:rgba(255,255,255,.85)}
 .gallery.one{grid-template-columns:1fr}
 .viewer canvas{opacity:0;transition:opacity .9s var(--ease)}.viewer.ready canvas{opacity:1}
+.stage .swatches{left:14px;bottom:14px;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(18,20,18,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.stage .swatches button{width:24px;height:24px}

@@ -39,7 +39,7 @@ V = _ver()       # cache-buster: browsers keep img/ for a week, so a changed log
 
 
 SYSTEMS_ORDER = [("ms", "MS", "Agri Spectral", "product/multispectral/", "ms_titanium_hero_light.jpg"),
-                 ("duos", "Duos", "Stereo", "product/duos/", "duos_graphite_hero_light.jpg"),
+                 ("duos", "Duos", "Stereo", "product/duos/", "duos_arctic_hero_light.jpg"),
                  ("th", "TH", "Thermal + NIR", "product/thermal/", "th_field_hero_light.jpg"),
                  ("sw", "SWIRL", "SWIR", "product/swir/", "sw_graphite_hero_light.jpg")]
 
