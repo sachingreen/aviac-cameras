@@ -228,7 +228,7 @@ $$('video[data-src]').forEach((v) => {
     ms: {win: [[455, 910, 'MS · six bands']], filters: MSB, zoom: [430, 940], stress: true},
     duos: {win: [[400, 1000, 'Duos · Mira220']], qe: true},
     th: {win: [[400, 940, 'NIR module · 400–940 nm']], qe: true, lwir: [8000, 14000]},
-    sw: {win: [[900, 1700, 'SW · InGaAs 900–1700 nm']], mica: true},
+    sw: {win: [[900, 1700, 'SWIRL · InGaAs 900–1700 nm']], mica: true},
     construction: {win: [[400, 700, 'Colour map'], [700, 1000, 'Duos NIR']], qe: true},
   };
   const WIN = '#2f6f4e';

@@ -22,7 +22,7 @@ NAV = [("solutions", "Solutions", "#solutions", [("crop", "Crop monitoring", "so
                                                   ("industrial", "Industrial inspection", "solutions/industrial/", "SWIR · moisture, leaks, haze"),
                                                   ("construction", "Construction monitoring", "solutions/construction/", "Weekly maps · progress and volumes")]),
        ("systems", "Systems", "#systems", [("ms", "MS", "product/multispectral/", "Agri Spectral · six bands"), ("duos", "Duos", "product/duos/", "Stereo · spray drones"),
-                                           ("th", "TH", "product/thermal/", "Thermal + NIR · demo"), ("sw", "SW", "product/swir/", "SWIR · demo")]),
+                                           ("th", "TH", "product/thermal/", "Thermal + NIR · demo"), ("sw", "SWIRL", "product/swir/", "SWIR · demo")]),
        ("field", "In the field", "#field", None), ("research", "Partners", "#research", None), ("company", "Company", "#company", None)]
 
 
@@ -41,7 +41,7 @@ V = _ver()       # cache-buster: browsers keep img/ for a week, so a changed log
 SYSTEMS_ORDER = [("ms", "MS", "Agri Spectral", "product/multispectral/", "ms_titanium_hero_light.jpg"),
                  ("duos", "Duos", "Stereo", "product/duos/", "duos_arctic_hero_light.jpg"),
                  ("th", "TH", "Thermal + NIR", "product/thermal/", "th_field_hero_light.jpg"),
-                 ("sw", "SW", "SWIR", "product/swir/", "sw_graphite_hero_light.jpg")]
+                 ("sw", "SWIRL", "SWIR", "product/swir/", "sw_graphite_hero_light.jpg")]
 
 
 def switcher(on, R):
@@ -72,7 +72,7 @@ DESC = {"": "Aviac builds drone cameras with edge AI: multispectral crop monitor
         "product/multispectral/": "Aviac MS Agri Spectral: Sony IMX565 plus three Mira220 sensors, six bands, edge AI on board.",
         "product/duos/": "Aviac Duos: two global-shutter Mira220 sensors on a 26 mm baseline, 28 g, for spray drones.",
         "product/thermal/": "Aviac TH: 1 MP thermal core and a Mira220 NIR module (400 to 940 nm) in one head.",
-        "product/swir/": "Aviac SW: InGaAs short-wave infrared box camera with a fixed-focus C-mount lens.",
+        "product/swir/": "Aviac SWIRL: InGaAs short-wave infrared box camera with a fixed-focus C-mount lens.",
         "dashboard/": "Sign in to the Aviac dashboard: maps, findings and reports from every flight."}
 
 

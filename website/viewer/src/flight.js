@@ -14,7 +14,7 @@ const CAMS = {
   MS: {name: 'MS · IMX565 colour', px: 2.74e-6, f: 0.016, n: 4128},
   Duos: {name: 'Duos · Mira220 stereo', px: 2.79e-6, f: 0.004, n: 1600},
   TH: {name: 'TH · 1 MP thermal + NIR', px: 12e-6, f: 0.019, n: 1280},
-  SW: {name: 'SW · InGaAs SWIR', px: 5e-6, f: 0.025, n: 640},
+  SW: {name: 'SWIRL · InGaAs SWIR', px: 5e-6, f: 0.025, n: 640},
 };
 
 const SCENES = {
@@ -435,10 +435,11 @@ function mount(el) {
     if (auto && simT - lastSwitch > 9) { lastSwitch = simT; view = view === 'drone' ? 'survey' : view === 'survey' ? 'map' : 'drone'; el.querySelectorAll('[data-v]').forEach((x) => x.classList.toggle('on', x.dataset.v === view)); }
     const span = ud.span;
     if (view === 'drone') {
-      const zf = Math.max(0.85, 1.25 / Math.max(0.6, cam.aspect));        // narrow canvases: step back so the whole aircraft fits
-      const back = dir.clone().multiplyScalar(-span * 1.35 * zf).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.9 + yaw);
-      camPos.copy(drone.position).add(back).add(new THREE.Vector3(0, span * ((cam.aspect < 1.5 ? 0.35 : 0.12) + pitch), 0));      // small screens: a little above, looking down
-      camTgt.copy(drone.position).add(new THREE.Vector3(0, -span * 0.12, 0));
+      const zf = Math.max(1, 1.3 / Math.max(0.6, cam.aspect));          // narrow canvases: step back a little more
+      const dist = Math.max(span * (cam.aspect < 1.5 ? 2.4 : 3.2), 4) * zf;                        // far enough to see the whole aircraft and its footprint
+      const back = dir.clone().multiplyScalar(-dist).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.75 + yaw);
+      camPos.copy(drone.position).add(back).add(new THREE.Vector3(0, dist * (0.55 + pitch), 0));
+      camTgt.copy(drone.position).add(new THREE.Vector3(0, -dist * 0.06, 0));
     } else if (view === 'survey') {
       const r = Math.max(alt * 1.7, o.swathCam * 3);
       camPos.copy(drone.position).add(new THREE.Vector3(Math.sin(0.9 + yaw) * r, alt * (0.5 + pitch), Math.cos(0.9 + yaw) * r));

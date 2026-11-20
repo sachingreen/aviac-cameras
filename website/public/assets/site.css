@@ -483,7 +483,7 @@ html{scroll-behavior:smooth}
 .fly .fcam canvas{display:block;width:100%;height:auto}
 .fly .fcam span{display:block;padding:5px 8px;font:500 10px var(--mono);letter-spacing:.06em;color:#dfeee5;background:#0f1a14}
 .fly .fp-r{top:14px}
-@media (max-width:900px){.fly .fcam{top:10px;right:10px;bottom:auto;width:132px}.fly .fcam span{font-size:8.5px;padding:3px 6px}}
+@media (max-width:900px){.fly .fcam{top:8px;right:8px;bottom:auto;width:96px;border-width:1.5px;border-radius:8px}.fly .fcam span{display:none}}
 
 /* dashboard sign-in */
 .nav .signin{font-size:14.5px;color:var(--ink-2);text-decoration:none;padding:8px 12px;border-radius:999px;margin-left:auto}

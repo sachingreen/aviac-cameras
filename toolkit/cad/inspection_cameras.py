@@ -297,7 +297,7 @@ def build_sw():
     for sx in (-1, 1):
         for sz in (-1, 1):
             add(f"plate_screw_{sx}_{sz}", ycyl(sx * 17.5, Lz + sz * 17.5, -0.2, 0.9, 0.95), EXT, E(-95), mat="steel", color=(0.08, 0.08, 0.09), mass=0.1, label="M2 screw")
-    add("plate_name", rc.etch_text("SW", 2.2, 0.0, 5.0, 0.0), EXT, E(-95), mat="etch", color=(0.85, 0.85, 0.86), mass=0.0, label="Name, engraved")
+    add("plate_name", rc.etch_text("SWIRL", 2.0, 0.0, 5.0, 0.0), EXT, E(-95), mat="etch", color=(0.85, 0.85, 0.86), mass=0.0, label="Name, engraved")
     add("light_dot", ycyl(17.5, 5.5, -0.3, 0.4, 0.9), EXT, E(-95), mat="led", color=(1.0, 0.55, 0.12), mass=0.0, label="Status light")
     c_mount_lens(0.0, Lz, 0.0)
     # InGaAs sensor in a ceramic package behind the mount, cooler, boards
