@@ -324,6 +324,13 @@ function mount(el) {
   // HUD helpers
   const mini = el.querySelector('.fmini'), mx = mini.getContext('2d');
   const camv = el.querySelector('.fcam canvas'), cx2 = camv.getContext('2d');
+  // phones: the camera inset sits top-right, except in Map view, where the aircraft crosses the top edge: there it moves to the bottom corner
+  const inset = el.querySelector('.fcam');
+  const placeInset = () => {
+    const map = el.classList.contains('vmap') && innerWidth <= 900;
+    inset.style.top = map ? cv.offsetTop + cv.offsetHeight - inset.offsetHeight - 8 + 'px' : '';
+  };
+  addEventListener('resize', placeInset);
   const off = document.createElement('canvas'); off.width = 240; off.height = 180; const ox = off.getContext('2d');
   const gImg = new Image(); gImg.src = IMG(S.ground); const lImg = new Image(); lImg.src = IMG(S.layer);
   const fmt = (v, d = 0) => v.toLocaleString('en-US', {maximumFractionDigits: d, minimumFractionDigits: d});
@@ -452,7 +459,7 @@ function mount(el) {
     const k2 = 1 - Math.pow(0.03, dt);
     const rel = view === 'map' ? camPos.clone() : camPos.clone().sub(drone.position);
     const relT = view === 'map' ? camTgt.clone() : camTgt.clone().sub(drone.position);
-    if (lastView !== view) { offP.copy(rel); offT.copy(relT); lastView = view; cam.near = view === 'drone' ? 0.05 : view === 'survey' ? 0.5 : 5; cam.updateProjectionMatrix(); }
+    if (lastView !== view) { el.classList.toggle('vmap', view === 'map'); placeInset(); offP.copy(rel); offT.copy(relT); lastView = view; cam.near = view === 'drone' ? 0.05 : view === 'survey' ? 0.5 : 5; cam.updateProjectionMatrix(); }
     offP.lerp(rel, k2); offT.lerp(relT, k2);
     if (view === 'map') { cam.position.copy(offP); cam.lookAt(offT); }
     else { cam.position.copy(drone.position).add(offP); cam.lookAt(tmp.copy(drone.position).add(offT)); }

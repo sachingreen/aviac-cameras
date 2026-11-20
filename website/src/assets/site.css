@@ -542,3 +542,4 @@ html{scroll-behavior:smooth}
 .prog span{white-space:nowrap}
 /* phones: gallery photos stacked at their own 16:10 shape, never stretched or overlapping */
 @media (max-width:960px){.gallery,.gallery .col{display:grid;grid-template-columns:1fr;gap:12px}.gallery img{height:auto;aspect-ratio:16/10}}
+.fly .fcam{transition:top .4s var(--ease)}
