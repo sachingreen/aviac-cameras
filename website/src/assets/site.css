@@ -646,3 +646,7 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 .sh-card li em{font:500 11px var(--mono);font-style:normal;color:var(--mute)}
 .sh-tag{color:#141210}
 @media (max-width:700px){.sh-tag{display:none}}
+
+/* hero v4: an instant blurred poster of the first frame (inline, no request) under the canvas */
+.sh-poster{position:absolute;inset:0;background:var(--poster) center/cover no-repeat;filter:blur(10px);transform:scale(1.06)}
+@media (max-aspect-ratio:4/5){.sh-poster{background-image:var(--poster-m)}}

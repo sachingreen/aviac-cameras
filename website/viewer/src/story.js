@@ -1,7 +1,8 @@
-// Aviac home hero: a rendered film (Blender Cycles, 120 frames) scrubbed by the scroll, the way the best product pages do it.
-// The page only draws pictures, so it stays smooth on any device: frame 1 first, then every 16th, 8th, 4th, 2nd frame and the
-// rest, cross-fading between neighbours so motion never steps. Over it: lines that type themselves, MS's six bands lighting up,
-// the share of the field surveyed, the two stress zones (positions exported from Blender) and the finding card.
+// Aviac home hero: a rendered film (Blender Cycles, 200 frames, one orbit locked on the aircraft) scrubbed by the scroll, as
+// the best product pages do it. The page only draws pictures, so it stays smooth on any device: the opening frames load first,
+// in order, then the rest coarse to fine, cross-fading between neighbours so motion never steps. Over it: lines that type
+// themselves, MS's six bands lighting up, the share of the field surveyed, labels on the four findings (positions exported from
+// Blender per frame) and the finding card.
 // After the hero, "Light carries the answer": spectrum waves and a lens over the farm.
 import Lenis from 'lenis';
 
@@ -14,7 +15,8 @@ const IMG = R + 'assets/img/demo/';
 const CAPTURE = location.search.includes('capture');
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-if (!CAPTURE && !REDUCE) { const lenis = new Lenis({lerp: 0.08, smoothWheel: true, anchors: true}); const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf); }
+// light easing: the film follows the hand closely (0.1 is Lenis's own default; heavier felt rubbery)
+if (!CAPTURE && !REDUCE) { const lenis = new Lenis({lerp: 0.1, smoothWheel: true, anchors: true}); const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf); }
 if (hero) film();
 lightSection();
 
@@ -29,62 +31,61 @@ function typer(el) {
 }
 
 function film() {
-  const stage = $('.sh-stage'), cv = $('.sh-gl'), ctx = cv.getContext('2d');
+  const stage = $('.sh-stage'), cv = $('.sh-gl'), ctx = cv.getContext('2d', {alpha: false});
   const N = +hero.dataset.frames, ext = hero.dataset.ext || 'webp';
-  const base = innerWidth < 900 && hero.dataset.filmM ? hero.dataset.filmM : hero.dataset.film;   // phones get the 720-px set
+  const portrait = innerWidth / innerHeight < 0.8;                       // phones: their own portrait film, the drone framed for it
+  const base = portrait && hero.dataset.filmM ? hero.dataset.filmM : hero.dataset.film;
   const frames = new Array(N).fill(null);
   const src = (i) => `${base}f${String(i + 1).padStart(3, '0')}.${ext}`;
   const load = (i) => new Promise((res) => {
     if (frames[i]) return res();
     const im = new Image(); im.decoding = 'async';
-    im.onload = () => { (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { frames[i] = im; res(); }); }; im.onerror = () => res(); im.src = src(i);
+    im.onload = () => { (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { frames[i] = im; res(); }); };
+    im.onerror = () => res(); im.src = src(i);
   });
-  // progressive: the first frame, then coarse to fine
-  (async () => {
-    await load(0); hero.classList.add('sh-ready'); draw(true);
-    for (const step of [12, 6, 3, 1]) {
-      const batch = []; for (let i = 0; i < N; i += step) if (!frames[i]) batch.push(i);
-      for (let k = 0; k < batch.length; k += 6) await Promise.all(batch.slice(k, k + 6).map(load));
-    }
-  })();
-  let pins = null; fetch(base + 'pins.json').then((r) => r.json()).then((j) => (pins = j)).catch(() => {});
+  // the opening first, in order (that is where the scroll starts), then every 8th, 4th, 2nd frame across the film
+  const order = [], seen = new Uint8Array(N);
+  const push = (i) => { if (i >= 0 && i < N && !seen[i]) { seen[i] = 1; order.push(i); } };
+  for (let i = 0; i < Math.min(N, 40); i++) push(i);
+  for (const step of [8, 4, 2, 1]) for (let i = 0; i < N; i += step) push(i);
+  let next = 0;
+  const worker = async () => {
+    while (next < order.length) { const i = order[next++]; await load(i); if (i === 0) { hero.classList.add('sh-ready'); draw(true); } }
+  };
+  for (let k = 0; k < 6; k++) worker();
 
   const lines = $$('.sh-line', hero).map((el) => ({el, t: typer($('.sh-t', el)), a: +el.dataset.a, b: +el.dataset.b}));
   const hud = $('.sh-hud'), hudB = $('.sh-hud b'), card = $('.sh-card'), bandEls = $$('.sh-bands i');
-  const FIND = [['Nitrogen deficit · 0.21 ac', '#ffa431'], ['Water stress · 0.6 ac', '#5aa7ff'], ['Pest damage · 0.08 ac', '#ff5a4a'], ['High-yield zone · 3.4 ac', '#5fe08a']];
-  const tags = FIND.map(([t, c]) => { const d = document.createElement('div'); d.className = 'sh-tag'; d.textContent = t; d.style.background = c; stage.appendChild(d); return d; });
+  const LABEL = {nitrogen: ['Nitrogen deficit · 0.21 ac', '#ffa431'], water: ['Water stress · 0.6 ac', '#5aa7ff'], pest: ['Pest damage · 0.08 ac', '#ff5a4a'], yield: ['High-yield zone · 3.4 ac', '#5fe08a']};
+  let pins = null, tags = [];
+  fetch(base + 'pins.json').then((r) => r.json()).then((j) => {
+    pins = j.pins;
+    tags = j.order.map((k) => { const d = document.createElement('div'); d.className = 'sh-tag'; d.textContent = LABEL[k][0]; d.style.background = LABEL[k][1]; stage.appendChild(d); return d; });
+  }).catch(() => {});
 
   let W = 0, H = 0, dpr = 1;
-  const resize = () => { dpr = Math.min(2, devicePixelRatio || 1); W = stage.clientWidth; H = stage.clientHeight; cv.width = W * dpr; cv.height = H * dpr; draw(true); };
+  const resize = () => { dpr = Math.min(1.5, devicePixelRatio || 1); W = stage.clientWidth; H = stage.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); draw(true); };
   addEventListener('resize', resize);
-  // object-fit: cover; on narrow screens the crop leans left in the opening shots, where the aircraft flies
-  const cover = (im) => {
-    const s = Math.max(W / im.width, H / im.height), w = im.width * s, h = im.height * s;
-    let fx = 0.5;
-    if (W < H && pins) {                                                  // portrait: centre the crop on the aircraft
-      const d = pins[String(Math.round(pS * (N - 1)) + 1)]?.at(-1);
-      if (d) { const cx = clamp(d[0], 0.18, 0.82); fx = clamp((cx * w - W / 2) / (w - W), 0, 1); }
-    }
-    return {x: (W - w) * fx, y: (H - h) * 0.5, w, h};
-  };
+  const cover = (im) => { const s = Math.max(W / im.width, H / im.height), w = im.width * s, h = im.height * s; return {x: (W - w) / 2, y: (H - h) / 2, w, h}; };
   const nearest = (i) => { for (let d = 0; d < N; d++) { if (frames[i - d]) return i - d; if (frames[i + d]) return i + d; } return -1; };
   const prog = () => { const r = hero.getBoundingClientRect(); return clamp(-r.top / (hero.offsetHeight - innerHeight)); };
   let pS = 0, lastDrawn = -1;
 
   function draw(force) {
     const f = pS * (N - 1), i0 = Math.floor(f), fr = f - i0;
-    const a = nearest(i0), b = frames[i0 + 1] ? i0 + 1 : a;
+    const a = nearest(i0);
     if (a < 0 || !W) return;
-    const key = a * 1000 + Math.round(fr * 40) + (b === a ? 0 : 500);
+    const blend = a === i0 && frames[i0 + 1] && fr > 0.03 && fr < 0.97;        // cross-fade only between two real neighbours
+    const key = a * 100 + (blend ? Math.round(fr * 24) : 0);
     if (!force && key === lastDrawn) return; lastDrawn = key;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const c = cover(frames[a]);
     ctx.globalAlpha = 1; ctx.drawImage(frames[a], c.x, c.y, c.w, c.h);
-    if (b !== a && a === i0 && fr > 0.02) { ctx.globalAlpha = fr; ctx.drawImage(frames[b], c.x, c.y, c.w, c.h); ctx.globalAlpha = 1; }
-    // stress labels follow the rendered rings
-    const P = pins && pins[String(Math.round(f) + 1)], show = ss(0.8, 0.87, pS);
+    if (blend) { ctx.globalAlpha = fr; ctx.drawImage(frames[i0 + 1], c.x, c.y, c.w, c.h); ctx.globalAlpha = 1; }
+    // finding labels sit on the rendered rings (positions exported from Blender for every frame)
+    const P = pins && pins[String(Math.round(f) + 1)], show = ss(0.76, 0.84, pS);
     tags.forEach((t, k) => {
-      if (!P || !P[k] || P[k][2] < 0) { t.style.opacity = 0; return; }
+      if (!P || !P[k] || P[k][2] < 0 || show < 0.01) { t.style.opacity = 0; return; }
       t.style.opacity = show.toFixed(3);
       t.style.transform = `translate(${clamp(c.x + P[k][0] * c.w, 4, W - t.offsetWidth - 26).toFixed(1)}px, ${(c.y + (1 - P[k][1]) * c.h).toFixed(1)}px)`;
     });
@@ -94,18 +95,17 @@ function film() {
   new IntersectionObserver(([e]) => { const was = onScreen; onScreen = e.isIntersecting; if (onScreen && !was) requestAnimationFrame(tick); }).observe(hero);
   function tick() {
     if (!onScreen) return;
-    const p = prog();
-    pS = p;
+    pS = prog();
     draw(false);
     lines.forEach((L) => {
       L.t(clamp((pS - L.a) / ((L.b - L.a) * 0.72)));
       L.el.style.opacity = (ss(L.a - 0.015, L.a, pS) * (1 - ss(L.b, L.b + 0.03, pS))).toFixed(3);
     });
-    const cEnd = ss(0.86, 0.94, pS);
-    hud.style.opacity = (ss(0.24, 0.3, pS) * (innerWidth < 900 ? 1 - cEnd : 1)).toFixed(3);   // phones: the finding card takes the HUD's place
-    hudB.textContent = `${Math.round(Math.max(clamp((pS - 0.26) / 0.3) * 0.35, ss(0.55, 0.86, pS)) * 100)} %`;
+    const cA = ss(0.84, 0.92, pS);
+    hud.style.opacity = (ss(0.22, 0.28, pS) * (portrait ? 1 - cA : 1)).toFixed(3);   // phones: the finding card takes the HUD's place
+    hudB.textContent = `${Math.round(ss(0.26, 0.8, pS) * 100)} %`;
     bandEls.forEach((el, i) => el.classList.toggle('on', pS > 0.26 + i * 0.035));
-    const cA = ss(0.86, 0.94, pS); card.style.opacity = cA.toFixed(3); card.style.transform = `translateY(${((1 - cA) * 18).toFixed(1)}px)`;
+    card.style.opacity = cA.toFixed(3); card.style.transform = `translateY(${((1 - cA) * 18).toFixed(1)}px)`;
     requestAnimationFrame(tick);
   }
   resize(); requestAnimationFrame(tick);
