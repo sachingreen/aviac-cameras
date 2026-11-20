@@ -311,6 +311,7 @@ function mount(el) {
     dist = 12; frames = 0;
   };
   let dist = 0, frames = 0, playing = true, view = 'drone', auto = true, lastSwitch = 0;
+  let dScale = 1;
   replan();
 
   const at = (d) => {
@@ -455,6 +456,12 @@ function mount(el) {
     offP.lerp(rel, k2); offT.lerp(relT, k2);
     if (view === 'map') { cam.position.copy(offP); cam.lookAt(offT); }
     else { cam.position.copy(drone.position).add(offP); cam.lookAt(tmp.copy(drone.position).add(offT)); }
+    // survey and map views: the aircraft is drawn larger than life so it reads as a small model, not a speck
+    // (about 7% of the view across)
+    const want = view === 'drone' ? 1 : Math.max(1, cam.position.distanceTo(drone.position) * (view === 'survey' ? 0.1 : 0.07) / ud.span);
+    dScale += (want - dScale) * (1 - Math.pow(0.02, dt));
+    drone.scale.setScalar(dScale);
+    drone.position.y = Math.max(drone.position.y, ud.span * dScale * 0.45);     // a low sprayer drawn large still clears the ground
     sun.position.copy(drone.position).add(new THREE.Vector3(-30, 60, 25).multiplyScalar(Math.max(1, alt / 30)));
     sun.target.position.copy(drone.position); sun.target.position.y = 0;
     const sc = sun.shadow.camera, half = Math.max(4, span * 3, alt * 0.3); sc.left = -half; sc.right = half; sc.top = half; sc.bottom = -half; sc.far = alt * 6 + 200; sc.updateProjectionMatrix();
