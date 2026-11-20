@@ -681,7 +681,7 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 @media (pointer:coarse){
   .tog button{padding:12px 16px}
   .fly .fctl{gap:8px;padding:6px}
-  .fly .fctl button{padding:12px 15px}
+  .fly .fctl button{padding:13px 15px}
   .fly .fctl input{height:36px}
   .brand{min-height:44px}
   .swatches button{position:relative}
