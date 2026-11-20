@@ -545,21 +545,21 @@ html{scroll-behavior:smooth}
 .fly .fcam{transition:top .4s var(--ease)}
 
 /* ---------- home: the scroll hero (story.js). A pinned 3D stage, three lines that type themselves, then the paper panel ---------- */
-.sh{position:relative;height:740vh;background:#0b0f0c;margin-top:-68px}
+.sh{position:relative;height:1100vh;background:#0b0f0c;margin-top:-68px}
 .sh-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .sh-sky{position:absolute;inset:0;background:linear-gradient(180deg,#26344f 0%,#5d5a73 26%,#c47c5e 48%,#eaa36e 58%,#f1c792 68%,#e6b185 100%)}
 .sh-night{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#0d2219,#040a07 70%);opacity:0}
 .sh-gl{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1s var(--ease)}
 .sh-ready .sh-gl{opacity:1}
 .sh-stage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:52%;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(4,8,6,.55));z-index:1}
-.sh-line{position:absolute;left:max(24px,6vw);bottom:13vh;max-width:min(980px,80vw);opacity:0;pointer-events:none;z-index:2}
+.sh-line{position:absolute;left:max(24px,6vw);bottom:13vh;max-width:min(980px,80vw);opacity:0;pointer-events:none;z-index:2;will-change:opacity}
 .sh-line.sh-r{left:auto;right:max(24px,6vw);text-align:right}
 .sh-t{margin:0;font:400 clamp(34px,5vw,78px)/1.04 var(--serif);letter-spacing:-.025em;color:#fff;text-shadow:0 2px 30px rgba(0,0,0,.25);text-wrap:balance}
 .sh-t span{opacity:0;transition:opacity .25s}
 .sh-t span.on{opacity:1}.sh-t span.cur{opacity:1;color:#a8f08a}
 .sh-s{margin-top:18px;font:500 11.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.75)}
 .sh-hud{position:absolute;right:28px;top:96px;z-index:2;display:grid;justify-items:end;padding:12px 14px;border-radius:12px;background:rgba(6,14,10,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);font:500 10.5px var(--mono);letter-spacing:.1em;color:rgba(255,255,255,.7);opacity:0}
-.sh-hud b{font:400 34px var(--serif);letter-spacing:0;color:#fff}
+.sh-hud b{font:400 34px var(--serif);letter-spacing:0;color:#fff}.sh-hud em{font-style:normal}
 .sh-tag{position:absolute;left:0;top:0;z-index:2;margin:-44px 0 0 18px;padding:6px 10px;border-radius:8px;background:#ff8a5c;color:#1a0d06;font:500 11.5px var(--mono);white-space:nowrap;opacity:0;pointer-events:none}
 .sh-hint{position:absolute;left:50%;bottom:28px;z-index:2;transform:translateX(-50%);font:500 10.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.8)}
 .sh-hint::after{content:'';display:block;width:1px;height:34px;margin:10px auto 0;background:linear-gradient(#fff,transparent);animation:shdrip 1.8s infinite}
@@ -571,7 +571,7 @@ html{scroll-behavior:smooth}
 .shstats{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:44px;padding-top:22px;border-top:1px solid var(--line)}
 .shstats b{display:block;font:400 26px var(--serif);color:var(--ink)}.shstats span{font-size:13px;color:var(--mute)}
 @media (max-width:900px){
-  .sh{height:640vh}
+  .sh{height:960vh}
   .sh-line,.sh-line.sh-r{left:20px;right:20px;bottom:14vh;text-align:left}
   .sh-t{font-size:34px}.sh-s{letter-spacing:.08em}
   .sh-hud{right:16px;top:84px}
@@ -580,3 +580,29 @@ html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){.sh{height:auto}.sh-stage{position:relative;height:88svh}.sh-line:first-of-type{opacity:1}.sh-t span{opacity:1}}
 /* Lenis (home): it owns the easing, so native smooth scrolling steps aside */
 html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-stopped{overflow:hidden}
+
+/* after the hero: light carries the answer (spectrum waves, a lens that cycles the bands, the readings rail) */
+.lc{padding-bottom:40px;text-align:left}
+.lc-k{text-align:center;font:500 11px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--forest)}
+.lc-h{text-align:center;font-size:clamp(54px,7.6vw,118px);line-height:.95;letter-spacing:-.045em;margin:16px auto 0;max-width:none}
+.lc-h em{font-style:italic;background:linear-gradient(90deg,#5d8fd6,#2d9a5a 30%,#d0a12b 52%,#d0582f 72%,#9a4bc0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lc-waves{display:block;width:100%;height:200px;margin-top:14px}
+.lc-axis{display:flex;justify-content:space-between;margin-top:-34px;padding-top:8px;border-top:1px solid var(--line-2);font:500 10.5px var(--mono);color:var(--mute);letter-spacing:.06em}
+.lc-axis b{color:var(--ink);font-weight:500}
+.lc-row{display:grid;grid-template-columns:1fr 430px 1fr;gap:28px;align-items:center;padding:34px 0 10px}
+.lc-p{font:400 20px/1.45 var(--serif);color:var(--ink-2);margin:0 0 22px}
+.lc-lens{--x:50%;--y:50%;position:relative;height:300px;border-radius:24px;overflow:hidden;box-shadow:0 40px 70px -40px rgba(0,0,0,.55);cursor:crosshair}
+.lc-a,.lc-b{position:absolute;inset:0;background-size:cover;background-position:center;transition:background-image .5s}
+.lc-b{clip-path:circle(88px at var(--x) var(--y))}
+.lc-ring{position:absolute;left:var(--x);top:var(--y);width:176px;height:176px;margin:-88px 0 0 -88px;border-radius:50%;border:1.5px solid #fff;box-shadow:0 0 0 7px rgba(255,255,255,.22);pointer-events:none}
+.lc-tele{display:grid;border-top:1px solid var(--ink)}
+.lc-tele div{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;padding:9px 6px;border-bottom:1px solid var(--line);font:500 11.5px var(--mono);cursor:pointer;transition:background .3s,padding .35s var(--ease)}
+.lc-tele div.on{background:var(--sage-2);padding-left:12px}
+.lc-tele i{width:8px;height:8px;border-radius:50%}
+.lc-tele b{font:400 20px var(--serif)}
+.lc-tele span{font:500 10px var(--mono);color:var(--mute);letter-spacing:.1em;text-transform:uppercase;padding-top:8px;text-align:right}
+@media (max-width:960px){
+  .lc-row{grid-template-columns:1fr}.lc-lens{height:260px}
+  .lc-axis span:nth-child(2),.lc-axis span:nth-child(4){display:none}
+  .lc-waves{height:140px}.lc-axis{margin-top:-24px}
+}

@@ -21,9 +21,11 @@ NAV = [("solutions", "Solutions", "#solutions", [("crop", "Crop monitoring", "so
                                                   ("solar", "Solar inspection", "solutions/solar/", "Thermal · hotspots to repairs"),
                                                   ("industrial", "Industrial inspection", "solutions/industrial/", "SWIR · moisture, leaks, haze"),
                                                   ("construction", "Construction monitoring", "solutions/construction/", "Weekly maps · progress and volumes")]),
-       ("systems", "Systems", "#systems", [("ms", "MS", "product/multispectral/", "Agri Spectral · six bands"), ("duos", "Duos", "product/duos/", "Stereo · spray drones"),
+       ("systems", "Sensors", "#systems", [("ms", "MS", "product/multispectral/", "Agri Spectral · six bands"), ("duos", "Duos", "product/duos/", "Stereo · spray drones"),
                                            ("th", "TH", "product/thermal/", "Thermal + NIR · demo"), ("sw", "SWIRL", "product/swir/", "SWIR · demo")]),
-       ("field", "In the field", "#field", None), ("research", "Partners", "#research", None), ("company", "Company", "#company", None)]
+       ("field", "Software", "#field", [("dashboard", "Dashboard", "dashboard/", "Maps, findings, alerts and reports"),
+                                        ("infield", "In the field", "#field", "Same field in RGB and NDVI")]),
+       ("research", "Partners", "#research", None), ("company", "Company", "#company", None)]
 
 
 def _ver():
