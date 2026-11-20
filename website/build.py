@@ -29,7 +29,7 @@ NAV = [("solutions", "Solutions", "#solutions", [("crop", "Crop monitoring", "so
 def _ver():
     import hashlib
     h = hashlib.sha1()
-    for f in ("assets/site.css", "assets/site.js"):
+    for f in ("assets/site.css", "assets/site.js", "viewer.js", "flight.js"):   # every versioned script, so a viewer change gets a new URL
         h.update(open(os.path.join(SRC, f), "rb").read())
     h.update(svg_mark(GREEN).encode()); h.update(svg_wordmark(GREEN).encode())
     return h.hexdigest()[:8]
