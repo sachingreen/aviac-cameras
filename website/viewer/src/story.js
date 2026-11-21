@@ -190,8 +190,8 @@ function lightSection() {
     // photons: light is a wave and a stream of particles, so particles ride the waves, coloured by where they sit in the spectrum
     const cv = document.createElement('canvas'); cv.className = 'lc-ph'; cv.setAttribute('aria-hidden', 'true'); svg.after(cv);          // laid over the waves, in the same flow
     const cx = cv.getContext('2d');
-    const PH = Array.from({length: innerWidth < 700 ? 60 : 130}, () => ({k: Math.floor(Math.random() ** 1.7 * 12), x: Math.random() * 1440,
-      v: 50 + Math.random() * 120, r: 1.5 + Math.random() * 1.6, tw: Math.random() * 6.28}));
+    const PH = Array.from({length: innerWidth < 700 ? 26 : 56}, () => ({k: Math.floor(Math.random() ** 1.7 * 12), x: Math.random() * 1440,
+      v: 50 + Math.random() * 120, r: 1.25 + Math.random() * 0.95, tw: Math.random() * 6.28}));
     let W = 0, H = 0, dpr = 1;
     const fit = () => { dpr = Math.min(2, devicePixelRatio || 1); W = svg.clientWidth; H = svg.clientHeight;
       Object.assign(cv.style, {marginTop: -H + 'px', height: H + 'px'}); cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); };
@@ -254,9 +254,9 @@ function specAt(u) {
 function waveY(x, k, ph) { const f = 0.004 + x * 0.000035 + k * 0.0004, a = 40 * Math.sin((x / 1440) * Math.PI) * (1 - k / 18); return 125 + a * Math.sin(x * f * 3.14 + k * 0.5 - ph * 0.6); }
 function photon(cx, x, y, r, R, G, B, a) {
   if (a < 0.02) return;
-  const h = cx.createRadialGradient(x, y, 0, x, y, r * 5);
+  const h = cx.createRadialGradient(x, y, 0, x, y, r * 4);
   h.addColorStop(0, `rgba(${R},${G},${B},${(0.5 * a).toFixed(3)})`); h.addColorStop(1, `rgba(${R},${G},${B},0)`);
-  cx.fillStyle = h; cx.beginPath(); cx.arc(x, y, r * 5, 0, 6.2832); cx.fill();
+  cx.fillStyle = h; cx.beginPath(); cx.arc(x, y, r * 4, 0, 6.2832); cx.fill();
   cx.fillStyle = `rgba(${R},${G},${B},${(0.95 * a).toFixed(3)})`; cx.beginPath(); cx.arc(x, y, r, 0, 6.2832); cx.fill();
   cx.fillStyle = `rgba(255,255,255,${(0.35 * a).toFixed(3)})`; cx.beginPath(); cx.arc(x, y, r * 0.32, 0, 6.2832); cx.fill();
 }
@@ -268,7 +268,7 @@ function photon(cx, x, y, r, R, G, B, a) {
 function packets(sec, svg, getPh) {
   const cv = document.createElement('canvas'); cv.className = 'lc-pk'; cv.setAttribute('aria-hidden', 'true'); document.body.appendChild(cv);
   const cx = cv.getContext('2d');
-  const phone = innerWidth < 700, PER = phone ? 5 : 9;
+  const phone = innerWidth < 700, PER = phone ? 2 : 3;
   // where on the spectrum each finding lands (its colour on the wave)
   const LAND = {'#ffa431': 0.6, '#5aa7ff': 0.04, '#ff5a4a': 0.74, '#5fe08a': 0.3};
   let list = null, running = false, W = 0, H = 0, dpr = 1;
@@ -287,7 +287,7 @@ function packets(sec, svg, getPh) {
   const build = () => {
     list = [];
     sources().forEach((src, si) => {
-      const n = src.drone ? PER + 3 : PER;
+      const n = src.drone ? PER + 1 : PER;
       for (let j = 0; j < n; j++) {
         list.push({src, d: (si * 0.05 + (j / n) * 0.3) + Math.random() * 0.04, u: src.land < 0 ? 0.08 + Math.random() * 0.84 : src.land + (Math.random() - 0.5) * 0.08,
           k: Math.floor(Math.random() * 6), side: (Math.random() - 0.5) * 2, ox: (Math.random() - 0.5) * 30, oy: (Math.random() - 0.5) * 10});
@@ -307,40 +307,44 @@ function packets(sec, svg, getPh) {
   // the scroll only decides when: once the sheet starts to rise the packets fly on their own (about two seconds), so none is
   // ever left hanging mid-air when the visitor stops; scrolling back above that point flies them home again
   let T = 0, last = 0;
-  const goal = () => { const pr = progress(); return pr > 0.3 ? 1.1 : pr < 0.22 ? 0 : T; };      // launch once the sheet is clearly rising
+  const goal = () => { const pr = progress(); return pr > 0.3 ? 1.35 : pr < 0.22 ? 0 : T; };      // launch once the sheet is clearly rising
   function frame(now) {
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now;
-    const G = goal(); T = G > T ? Math.min(G, T + dt * 0.42) : Math.max(G, T - dt * 0.8);
-    if (G > 0) T = Math.max(T, Math.min(1.1, (progress() - 0.3) * 1.6));           // a quick scroll carries them faster
+    const G = goal(); T = G > T ? Math.min(G, T + dt * 0.3) : Math.max(G, T - dt * 0.8);
+    if (G > 0) T = Math.max(T, Math.min(1.35, (progress() - 0.3) * 1.6));           // a quick scroll carries them faster
     const t = T;
     cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
-    if (t <= 0 || t >= 1.1) { running = false; last = 0; cv.style.opacity = 0; return; }
+    if (t <= 0 || t >= 1.35) { running = false; last = 0; cv.style.opacity = 0; return; }
     cv.style.opacity = 1;
     if (!list) build();
     const s = svg.getBoundingClientRect(), ph = getPh();
     for (const q of list) {
-      const p = Math.max(0, Math.min(1, (t - q.d) / 0.62));
+      const p = Math.max(0, Math.min(1, (t - q.d) / 0.7));
       if (p <= 0) continue;
       const A = where(q.src); if (!A) continue;
-      const tx = s.left + q.u * s.width, ty = s.top + (waveY(q.u * 1440, q.k, ph) / 250) * s.height;
-      const P0 = {x: A.x + q.ox * Math.min(1, p * 6), y: A.y + q.oy}, P1 = {x: (A.x + tx) / 2 + q.side * 90, y: A.y + (ty - A.y) * 0.2};
-      const bz = (e) => { const m = 1 - e; return {x: m * m * P0.x + 2 * m * e * P1.x + e * e * tx, y: m * m * P0.y + 2 * m * e * P1.y + e * e * ty}; };
-      const e = ease(p), pos = bz(e);
-      const c0 = rgbOf(q.src.col), c1 = specAt(Math.max(0, Math.min(1, q.u))), m = Math.min(1, e * 1.4) ** 1.5;
+      // it joins the wave a little before its landing colour and then rides the wave to it, so it flows in rather than drops
+      const ride = 0.16, ux = Math.max(0.02, q.u - ride), sx = s.width / 1440, sy = s.height / 250;
+      const onWave = (u) => ({x: s.left + u * s.width, y: s.top + waveY(u * 1440, q.k, ph) * sy});
+      const J = onWave(ux), dir = Math.sign(J.x - A.x) || 1;
+      const P0 = {x: A.x, y: A.y}, P1 = {x: A.x + dir * 120 + q.side * 40, y: A.y + 60}, P2 = {x: J.x - 220, y: J.y + q.side * 18};
+      const cub = (e) => { const m = 1 - e; return {x: m ** 3 * P0.x + 3 * m * m * e * P1.x + 3 * m * e * e * P2.x + e ** 3 * J.x, y: m ** 3 * P0.y + 3 * m * m * e * P1.y + 3 * m * e * e * P2.y + e ** 3 * J.y}; };
+      const split = 0.78;                                         // first the glide to the wave, then the ride along it
+      const at = (x) => (x <= split ? cub(Math.sin((x / split) * Math.PI / 2)) : onWave(ux + ride * ((x - split) / (1 - split))));
+      const pos = at(p), back = at(Math.max(0, p - 0.09));
+      const c0 = rgbOf(q.src.col), c1 = specAt(Math.max(0, Math.min(1, q.u))), m = Math.min(1, p / split) ** 1.4;
       const [R, G, B] = c0.map((v, i) => Math.round(v + (c1[i] - v) * m));
-      const a = Math.min(1, p * 10) * (p < 0.97 ? 1 : 1 - (p - 0.97) / 0.03);
-      // a short trail behind it
-      const back = bz(Math.max(0, e - 0.07));
+      const a = Math.min(1, p * 12) * (p < 0.9 ? 1 : 1 - (p - 0.9) / 0.1);
+      // a fine trail behind it
       const tr = cx.createLinearGradient(back.x, back.y, pos.x, pos.y);
-      tr.addColorStop(0, `rgba(${R},${G},${B},0)`); tr.addColorStop(1, `rgba(${R},${G},${B},${(0.5 * a).toFixed(3)})`);
-      cx.strokeStyle = tr; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(back.x, back.y); cx.lineTo(pos.x, pos.y); cx.stroke();
-      // a square packet that rounds off into a photon as it falls
-      const sz = 4.4 - 2 * e, rad = sz * Math.min(1, e * 1.3);
-      cx.fillStyle = `rgba(${R},${G},${B},${(0.22 * a).toFixed(3)})`; cx.beginPath(); cx.arc(pos.x, pos.y, sz * 3.2, 0, 6.2832); cx.fill();
+      tr.addColorStop(0, `rgba(${R},${G},${B},0)`); tr.addColorStop(1, `rgba(${R},${G},${B},${(0.65 * a).toFixed(3)})`);
+      cx.strokeStyle = tr; cx.lineWidth = 1.4; cx.beginPath(); cx.moveTo(back.x, back.y);
+      for (let k = 1; k <= 6; k++) { const pt = at(Math.max(0, p - 0.09 + 0.09 * k / 6)); cx.lineTo(pt.x, pt.y); }
+      cx.stroke();
+      // a small square packet that rounds into a photon as it joins the light
+      const sz = 3 - 1.1 * m, rad = sz * m;
+      cx.fillStyle = `rgba(${R},${G},${B},${(0.28 * a).toFixed(3)})`; cx.beginPath(); cx.arc(pos.x, pos.y, sz * 3, 0, 6.2832); cx.fill();
       cx.fillStyle = `rgba(${R},${G},${B},${a.toFixed(3)})`; cx.beginPath();
       cx.roundRect ? cx.roundRect(pos.x - sz, pos.y - sz, sz * 2, sz * 2, rad) : cx.rect(pos.x - sz, pos.y - sz, sz * 2, sz * 2); cx.fill();
-      // landing: a small ring on the wave
-      if (p > 0.9) { const k = (p - 0.9) / 0.1; cx.strokeStyle = `rgba(${c1[0]},${c1[1]},${c1[2]},${(0.6 * (1 - k)).toFixed(3)})`; cx.lineWidth = 1.2; cx.beginPath(); cx.arc(tx, ty, 3 + k * 10, 0, 6.2832); cx.stroke(); }
     }
     requestAnimationFrame(frame);
   }
