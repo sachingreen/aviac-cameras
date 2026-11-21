@@ -782,3 +782,6 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 /* the market explorer on phones: a square pane, so the caption never reaches the tags at the top */
 @media (max-width:560px){.xpanes{aspect-ratio:1/1}.xcap{left:18px;right:18px;bottom:18px}}
 @media (max-width:360px){.xcap .txt{font-size:15px}.xin{width:19%}}
+/* photons on the light waves, and the data packets that carry the findings from the film into them */
+.lc-ph{position:relative;display:block;width:100%;pointer-events:none}
+.lc-pk{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;opacity:0}

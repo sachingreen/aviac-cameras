@@ -10,6 +10,7 @@ const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [..
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const ss = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 const hero = $('.sh');
+let droneAt = null;                                          // the aircraft on screen (stage coords), for the data packets
 const R = hero?.dataset.root ?? '';
 const IMG = R + 'assets/img/demo/';
 const CAPTURE = location.search.includes('capture');
@@ -119,6 +120,7 @@ function film() {
     const f = pS * (N - 1), fk = String(Math.round(f) + 1), P = pins[fk], Q = near ? near[fk] : P;
     if (!P || !Q) return;
     const D = P[4], dx = c.x + D[0] * c.w, dy = c.y + (1 - D[1]) * c.h;              // the aircraft: its pin and wingspan on screen
+    droneAt = {x: dx, y: dy};
     const plane = portrait ? {l: dx - 0.23 * c.w, r: dx + 0.28 * c.w, t: dy - 0.085 * c.h, b: dy + 0.06 * c.h} : {l: dx - 0.15 * c.w, r: dx + 0.18 * c.w, t: dy - 0.15 * c.h, b: dy + 0.11 * c.h};
     const words = walls.words.flatMap((rows, i) => (+lines[i].el.style.opacity > 0.05 ? rows : []));
     const placed = [], ease = 1 - Math.exp(-dt / 0.14), fade = 1 - Math.exp(-dt / 0.2), cardW = 1.5 * ss(0.8, 0.85, pS);  // the card's spot is kept free just before it lands
@@ -180,26 +182,43 @@ function film() {
 // ---------------------------------------------------------------- after the hero: light carries the answer
 function lightSection() {
   const sec = $('.lc'); if (!sec) return;
-  const g = $('.lc-waves g', sec);
+  const svg = $('.lc-waves', sec), g = $('.lc-waves g', sec);
+  let ph = 0;                                                   // the waves' phase, shared with the photons and the packets
   if (g) {
     const NW = 14, paths = [];
     for (let k = 0; k < NW; k++) { const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('opacity', (1 - k / (NW + 1)).toFixed(2)); g.appendChild(p); paths.push(p); }
-    let vis = false; new IntersectionObserver(([e]) => { vis = e.isIntersecting; if (vis) requestAnimationFrame(draw); }).observe(sec);
+    // photons: light is a wave and a stream of particles, so particles ride the waves, coloured by where they sit in the spectrum
+    const cv = document.createElement('canvas'); cv.className = 'lc-ph'; cv.setAttribute('aria-hidden', 'true'); svg.after(cv);          // laid over the waves, in the same flow
+    const cx = cv.getContext('2d');
+    const PH = Array.from({length: innerWidth < 700 ? 60 : 130}, () => ({k: Math.floor(Math.random() ** 1.7 * 12), x: Math.random() * 1440,
+      v: 50 + Math.random() * 120, r: 1.5 + Math.random() * 1.6, tw: Math.random() * 6.28}));
+    let W = 0, H = 0, dpr = 1;
+    const fit = () => { dpr = Math.min(2, devicePixelRatio || 1); W = svg.clientWidth; H = svg.clientHeight;
+      Object.assign(cv.style, {marginTop: -H + 'px', height: H + 'px'}); cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); };
+    new ResizeObserver(fit).observe(svg); fit();
+    let vis = false, last = 0; new IntersectionObserver(([e]) => { vis = e.isIntersecting; if (vis) { last = 0; requestAnimationFrame(draw); } }).observe(sec);
     const t0 = performance.now();
     function draw(now) {
       if (!vis) return;
-      const ph = REDUCE ? 0 : (now - t0) / 1000;
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now;
+      ph = REDUCE ? 0 : (now - t0) / 1000;
       paths.forEach((p, k) => {
         let d = 'M0 125';
-        for (let x = 0; x <= 1440; x += 8) {
-          const f = 0.004 + x * 0.000035 + k * 0.0004, a = 40 * Math.sin((x / 1440) * Math.PI) * (1 - k / 18);
-          d += ` L${x} ${(125 + a * Math.sin(x * f * 3.14 + k * 0.5 - ph * 0.6)).toFixed(1)}`;
-        }
+        for (let x = 0; x <= 1440; x += 8) d += ` L${x} ${waveY(x, k, ph).toFixed(1)}`;
         p.setAttribute('d', d);
       });
+      cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
+      const sx = W / 1440, sy = H / 250;
+      for (const q of PH) {
+        if (!REDUCE) { q.x += q.v * dt; if (q.x > 1440) { q.x -= 1440; q.k = Math.floor(Math.random() ** 1.7 * 12); } }
+        const y = waveY(q.x, q.k, ph), crest = Math.min(1, Math.abs(y - 125) / 32), edge = Math.sin((q.x / 1440) * Math.PI) ** 0.6;
+        const a = edge * (0.6 + 0.4 * crest) * (0.75 + 0.25 * Math.sin(ph * 3 + q.tw)), [r, gg, b] = specAt(q.x / 1440);
+        photon(cx, q.x * sx, y * sy, q.r, r, gg, b, a);
+      }
       if (!REDUCE) requestAnimationFrame(draw);
     }
   }
+  if (svg && !REDUCE) packets(sec, svg, () => ph);
   const LAY = [{a: 'field_rgb', b: 'field_ndvi', row: 0}, {a: 'field_rgb', b: 'field_ndvi', row: 1}, {a: 'field_rgb', b: 'spray_coverage', row: 2}, {a: 'field_rgb', b: 'spray_coverage', row: 3}];
   const box = $('.lc-lens', sec), rows = $$('.lc-tele > div', sec);
   if (!box) return;
@@ -223,4 +242,108 @@ function lightSection() {
     box.style.setProperty('--x', (x * 100).toFixed(2) + '%'); box.style.setProperty('--y', (y * 100).toFixed(2) + '%');
     requestAnimationFrame(tick);
   }
+}
+
+// ---------------------------------------------------------------- shared by the light section
+const SPEC = [[0, '#5d8fd6'], [0.3, '#2d9a5a'], [0.52, '#d0a12b'], [0.72, '#d0582f'], [1, '#9a4bc0']];   // the waves' own gradient
+const rgbOf = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+function specAt(u) {
+  for (let i = 1; i < SPEC.length; i++) if (u <= SPEC[i][0]) { const t = (u - SPEC[i - 1][0]) / (SPEC[i][0] - SPEC[i - 1][0]), A = rgbOf(SPEC[i - 1][1]), B = rgbOf(SPEC[i][1]); return A.map((v, j) => Math.round(v + (B[j] - v) * t)); }
+  return rgbOf(SPEC[SPEC.length - 1][1]);
+}
+function waveY(x, k, ph) { const f = 0.004 + x * 0.000035 + k * 0.0004, a = 40 * Math.sin((x / 1440) * Math.PI) * (1 - k / 18); return 125 + a * Math.sin(x * f * 3.14 + k * 0.5 - ph * 0.6); }
+function photon(cx, x, y, r, R, G, B, a) {
+  if (a < 0.02) return;
+  const h = cx.createRadialGradient(x, y, 0, x, y, r * 5);
+  h.addColorStop(0, `rgba(${R},${G},${B},${(0.5 * a).toFixed(3)})`); h.addColorStop(1, `rgba(${R},${G},${B},0)`);
+  cx.fillStyle = h; cx.beginPath(); cx.arc(x, y, r * 5, 0, 6.2832); cx.fill();
+  cx.fillStyle = `rgba(${R},${G},${B},${(0.95 * a).toFixed(3)})`; cx.beginPath(); cx.arc(x, y, r, 0, 6.2832); cx.fill();
+  cx.fillStyle = `rgba(255,255,255,${(0.35 * a).toFixed(3)})`; cx.beginPath(); cx.arc(x, y, r * 0.32, 0, 6.2832); cx.fill();
+}
+
+// ---------------------------------------------------------------- the hand-over: findings become data, data becomes light
+// As the white sheet rises over the film, each finding (and the aircraft) sends out small data packets in its own colour.
+// They fall into the sheet, round off into photons and land on the wave at their own colour of the spectrum. Driven by
+// the scroll, so scrolling back reverses it.
+function packets(sec, svg, getPh) {
+  const cv = document.createElement('canvas'); cv.className = 'lc-pk'; cv.setAttribute('aria-hidden', 'true'); document.body.appendChild(cv);
+  const cx = cv.getContext('2d');
+  const phone = innerWidth < 700, PER = phone ? 5 : 9;
+  // where on the spectrum each finding lands (its colour on the wave)
+  const LAND = {'#ffa431': 0.6, '#5aa7ff': 0.04, '#ff5a4a': 0.74, '#5fe08a': 0.3};
+  let list = null, running = false, W = 0, H = 0, dpr = 1;
+  const fit = () => { dpr = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); };
+  addEventListener('resize', () => { fit(); list = null; }); fit();
+  const hexOf = (c) => { const m = c.match(/\d+/g); return m ? '#' + m.slice(0, 3).map((v) => (+v).toString(16).padStart(2, '0')).join('') : c; };
+  // the sources: the finding labels (desktop) or the card's dots (phones), and the aircraft
+  const sources = () => {
+    const out = [];
+    const tags = $$('.sh-tag').filter((t) => getComputedStyle(t).display !== 'none');
+    const dots = tags.length ? tags : $$('.sh-card li i');
+    dots.forEach((e) => { const c = hexOf(getComputedStyle(e).backgroundColor); out.push({el: e, col: c, land: LAND[c] ?? Math.random()}); });
+    out.push({drone: true, col: '#ffffff', land: -1});
+    return out;
+  };
+  const build = () => {
+    list = [];
+    sources().forEach((src, si) => {
+      const n = src.drone ? PER + 3 : PER;
+      for (let j = 0; j < n; j++) {
+        list.push({src, d: (si * 0.05 + (j / n) * 0.3) + Math.random() * 0.04, u: src.land < 0 ? 0.08 + Math.random() * 0.84 : src.land + (Math.random() - 0.5) * 0.08,
+          k: Math.floor(Math.random() * 6), side: (Math.random() - 0.5) * 2, ox: (Math.random() - 0.5) * 30, oy: (Math.random() - 0.5) * 10});
+      }
+    });
+  };
+  const where = (src) => {
+    if (src.drone) { const st = $('.sh-stage'); if (!st || !droneAt) return null; const r = st.getBoundingClientRect(); return {x: r.left + droneAt.x, y: r.top + droneAt.y}; }
+    const r = src.el.getBoundingClientRect(); return r.width ? {x: r.left + r.width / 2, y: r.top + r.height / 2} : null;
+  };
+  const progress = () => {
+    const top = sec.getBoundingClientRect().top, s = svg.getBoundingClientRect(), off = s.top + s.height / 2 - top;
+    const a = H * 1.1, b = H * 0.62 - off;                        // from just before the sheet shows to the wave sitting low on screen
+    return (a - top) / (a - b);
+  };
+  const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2);
+  // the scroll only decides when: once the sheet starts to rise the packets fly on their own (about two seconds), so none is
+  // ever left hanging mid-air when the visitor stops; scrolling back above that point flies them home again
+  let T = 0, last = 0;
+  const goal = () => { const pr = progress(); return pr > 0.3 ? 1.1 : pr < 0.22 ? 0 : T; };      // launch once the sheet is clearly rising
+  function frame(now) {
+    const dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now;
+    const G = goal(); T = G > T ? Math.min(G, T + dt * 0.42) : Math.max(G, T - dt * 0.8);
+    if (G > 0) T = Math.max(T, Math.min(1.1, (progress() - 0.3) * 1.6));           // a quick scroll carries them faster
+    const t = T;
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
+    if (t <= 0 || t >= 1.1) { running = false; last = 0; cv.style.opacity = 0; return; }
+    cv.style.opacity = 1;
+    if (!list) build();
+    const s = svg.getBoundingClientRect(), ph = getPh();
+    for (const q of list) {
+      const p = Math.max(0, Math.min(1, (t - q.d) / 0.62));
+      if (p <= 0) continue;
+      const A = where(q.src); if (!A) continue;
+      const tx = s.left + q.u * s.width, ty = s.top + (waveY(q.u * 1440, q.k, ph) / 250) * s.height;
+      const P0 = {x: A.x + q.ox * Math.min(1, p * 6), y: A.y + q.oy}, P1 = {x: (A.x + tx) / 2 + q.side * 90, y: A.y + (ty - A.y) * 0.2};
+      const bz = (e) => { const m = 1 - e; return {x: m * m * P0.x + 2 * m * e * P1.x + e * e * tx, y: m * m * P0.y + 2 * m * e * P1.y + e * e * ty}; };
+      const e = ease(p), pos = bz(e);
+      const c0 = rgbOf(q.src.col), c1 = specAt(Math.max(0, Math.min(1, q.u))), m = Math.min(1, e * 1.4) ** 1.5;
+      const [R, G, B] = c0.map((v, i) => Math.round(v + (c1[i] - v) * m));
+      const a = Math.min(1, p * 10) * (p < 0.97 ? 1 : 1 - (p - 0.97) / 0.03);
+      // a short trail behind it
+      const back = bz(Math.max(0, e - 0.07));
+      const tr = cx.createLinearGradient(back.x, back.y, pos.x, pos.y);
+      tr.addColorStop(0, `rgba(${R},${G},${B},0)`); tr.addColorStop(1, `rgba(${R},${G},${B},${(0.5 * a).toFixed(3)})`);
+      cx.strokeStyle = tr; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(back.x, back.y); cx.lineTo(pos.x, pos.y); cx.stroke();
+      // a square packet that rounds off into a photon as it falls
+      const sz = 4.4 - 2 * e, rad = sz * Math.min(1, e * 1.3);
+      cx.fillStyle = `rgba(${R},${G},${B},${(0.22 * a).toFixed(3)})`; cx.beginPath(); cx.arc(pos.x, pos.y, sz * 3.2, 0, 6.2832); cx.fill();
+      cx.fillStyle = `rgba(${R},${G},${B},${a.toFixed(3)})`; cx.beginPath();
+      cx.roundRect ? cx.roundRect(pos.x - sz, pos.y - sz, sz * 2, sz * 2, rad) : cx.rect(pos.x - sz, pos.y - sz, sz * 2, sz * 2); cx.fill();
+      // landing: a small ring on the wave
+      if (p > 0.9) { const k = (p - 0.9) / 0.1; cx.strokeStyle = `rgba(${c1[0]},${c1[1]},${c1[2]},${(0.6 * (1 - k)).toFixed(3)})`; cx.lineWidth = 1.2; cx.beginPath(); cx.arc(tx, ty, 3 + k * 10, 0, 6.2832); cx.stroke(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  const kick = () => { if (!running && goal() !== T) { running = true; requestAnimationFrame(frame); } };
+  addEventListener('scroll', kick, {passive: true}); kick();
 }
