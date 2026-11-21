@@ -1,45 +1,40 @@
-# Apache / cPanel hosting (Bluehost, Hostinger, GoDaddy...)
-ErrorDocument 404 /404.html
+# Apache / cPanel hosting (Bluehost and similar)
+# Every Aviac rule below applies only to aviac.in (and www.aviac.in), so other sites that share this folder or live in
+# folders inside it are left exactly as they were. To host on another domain, change "aviac\.in" in the lines below.
 DirectoryIndex index.html
-Options -Indexes
 
-# file types some hosts do not know yet
+# file types some hosts do not know yet (harmless for any site)
 <IfModule mod_mime.c>
   AddType image/webp .webp
   AddType model/gltf-binary .glb
   AddType application/wasm .wasm
-  AddType image/svg+xml .svg
-  AddType video/mp4 .mp4
 </IfModule>
 
-# always https (once the SSL certificate is active in cPanel)
+<If "%{HTTP_HOST} =~ /(^|\.)aviac\.in$/">
+  ErrorDocument 404 /404.html
+</If>
+
+# always https on aviac.in
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  RewriteCond %{HTTP_HOST} (^|\.)aviac\.in$ [NC]
   RewriteCond %{HTTPS} !=on
   RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
 <IfModule mod_headers.c>
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' https://formsubmit.co; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
-  Header always set X-Content-Type-Options "nosniff"
-  Header always set X-Frame-Options "SAMEORIGIN"
-  Header always set Referrer-Policy "strict-origin-when-cross-origin"
-  Header always set Cross-Origin-Opener-Policy "same-origin"
-  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
-  Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
-  # pages: always check for a new version
-  <FilesMatch "\.html$">
-    Header set Cache-Control "public, max-age=0, must-revalidate"
-  </FilesMatch>
-  # images and films: a day, then refresh in the background
-  <FilesMatch "\.(jpg|jpeg|png|webp|svg|mp4|txt|json)$">
-    Header set Cache-Control "public, max-age=86400, stale-while-revalidate=604800"
-  </FilesMatch>
-  # scripts, styles and 3D models are fetched with a version in the URL, so they can be kept for a year
-  <FilesMatch "\.(css|js|bin|glb)$">
-    Header set Cache-Control "public, max-age=31536000, immutable"
-  </FilesMatch>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' https://formsubmit.co; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests" "expr=%{HTTP_HOST} =~ /(^|\.)aviac\.in$/"
+  Header always set X-Content-Type-Options "nosniff" "expr=%{HTTP_HOST} =~ /(^|\.)aviac\.in$/"
+  Header always set X-Frame-Options "SAMEORIGIN" "expr=%{HTTP_HOST} =~ /(^|\.)aviac\.in$/"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin" "expr=%{HTTP_HOST} =~ /(^|\.)aviac\.in$/"
+  Header always set Cross-Origin-Opener-Policy "same-origin" "expr=%{HTTP_HOST} =~ /(^|\.)aviac\.in$/"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()" "expr=%{HTTP_HOST} =~ /(^|\.)aviac\.in$/"
+  # pages always check for a new version; images and films keep a day; scripts, styles and 3D models carry a version in
+  # their URL, so they keep a year
+  Header set Cache-Control "public, max-age=0, must-revalidate" "expr=%{HTTP_HOST} =~ /(^|\.)aviac\.in$/ && %{REQUEST_URI} =~ m#(/|\.html)$#"
+  Header set Cache-Control "public, max-age=86400, stale-while-revalidate=604800" "expr=%{HTTP_HOST} =~ /(^|\.)aviac\.in$/ && %{REQUEST_URI} =~ /\.(jpe?g|png|webp|svg|mp4|txt|json)$/"
+  Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{HTTP_HOST} =~ /(^|\.)aviac\.in$/ && %{REQUEST_URI} =~ /\.(css|js|bin|glb)$/"
 </IfModule>
 
 <IfModule mod_deflate.c>
