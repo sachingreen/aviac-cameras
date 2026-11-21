@@ -190,8 +190,8 @@ function lightSection() {
     // photons: light is a wave and a stream of particles, so particles ride the waves, coloured by where they sit in the spectrum
     const cv = document.createElement('canvas'); cv.className = 'lc-ph'; cv.setAttribute('aria-hidden', 'true'); svg.after(cv);          // laid over the waves, in the same flow
     const cx = cv.getContext('2d');
-    const PH = Array.from({length: innerWidth < 700 ? 26 : 56}, () => ({k: Math.floor(Math.random() ** 1.7 * 12), x: Math.random() * 1440,
-      v: 50 + Math.random() * 120, r: 1.25 + Math.random() * 0.95, tw: Math.random() * 6.28}));
+    const PH = Array.from({length: innerWidth < 700 ? 30 : 64}, () => ({k: Math.floor(Math.random() ** 1.7 * 12), x: Math.random() * 1440,
+      v: 50 + Math.random() * 120, r: 0.9 + Math.random() * 0.8, tw: Math.random() * 6.28}));
     let W = 0, H = 0, dpr = 1;
     const fit = () => { dpr = Math.min(2, devicePixelRatio || 1); W = svg.clientWidth; H = svg.clientHeight;
       Object.assign(cv.style, {marginTop: -H + 'px', height: H + 'px'}); cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); };
@@ -261,93 +261,74 @@ function photon(cx, x, y, r, R, G, B, a) {
   cx.fillStyle = `rgba(255,255,255,${(0.35 * a).toFixed(3)})`; cx.beginPath(); cx.arc(x, y, r * 0.32, 0, 6.2832); cx.fill();
 }
 
-// ---------------------------------------------------------------- the hand-over: findings become data, data becomes light
-// As the white sheet rises over the film, each finding (and the aircraft) sends out small data packets in its own colour.
-// They fall into the sheet, round off into photons and land on the wave at their own colour of the spectrum. Driven by
-// the scroll, so scrolling back reverses it.
+// ---------------------------------------------------------------- the hand-over: findings flow into the light
+// As the white sheet rises over the film, each finding (and the aircraft) lets out a thin stream of tiny photons. Each stream
+// flows on a nearly straight path with one soft bend to its own wavelength on the wave (nitrogen to the orange, water to the
+// blue...), and the photons settle into it. Launched by the scroll, then timed, so it never hangs mid-way; scrolling back
+// above the sheet stops it and it plays again next time.
 function packets(sec, svg, getPh) {
   const cv = document.createElement('canvas'); cv.className = 'lc-pk'; cv.setAttribute('aria-hidden', 'true'); document.body.appendChild(cv);
   const cx = cv.getContext('2d');
-  const phone = innerWidth < 700, PER = phone ? 2 : 3;
-  // where on the spectrum each finding lands (its colour on the wave)
-  const LAND = {'#ffa431': 0.6, '#5aa7ff': 0.04, '#ff5a4a': 0.74, '#5fe08a': 0.3};
-  let list = null, running = false, W = 0, H = 0, dpr = 1;
+  const phone = innerWidth < 700, RATE = phone ? 9 : 14, EMIT = 2.2, TRAVEL = 1.7;   // photons a second per stream, seconds
+  const LAND = {'#ffa431': 0.6, '#5aa7ff': 0.05, '#ff5a4a': 0.74, '#5fe08a': 0.3};
+  let W = 0, H = 0, dpr = 1;
   const fit = () => { dpr = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); };
-  addEventListener('resize', () => { fit(); list = null; }); fit();
+  addEventListener('resize', fit); fit();
   const hexOf = (c) => { const m = c.match(/\d+/g); return m ? '#' + m.slice(0, 3).map((v) => (+v).toString(16).padStart(2, '0')).join('') : c; };
-  // the sources: the finding labels (desktop) or the card's dots (phones), and the aircraft
   const sources = () => {
-    const out = [];
     const tags = $$('.sh-tag').filter((t) => getComputedStyle(t).display !== 'none');
-    const dots = tags.length ? tags : $$('.sh-card li i');
-    dots.forEach((e) => { const c = hexOf(getComputedStyle(e).backgroundColor); out.push({el: e, col: c, land: LAND[c] ?? Math.random()}); });
-    out.push({drone: true, col: '#ffffff', land: -1});
+    const out = (tags.length ? tags : $$('.sh-card li i')).map((e) => { const c = hexOf(getComputedStyle(e).backgroundColor); return {el: e, col: c, u: LAND[c] ?? 0.5}; });
+    out.push({drone: true, col: '#f4f7f5', u: 0.45});
     return out;
-  };
-  const build = () => {
-    list = [];
-    sources().forEach((src, si) => {
-      const n = src.drone ? PER + 1 : PER;
-      for (let j = 0; j < n; j++) {
-        list.push({src, d: (si * 0.05 + (j / n) * 0.3) + Math.random() * 0.04, u: src.land < 0 ? 0.08 + Math.random() * 0.84 : src.land + (Math.random() - 0.5) * 0.08,
-          k: Math.floor(Math.random() * 6), side: (Math.random() - 0.5) * 2, ox: (Math.random() - 0.5) * 30, oy: (Math.random() - 0.5) * 10});
-      }
-    });
   };
   const where = (src) => {
     if (src.drone) { const st = $('.sh-stage'); if (!st || !droneAt) return null; const r = st.getBoundingClientRect(); return {x: r.left + droneAt.x, y: r.top + droneAt.y}; }
     const r = src.el.getBoundingClientRect(); return r.width ? {x: r.left + r.width / 2, y: r.top + r.height / 2} : null;
   };
   const progress = () => {
-    const top = sec.getBoundingClientRect().top, s = svg.getBoundingClientRect(), off = s.top + s.height / 2 - top;
-    const a = H * 1.1, b = H * 0.62 - off;                        // from just before the sheet shows to the wave sitting low on screen
-    return (a - top) / (a - b);
+    const top = sec.getBoundingClientRect().top, b = svg.getBoundingClientRect(), off = b.top + b.height / 2 - top;
+    const A = H * 1.1, B = H * 0.62 - off; return (A - top) / (A - B);
   };
-  const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2);
-  // the scroll only decides when: once the sheet starts to rise the packets fly on their own (about two seconds), so none is
-  // ever left hanging mid-air when the visitor stops; scrolling back above that point flies them home again
-  let T = 0, last = 0;
-  const goal = () => { const pr = progress(); return pr > 0.3 ? 1.35 : pr < 0.22 ? 0 : T; };      // launch once the sheet is clearly rising
+  let streams = null, dots = [], tOn = -1, running = false, last = 0;
   function frame(now) {
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now;
-    const G = goal(); T = G > T ? Math.min(G, T + dt * 0.3) : Math.max(G, T - dt * 0.8);
-    if (G > 0) T = Math.max(T, Math.min(1.35, (progress() - 0.3) * 1.6));           // a quick scroll carries them faster
-    const t = T;
-    cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
-    if (t <= 0 || t >= 1.35) { running = false; last = 0; cv.style.opacity = 0; return; }
-    cv.style.opacity = 1;
-    if (!list) build();
-    const s = svg.getBoundingClientRect(), ph = getPh();
-    for (const q of list) {
-      const p = Math.max(0, Math.min(1, (t - q.d) / 0.7));
-      if (p <= 0) continue;
-      const A = where(q.src); if (!A) continue;
-      // it joins the wave a little before its landing colour and then rides the wave to it, so it flows in rather than drops
-      const ride = 0.16, ux = Math.max(0.02, q.u - ride), sx = s.width / 1440, sy = s.height / 250;
-      const onWave = (u) => ({x: s.left + u * s.width, y: s.top + waveY(u * 1440, q.k, ph) * sy});
-      const J = onWave(ux), dir = Math.sign(J.x - A.x) || 1;
-      const P0 = {x: A.x, y: A.y}, P1 = {x: A.x + dir * 120 + q.side * 40, y: A.y + 60}, P2 = {x: J.x - 220, y: J.y + q.side * 18};
-      const cub = (e) => { const m = 1 - e; return {x: m ** 3 * P0.x + 3 * m * m * e * P1.x + 3 * m * e * e * P2.x + e ** 3 * J.x, y: m ** 3 * P0.y + 3 * m * m * e * P1.y + 3 * m * e * e * P2.y + e ** 3 * J.y}; };
-      const split = 0.78;                                         // first the glide to the wave, then the ride along it
-      const at = (x) => (x <= split ? cub(Math.sin((x / split) * Math.PI / 2)) : onWave(ux + ride * ((x - split) / (1 - split))));
-      const pos = at(p), back = at(Math.max(0, p - 0.09));
-      const c0 = rgbOf(q.src.col), c1 = specAt(Math.max(0, Math.min(1, q.u))), m = Math.min(1, p / split) ** 1.4;
-      const [R, G, B] = c0.map((v, i) => Math.round(v + (c1[i] - v) * m));
-      const a = Math.min(1, p * 12) * (p < 0.9 ? 1 : 1 - (p - 0.9) / 0.1);
-      // a fine trail behind it
-      const tr = cx.createLinearGradient(back.x, back.y, pos.x, pos.y);
-      tr.addColorStop(0, `rgba(${R},${G},${B},0)`); tr.addColorStop(1, `rgba(${R},${G},${B},${(0.65 * a).toFixed(3)})`);
-      cx.strokeStyle = tr; cx.lineWidth = 1.4; cx.beginPath(); cx.moveTo(back.x, back.y);
-      for (let k = 1; k <= 6; k++) { const pt = at(Math.max(0, p - 0.09 + 0.09 * k / 6)); cx.lineTo(pt.x, pt.y); }
-      cx.stroke();
-      // a small square packet that rounds into a photon as it joins the light
-      const sz = 3 - 1.1 * m, rad = sz * m;
-      cx.fillStyle = `rgba(${R},${G},${B},${(0.28 * a).toFixed(3)})`; cx.beginPath(); cx.arc(pos.x, pos.y, sz * 3, 0, 6.2832); cx.fill();
-      cx.fillStyle = `rgba(${R},${G},${B},${a.toFixed(3)})`; cx.beginPath();
-      cx.roundRect ? cx.roundRect(pos.x - sz, pos.y - sz, sz * 2, sz * 2, rad) : cx.rect(pos.x - sz, pos.y - sz, sz * 2, sz * 2); cx.fill();
+    const pr = progress();
+    if (pr > 0.3 && tOn < 0) { tOn = now; streams = sources(); }                  // the sheet is rising: open the streams
+    if (pr < 0.22 && tOn >= 0) { tOn = -1; }                                       // scrolled back above it: close them
+    const age = tOn < 0 ? 1e9 : (now - tOn) / 1000;
+    // emit: a steady trickle that tapers off
+    if (streams && age < EMIT) for (const st of streams) {
+      st.acc = (st.acc || 0) + dt * RATE * (st.drone ? 0.6 : 1) * (1 - (age / EMIT) ** 3);
+      while (st.acc >= 1) { st.acc -= 1; dots.push({st, s: 0, du: (Math.random() - 0.5) * 0.02, k: Math.floor(Math.random() * 5), off: (Math.random() - 0.5) * 2, r: 0.7 + Math.random() * 0.7, sp: 0.85 + Math.random() * 0.3}); }
     }
+    if (tOn < 0) for (const d of dots) d.fade = Math.min(d.fade ?? 1, 1) - dt * 3;   // closing: what is in flight fades out
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
+    const b = svg.getBoundingClientRect(), ph = getPh();
+    dots = dots.filter((d) => d.s < 1 && (d.fade ?? 1) > 0);
+    for (const d of dots) {
+      d.s = Math.min(1, d.s + dt * d.sp / TRAVEL);
+      const A = where(d.st); if (!A) continue;
+      const u = Math.max(0.01, Math.min(0.99, d.st.u + d.du)), tx = b.left + u * b.width, ty = b.top + (waveY(u * 1440, d.k, ph) / 250) * b.height;
+      // one soft bend: the path bows a little to one side and arrives level with the wave
+      const vx = tx - A.x, vy = ty - A.y, L = Math.hypot(vx, vy) || 1, nx = -vy / L, ny = vx / L, bow = L * 0.1 * (vx >= 0 ? 1 : -1);
+      const P1 = {x: A.x + vx * 0.35 + nx * bow, y: A.y + vy * 0.35 + ny * bow}, P2 = {x: tx - vx * 0.25 + nx * bow * 0.4, y: ty - 8};
+      const e = d.s * d.s * (3 - 2 * d.s), m = 1 - e;
+      let x = m ** 3 * A.x + 3 * m * m * e * P1.x + 3 * m * e * e * P2.x + e ** 3 * tx;
+      let y = m ** 3 * A.y + 3 * m * m * e * P1.y + 3 * m * e * e * P2.y + e ** 3 * ty;
+      const wob = Math.sin(d.s * 9 + d.off * 3) * 1.6 * (1 - e) * d.off; x += nx * wob; y += ny * wob;           // a thread, not a line
+      const c0 = rgbOf(d.st.col), c1 = specAt(u), k = Math.min(1, d.s * 1.3);
+      const [R, G, B] = c0.map((v, i) => Math.round(v + (c1[i] - v) * k));
+      const a = Math.min(1, d.s * 8) * (d.s > 0.85 ? (1 - d.s) / 0.15 : 1) * Math.max(0, d.fade ?? 1) * 0.9;
+      photon(cx, x, y, d.r, R, G, B, a);
+    }
+    if (tOn < 0 && !dots.length) { running = false; last = 0; return; }
+    if (tOn >= 0 && age > EMIT + TRAVEL * 1.3 && !dots.length) { running = false; last = 0; return; }
     requestAnimationFrame(frame);
   }
-  const kick = () => { if (!running && goal() !== T) { running = true; requestAnimationFrame(frame); } };
+  const kick = () => {
+    if (running) return;
+    const pr = progress();
+    if ((pr > 0.3 && tOn < 0) || (pr < 0.22 && tOn >= 0)) { running = true; requestAnimationFrame(frame); }
+  };
   addEventListener('scroll', kick, {passive: true}); kick();
 }
