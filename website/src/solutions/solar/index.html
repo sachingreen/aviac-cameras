@@ -8,16 +8,10 @@
     <div class="lab g">Solar · thermal<span class="demo-tag">DEMO</span></div>
     <h1 style="margin:14px 0 16px;font-size:clamp(42px,5.2vw,72px)">Find the hot cell. <em>Close the repair.</em></h1>
     <p style="font-size:18px;max-width:540px">TH flies the array with a 1 MP thermal module and a NIR module side by side. Hotspot candidates become reviewed findings, repair jobs and a report the site owner signs off.</p>
-    <div class="ctas" style="margin-top:22px"><a class="btn p" href="#fly">See the demo <span class="a">&darr;</span></a> <a class="btn" href="{{R}}#contact">Request a pilot</a></div>
+    <div class="ctas" style="margin-top:22px"><a class="btn p" href="#demo">See the demo <span class="a">&darr;</span></a> <a class="btn" href="{{R}}?for=solar#contact">Request a pilot</a></div>
   </div>
   <div class="pic reveal" style="border-radius:var(--r-lg);overflow:hidden"><img src="{{R}}assets/img/th_field_hero_green.jpg" alt="Aviac TH thermal camera" style="width:100%;display:block"></div>
 </div></div></header>
-
-<section id="fly" style="padding-top:30px"><div class="wrap">
-  <div class="head reveal"><h2>Watch it fly.</h2><p>TH flies the rows at 30 m with thermal and colour side by side. Hotspot candidates are pinned as the footprint passes over them, ready for review.</p></div>
-  <div class="fly reveal" data-scene="solar"></div>
-  <p class="note" style="margin-top:10px">Live simulation. Drag to look around; change the height to see the ground detail and swath change. Time runs faster than real flight.</p>
-</div></section>
 
 <section id="demo" style="padding-top:30px"><div class="wrap">
   <div class="dgrid">
@@ -29,7 +23,7 @@
       <p class="note">Illustrative imagery. Thermal colours here are relative, not radiometric temperatures; findings are candidates until reviewed.</p>
     </div>
     <div class="sample reveal" style="justify-content:space-between">
-      <div><div class="lab">What the thermal view shows</div><h3 style="font-size:28px;margin:10px 0 8px">Five candidates in one pass.</h3><p style="margin:0">A hot cell, a warm substring, a warm module, half a table running warm and a soiled row. Each one is a candidate until a qualified reviewer confirms it.</p></div>
+      <div><div class="lab">What the thermal view shows</div><h2 style="font-size:28px;margin:10px 0 8px">Five candidates in one pass.</h2><p style="margin:0">A hot cell, a warm substring, a warm module, half a table running warm and a soiled row. Each one is a candidate until a qualified reviewer confirms it.</p></div>
       <div class="stats"><div><b>5</b><span>Candidates flagged</span></div><div><b>1 MP</b><span>Thermal, plus NIR</span></div><div><b>1</b><span>Repair job per finding</span></div><div><b>Versioned</b><span>Customer reports</span></div></div>
     </div>
   </div>
@@ -37,20 +31,23 @@
 
 <section class="specsec"><div class="wrap"><div class="specwrap reveal"><div class="spechead"><div><div class="lab g">Spectrum · 0 to 2500 nm</div><h2>Where TH sees.</h2></div><p>A NIR module from 400 to 940 nm, and a thermal core far beyond: long-wave infrared, 8 to 14 µm, where heat itself glows.</p></div><canvas data-band="th" role="img" aria-label="The NIR module at 400 to 940 nm on a 0 to 2500 nm scale, with an extension showing the thermal band at 8 to 14 micrometres"></canvas><div class="speclegend" data-legend="th"></div></div></div></section>
 
-<section style="padding-top:20px"><div class="wrap">
-  <div class="head reveal"><h2>From inspection to customer acceptance.</h2><p>A service workspace for solar installers and O&amp;M teams is in development (working name: Solar Service Hub). Drone evidence is one input; reviewed findings drive the repair work.</p></div>
-  <div class="steps reveal">
-    <div class="step"><b>Service</b><p>Sites, installed equipment and assigned jobs in one place.</p></div>
-    <div class="step"><b>Evidence</b><p>Technician checklists, photos and thermal images, with provenance kept.</p></div>
-    <div class="step"><b>Findings</b><p>Open, triaged, planned, resolved, verified. Rejections need a reason.</p></div>
-    <div class="step"><b>Delivery</b><p>Versioned reports the customer accepts or sends back with comments.</p></div>
-  </div>
-  <p class="note" style="margin-top:14px">In development with pilot partners. No automated diagnosis: thermal thresholds and electrical findings need qualified review.</p>
+<section id="fly" style="padding-top:30px"><div class="wrap">
+  <div class="head reveal"><h2>Watch it fly.</h2><p>TH flies the rows at 30 m with thermal and colour side by side. Hotspot candidates are pinned as the footprint passes over them, ready for review.</p></div>
+  <div class="fly reveal" data-scene="solar"></div>
+  <p class="note" style="margin-top:10px">Live simulation. Drag to look around; change the height to see the ground detail and swath change. Time runs faster than real flight.</p>
 </div></section>
 
-<section><div class="wrap">
-  <div class="head reveal"><h2>How it works.</h2><p>One connected service cycle, from the flight to a signed-off report.</p></div>
-  <div class="steps reveal"><div class="step"><b>Schedule</b><p>Pick the site and the purpose; the job records the aircraft, sensor and conditions.</p></div><div class="step"><b>Fly</b><p>TH captures thermal and NIR together, every frame time-stamped and geotagged.</p></div><div class="step"><b>Review</b><p>Candidates are flagged; a qualified reviewer confirms or rejects each one.</p></div><div class="step"><b>Repair</b><p>Confirmed findings become repair work orders with evidence.</p></div><div class="step"><b>Verify</b><p>A post-repair flight checks the fix.</p></div><div class="step"><b>Report</b><p>A versioned report goes to the site owner for acceptance.</p></div></div>
+<section style="padding-top:20px"><div class="wrap">
+  <div class="head reveal"><h2>From flight to customer acceptance.</h2><p>One connected service cycle for solar installers and O&amp;M teams, in a workspace now in development (working name: Solar Service Hub). Drone evidence is one input; reviewed findings drive the repair work.</p></div>
+  <div class="steps reveal">
+    <div class="step"><b>Schedule</b><p>Pick the site and the purpose. Sites, installed equipment and assigned jobs live in one place, and each job records the aircraft, sensor and conditions.</p></div>
+    <div class="step"><b>Fly</b><p>TH captures thermal and NIR together, every frame time-stamped and geotagged. Technician checklists and photos join the same record, with provenance kept.</p></div>
+    <div class="step"><b>Review</b><p>Candidates are flagged; a qualified reviewer confirms or rejects each one. Rejections need a reason.</p></div>
+    <div class="step"><b>Repair</b><p>Confirmed findings become repair work orders with evidence, tracked from open and triaged to planned and resolved.</p></div>
+    <div class="step"><b>Verify</b><p>A post-repair flight checks the fix before the finding is closed as verified.</p></div>
+    <div class="step"><b>Report</b><p>A versioned report goes to the site owner, who accepts it or sends it back with comments.</p></div>
+  </div>
+  <p class="note" style="margin-top:14px">In development with pilot partners. No automated diagnosis: thermal thresholds and electrical findings need qualified review.</p>
 </div></section>
 
 <section style="padding-top:10px"><div class="wrap">
@@ -60,7 +57,7 @@
 
 <section id="contact-cta" style="background:var(--bg-2)"><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap">
   <div class="reveal"><div class="lab">Pilots</div><h2 style="font-size:clamp(32px,4vw,52px);margin:12px 0 0">Try it on your site.</h2></div>
-  <a class="btn p reveal" href="{{R}}#contact">Request a pilot <span class="a">&rarr;</span></a>
+  <a class="btn p reveal" href="{{R}}?for=solar#contact">Request a pilot <span class="a">&rarr;</span></a>
 </div></section>
 
 </main>

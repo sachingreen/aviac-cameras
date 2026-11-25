@@ -2,7 +2,7 @@
    green for the one action that matters, the NDVI ramp only where there is data. Tokens also live in /design-system. */
 :root{
   --bg:#f6f8f6; --bg-2:#eef3f0; --surface:#ffffff; --glass:rgba(255,255,255,.62);
-  --ink:#13201a; --ink-2:#46564d; --mute:#7c8a82; --line:#dfe6e1; --line-2:#cbd6cf;
+  --ink:#13201a; --ink-2:#46564d; --mute:#5c6b63;   /* mute: 4.7:1 or better on every ground (was #7c8a82, 3.0–3.6:1) */ --line:#dfe6e1; --line-2:#cbd6cf;
   --forest:#004c1e; --forest-2:#0b6b33; --teal:#255052; --sage:#aac3b8; --sage-2:#e5ede8; --panel:#5b7d80;
   --ndvi:linear-gradient(90deg,#965c3c,#d6aa46,#c4cd5a,#60aa4e,#16683a);
   --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
@@ -40,7 +40,7 @@ p{color:var(--ink-2)}
 .btn.p:hover{background:var(--forest-2)}
 .btn .a{transition:transform .3s var(--ease)}.btn:hover .a{transform:translateX(3px)}
 
-section{padding:112px 0;position:relative}
+section{padding:clamp(64px,6.5vw,96px) 0;position:relative}   /* fluid section rhythm: 96px on wide screens, down to 64px */
 .head{display:flex;justify-content:space-between;align-items:end;gap:32px;flex-wrap:wrap;margin-bottom:48px}
 .head h2{font-size:clamp(36px,4.8vw,62px);max-width:720px}
 .head p{max-width:440px;margin:0}
@@ -61,45 +61,17 @@ section{padding:112px 0;position:relative}
 @media (max-width:960px){.nav .menu{position:static;opacity:1;visibility:visible;transform:none;box-shadow:none;border:0;background:none;padding:0 0 0 12px;min-width:0}}
 
 /* hardware */
-.hw{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.chipcard{border-radius:var(--r-lg);overflow:hidden;background:#0b1712;color:#e8efe9;position:relative}
-.chipcard img{width:100%;aspect-ratio:16/10;object-fit:cover}
-.chipcard .cap{position:absolute;left:0;right:0;bottom:0;padding:22px 24px;background:linear-gradient(transparent,rgba(5,12,9,.85))}
-.chipcard .cap .lab{color:#9fc8b0}
-.chipcard h3{font-size:30px;margin:6px 0 6px;color:#fff}
-.chipcard p{margin:0;color:#c3d2c8;font-size:14.5px}
-.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
-.feat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px}
-.feat .k{font:400 34px var(--serif);color:var(--forest);line-height:1}
-.feat h4{font:600 15.5px var(--sans);margin:12px 0 6px}
-.feat p{margin:0;font-size:14.5px}
-.cmp{overflow-x:auto;margin-top:20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
-.cmp table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:560px}
-.cmp th,.cmp td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line)}
-.cmp tr:last-child td{border-bottom:0}
-.cmp th{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
-.cmp td:first-child{color:var(--mute);width:28%}
-@media (max-width:960px){.hw{grid-template-columns:1fr}.feats{grid-template-columns:1fr 1fr}}
-@media (max-width:560px){.feats{grid-template-columns:1fr}}
 
 /* hero */
 .hero{padding:40px 0 30px;overflow:hidden}
 .hero .grid{display:grid;grid-template-columns:1fr 1.15fr;gap:36px;align-items:center}
 .hero h1{font-size:clamp(46px,6.6vw,92px)}
 .hero h1 em{font-style:italic;color:var(--forest)}
-.hero .lead{font-size:clamp(17px,1.5vw,20px);max-width:520px;margin:24px 0 32px}
 .hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
 .hero .pic{position:relative;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:5/4;background:#0c1a12}
 .hero .pic img{width:100%;height:100%;object-fit:cover;transform:scale(1.04);animation:settle 2.4s var(--ease) forwards}
 @keyframes settle{to{transform:scale(1)}}
-.hero .pic .chip{position:absolute;left:18px;bottom:16px}
-.chip{display:inline-flex;align-items:center;gap:8px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:7px 12px;border-radius:999px;background:var(--glass);backdrop-filter:blur(10px);color:var(--ink);border:1px solid rgba(255,255,255,.6)}
-.chip i{width:7px;height:7px;border-radius:50%;background:#ff9a3c;box-shadow:0 0 8px #ff9a3c;animation:blink 1.6s infinite}
 @keyframes blink{50%{opacity:.25}}
-.facts{display:grid;grid-template-columns:repeat(4,1fr);margin-top:56px;border-top:1px solid var(--line)}
-.facts div{padding:22px 22px 0 0}
-.facts b{display:block;font:400 32px var(--serif)}
-.facts span{font-size:13.5px;color:var(--mute)}
 .trust{display:flex;flex-wrap:wrap;align-items:center;gap:10px 28px;margin-top:34px;padding-top:20px;border-top:1px solid var(--line)}
 .trust span{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
 .trust b{font:400 19px var(--serif);color:var(--ink-2);opacity:.85}
@@ -107,7 +79,7 @@ section{padding:112px 0;position:relative}
 /* problem */
 .bands{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
 .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:26px}
-.spec canvas{width:100%;aspect-ratio:16/9;display:block}
+.spec canvas{width:100%;display:block}
 .spec .legend{display:flex;justify-content:space-between;font:500 11px var(--mono);color:var(--mute);margin-top:10px}
 .pts{display:grid;gap:18px;margin-top:8px}
 .pts div{padding-left:18px;border-left:2px solid var(--sage)}
@@ -134,8 +106,6 @@ section{padding:112px 0;position:relative}
 
 /* dashboard */
 .field{background:linear-gradient(180deg,var(--bg),var(--bg-2))}
-.device{border-radius:28px;padding:14px;background:linear-gradient(160deg,#1c2a25,#0e1714);box-shadow:0 50px 90px -40px rgba(19,32,26,.55)}
-.device img{border-radius:16px;width:100%}
 .dgrid{display:grid;grid-template-columns:1.6fr 1fr;gap:24px;align-items:stretch;margin-top:28px}
 .sample{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;gap:14px}
 .sample canvas{width:100%;aspect-ratio:4/3;border-radius:12px;display:block;background:#2b3d2c}
@@ -146,7 +116,6 @@ section{padding:112px 0;position:relative}
 .stats div{background:var(--sage-2);border-radius:12px;padding:12px 14px}
 .stats b{display:block;font:400 24px var(--serif)}
 .stats span{font-size:12px;color:var(--mute)}
-.ramp{height:6px;border-radius:3px;background:var(--ndvi)}
 
 /* RGB / NDVI compare */
 .cmpimg{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:4/3;width:100%;max-width:100%;contain:paint;isolation:isolate;user-select:none;touch-action:pan-y;cursor:ew-resize}
@@ -159,8 +128,6 @@ section{padding:112px 0;position:relative}
 .cmpimg .handle span::before{left:9px;transform:rotate(45deg)}.cmpimg .handle span::after{right:9px;transform:rotate(-135deg)}
 .cmpimg .tag{position:absolute;top:12px;font:500 11px var(--mono);letter-spacing:.12em;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.85);color:var(--ink)}
 .cmpimg .tag.l{left:12px}.cmpimg .tag.r{right:12px}
-.cmpimg .flag{position:absolute;left:62%;top:33%;font:500 11.5px var(--mono);padding:6px 10px;border-radius:8px;background:rgba(19,32,26,.85);color:#fff;opacity:0;transition:opacity .4s}
-.cmpimg.show-flag .flag{opacity:1}
 .cmpimg .pin{position:absolute;width:0;height:0;opacity:0;transition:opacity .35s;pointer-events:none}
 .cmpimg .pin.on{opacity:1}
 .cmpimg .pin i{position:absolute;left:-11px;top:-11px;width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25),0 2px 8px rgba(0,0,0,.3)}
@@ -168,15 +135,12 @@ section{padding:112px 0;position:relative}
 .cmpimg .pin.lft b{left:auto;right:16px}
 .note{font:500 11px var(--mono);letter-spacing:.06em;color:var(--mute);margin:0}
 /* segments: one row per market */
-.segs{border-top:1px solid var(--line)}
 .seg{display:grid;grid-template-columns:minmax(220px,340px) 1fr auto;gap:32px;align-items:center;padding:24px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
 .seg .th{aspect-ratio:16/10;border-radius:14px;overflow:hidden;background:var(--sage-2)}
 .seg .th img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease)}
 .seg:hover .th img{transform:scale(1.05)}
 .seg h3{font-size:clamp(26px,2.6vw,36px);margin:8px 0 6px}
 .seg p{margin:0;max-width:560px}
-.seg .cams{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.seg .cams span{font:500 11px var(--mono);letter-spacing:.1em;padding:5px 10px;border-radius:999px;background:var(--sage-2);color:var(--ink-2)}
 .seg .go{font-size:22px;color:var(--forest);transition:transform .3s var(--ease)}
 .seg:hover .go{transform:translateX(4px)}
 .demo-tag{display:inline-block;font:500 10.5px var(--mono);letter-spacing:.12em;padding:3px 8px;border-radius:999px;background:#fdf1dc;color:#8a5a12;vertical-align:middle;margin-left:8px}
@@ -192,7 +156,6 @@ section{padding:112px 0;position:relative}
 .cambox img{width:100%;height:100%;object-fit:cover;aspect-ratio:16/10;display:block}
 .cambox .body{padding:28px 30px}
 
-
 /* research, company */
 .partners{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .partner{border:1px dashed var(--line-2);border-radius:var(--r);padding:22px;min-height:120px;display:flex;flex-direction:column;justify-content:space-between}
@@ -201,9 +164,7 @@ section{padding:112px 0;position:relative}
 .team{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:start}
 .team blockquote{margin:0;font:400 clamp(24px,2.6vw,34px)/1.3 var(--serif);color:var(--ink)}
 .people{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.person .ph{aspect-ratio:1;border-radius:var(--r);background:linear-gradient(160deg,var(--sage-2),var(--sage));margin-bottom:10px}
 .person b{display:block;font-weight:600;font-size:14.5px}.person span{font-size:13px;color:var(--mute)}
-.ph-note{font:500 11px var(--mono);letter-spacing:.1em;color:#b06a1c;text-transform:uppercase}
 
 /* contact */
 .contact{display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:start}
@@ -221,7 +182,27 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .phero{padding:36px 0 20px}
 .phero .grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:30px;align-items:center}
 .phero h1{font-size:clamp(46px,6vw,84px)}
-.stage3d{position:relative;aspect-ratio:1/0.82;border-radius:var(--r-lg);background:radial-gradient(70% 70% at 50% 42%,#ffffff,#e7eeea 70%,#dbe5df);overflow:hidden}
+/* product hero, right column: buttons and price above the photo */
+.phero .pside .stage{margin-top:22px}
+.phero .pspecs{margin-bottom:0}
+/* desktop: a wider hero row, so the copy sits further left and the photo further right */
+@media (min-width:961px){.phero:has(.pside)>.wrap{max-width:1480px;padding-left:72px;padding-right:72px}.phero:has(.pside) .grid{gap:56px}.phero:has(.pside){padding-bottom:0}}   /* 72px clears the side product arrows */
+/* desktop: the copy starts level with the buttons, and the spec table ends level with the photo; spare height goes above the table */
+@media (min-width:961px){
+  .phero:has(.pside) .grid{align-items:stretch}
+  .phero:has(.pside) .grid>div:first-child{display:flex;flex-direction:column}
+  .phero:has(.pside) .grid>div:first-child>.lab{margin-top:0}
+  .phero:has(.pside) .grid>div:first-child>.pspecs{margin-top:auto}
+  .phero:has(.pside) .grid>div:first-child>p{margin-bottom:28px}
+  .phero:has(.pside) .pside{display:flex;flex-direction:column}
+  .phero:has(.pside) .pside .stage{flex:1 0 auto}   /* when the copy is the taller side, the photo grows to meet the table */
+  .phero:has(.pside) .pside .stage{order:-1;margin-top:0}   /* photo on top, buttons and quote below it */
+  .phero:has(.pside) .pside .ctas{order:1;margin-top:22px}   /* photo on top, the buttons below it */
+  /* the hero fills the first screen under the nav and product strip, so the teardown never peeks in before scrolling */
+  .phero:has(.pside){min-height:calc(100vh - 140px);min-height:calc(100svh - 140px);display:flex;flex-direction:column;justify-content:center;padding-bottom:36px}
+  .phero:has(.pside)>.wrap{width:100%}
+}
+@media (max-width:960px){.phero .pspecs{margin-bottom:24px}}
 .viewer{position:absolute;inset:0;cursor:grab}.viewer:active{cursor:grabbing}.viewer canvas{display:block}
 .viewer::after{content:'Loading 3D…';position:absolute;inset:0;display:grid;place-items:center;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute);pointer-events:none}
 .viewer.ready::after{display:none}.viewer.failed::after{content:'3D unavailable on this device'}
@@ -229,7 +210,6 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .swatches button{all:unset;cursor:pointer;width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line-2);transition:transform .3s var(--ease)}
 .swatches button.on{box-shadow:0 0 0 2px var(--forest);transform:scale(1.08)}
 .swatches span{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-left:6px}
-.chip.drag{position:absolute;right:16px;top:14px}
 .pspecs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface);margin:24px 0}
 .pspecs div{padding:14px 16px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
 .pspecs div:nth-child(2n){border-right:0}
@@ -239,19 +219,24 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .gallery img{width:100%;height:100%;object-fit:cover;border-radius:var(--r)}
 .gallery .col{display:grid;gap:14px}
 
-/* teardown: pinned, vertical scroll drives a horizontal track of stages */
+/* teardown: pinned stage, scrolling steps through the parts; one card at a time, moving vertically, with a vertical progress rail */
 .td{height:520vh;position:relative;background:linear-gradient(180deg,var(--bg),#ffffff 20%,#ffffff 80%,var(--bg))}
 .td .pin{position:sticky;top:0;height:100vh;overflow:hidden}
-.td .pin .viewer{position:absolute;left:0;right:0;top:40px;bottom:30%}
+.td .pin .viewer{position:absolute;left:0;right:0;top:40px;bottom:30%;-webkit-mask-image:linear-gradient(180deg,#000 82%,transparent);mask-image:linear-gradient(180deg,#000 82%,transparent)}   /* parts fade out above the card instead of being cut off */
+.td .viewer canvas{touch-action:pan-y!important}   /* a vertical swipe on the model still scrolls the page */
 .td .top{position:absolute;left:0;right:0;top:86px;z-index:3;display:flex;justify-content:space-between;align-items:center;gap:20px}
 .td .top h2{font-size:clamp(28px,3vw,40px)}
 .prog{display:flex;gap:6px;align-items:center}
 .prog i{width:34px;height:3px;border-radius:2px;background:var(--line-2);transition:background .4s}
 .prog i.on{background:var(--forest)}
-.prog span{font:500 11px var(--mono);color:var(--ink-2);margin-left:8px;letter-spacing:.1em}
-.track{position:absolute;left:0;bottom:56px;display:flex;gap:24px;padding-left:max(20px,calc((100vw - var(--max)) / 2 + 20px));will-change:transform;z-index:3}
-.card{flex:0 0 min(420px,82vw);background:var(--glass);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);border:1px solid rgba(255,255,255,.7);border-radius:var(--r-lg);padding:22px 24px;box-shadow:0 20px 50px -30px rgba(19,32,26,.35);transition:opacity .5s,transform .5s var(--ease)}
-.card:not(.on){opacity:.45;transform:scale(.97)}
+.prog span{font:500 11px var(--mono);color:var(--ink-2);margin-left:8px;letter-spacing:.1em;white-space:nowrap}
+.track{position:absolute;z-index:3;bottom:56px;left:max(20px,calc((100vw - var(--max)) / 2 + 20px));width:min(440px,calc(100vw - 40px));height:0}
+.td .card{position:absolute;left:0;right:0;bottom:0;opacity:0;visibility:hidden;transform:translateY(48px);pointer-events:none;
+  transition:opacity .45s var(--ease),transform .6s var(--ease),visibility 0s linear .6s}
+.td .card.past{transform:translateY(-48px)}
+.td .card.on{opacity:1;visibility:visible;transform:none;pointer-events:auto;transition:opacity .45s var(--ease) .08s,transform .6s var(--ease),visibility 0s}
+@media (prefers-reduced-motion:reduce){.td .card,.td .card.past{transform:none}}
+.card{background:var(--glass);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);border:1px solid rgba(255,255,255,.7);border-radius:var(--r-lg);padding:22px 24px;box-shadow:0 20px 50px -30px rgba(19,32,26,.35)}
 .card .n{font:500 11px var(--mono);letter-spacing:.14em;color:var(--forest)}
 .card h3{font-size:28px;margin:6px 0 8px}
 .card p{margin:0 0 12px;font-size:15px}
@@ -259,7 +244,6 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .card li{display:flex;justify-content:space-between;gap:12px;border-top:1px solid rgba(19,32,26,.08);padding-top:6px}
 .card li span{color:var(--mute)}
 .card li b{font:500 12.5px var(--mono);color:var(--ink);text-align:right}
-.card .ph{color:#b06a1c}
 .card.end{background:var(--forest);border-color:var(--forest)}
 .card.end h3,.card.end p{color:#fff}
 .card.end .btn{background:#fff;border-color:#fff;color:var(--forest)}
@@ -268,12 +252,11 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
   .nav ul,.nav .cta{display:none}.burger{display:block}
   .nav.open ul{display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:var(--bg);padding:12px 20px;border-bottom:1px solid var(--line)}
   .hero .grid,.bands,.systems,.dgrid,.team,.contact,.phero .grid,.gallery,.cambox,.pgroup{grid-template-columns:1fr}
-  .seg{grid-template-columns:1fr;gap:14px}.seg .go{display:none}.pgroup .partners{grid-template-columns:1fr 1fr}
-  .facts{grid-template-columns:1fr 1fr}.partners{grid-template-columns:1fr 1fr}
+  .seg{grid-template-columns:1fr;gap:14px}.seg .go{display:none}.pgroup .partners{grid-template-columns:1fr 1fr}.partners{grid-template-columns:1fr 1fr}
   section{padding:76px 0}
 }
 @media (max-width:560px){
-  .facts,.partners,.people,.form .two,.pspecs{grid-template-columns:1fr}
+  .partners,.people,.form .two,.pspecs{grid-template-columns:1fr}
   .pspecs div{border-right:0}
   .kv{grid-template-columns:1fr 1fr 1fr}
 }
@@ -320,7 +303,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
   .fly .fbig b{font-size:26px}
   .fly .fmini{max-height:130px;object-fit:cover}
   .fly .ffind{max-height:96px}
-  .fly .fbands{position:static;transform:none;max-width:none;margin:0;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
+  .fly .fbands{position:static;transform:none;max-width:none;margin:0;flex-wrap:wrap;justify-content:flex-start}
   .fly .fbands span{flex:none}
   .fly .ftag{font-size:10px;padding:4px 7px}
 }
@@ -361,22 +344,6 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 @media (max-width:560px){.minis{grid-template-columns:1fr}}
 
 /* home hero: full-width headline, then a wide product band carrying the stats */
-.hero2{padding:56px 0 20px}
-.hero2 h1{font-size:clamp(52px,8.4vw,128px);line-height:.98;letter-spacing:-.025em;margin:18px 0 0;max-width:15ch}
-.hero2 h1 em{font-style:italic;color:var(--forest)}
-.h2row{display:flex;justify-content:space-between;align-items:flex-end;gap:36px;margin:28px 0 36px;flex-wrap:wrap}
-.h2row .lead{font-size:clamp(17px,1.4vw,20px);max-width:600px;margin:0}
-.h2row .ctas{margin:0;flex:none}
-.band{position:relative;border-radius:calc(var(--r-lg) + 6px);overflow:hidden;aspect-ratio:21/9;background:#0c1510;isolation:isolate}
-.band>img,.band>picture>img{width:100%;height:100%;object-fit:cover;object-position:60% 50%;display:block;transform:scale(1.06);animation:settle 2.6s var(--ease) forwards}
-.band .chip{position:absolute;left:22px;top:20px}
-.band::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,12,9,.55),rgba(6,12,9,0) 55%);pointer-events:none}
-.bstats{position:absolute;left:0;bottom:0;width:min(560px,50%);z-index:2;display:grid;grid-template-columns:1fr 1fr;padding:0 28px 26px;gap:22px 28px;color:#fff}
-.bstats div{border-top:1px solid rgba(255,255,255,.28);padding-top:14px}
-.bstats b{display:block;font:400 clamp(24px,2.4vw,34px) var(--serif)}
-.bstats span{font-size:13px;color:rgba(255,255,255,.72)}
-@media (max-width:960px){.band{aspect-ratio:4/5}.band>img,.band>picture>img{object-position:72% 50%}.bstats{width:auto;right:0;grid-template-columns:1fr 1fr;padding:0 18px 16px}.band::after{background:linear-gradient(180deg,rgba(6,12,9,0) 40%,rgba(6,12,9,.8))}.h2row{align-items:flex-start}}
-.band .chip{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.25)}
 
 /* product pages: system switcher */
 .sysbar{border-bottom:1px solid var(--line);background:var(--bg)}
@@ -396,38 +363,26 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 .sb-edge:hover b{max-width:80px}.sb-edge.l:hover{transform:translate(4px,-50%)}.sb-edge.r:hover{transform:translate(-4px,-50%)}
 @media (max-width:900px){.sb-edge{display:none}.sb-row a{flex:0 0 150px}}
 
-/* phones: teardown stays a sticky stage (model above, card below), driven by scroll like on desktop */
+/* phones: model above, one card below, both pinned; the progress rail runs down the right of the model */
 @media (max-width:760px){
   .td .pin{height:100svh}
   .td .top{top:78px;gap:12px}.td .top h2{font-size:24px}.td .prog i{width:18px}
   .td .pin .viewer{top:118px;bottom:auto;height:44svh}
-  .track{left:16px;right:16px;bottom:16px;padding:0;height:min(42svh,330px);transform:none!important}
-  .card{position:absolute;left:0;right:0;bottom:0;padding:16px 18px;background:#fff;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .35s,transform .35s}
-  .td .card:not(.on){opacity:0!important;visibility:hidden}
-  .td .card.on{opacity:1!important;visibility:visible;pointer-events:auto;transform:none}.card h3{font-size:22px;margin:6px 0 6px}.card p{font-size:14px;line-height:1.45;margin:0 0 8px}
+  .track{left:16px;right:16px;bottom:16px;width:auto}
+  .card{padding:16px 18px;background:#fff}
+  .card h3{font-size:22px;margin:6px 0 6px}.card p{font-size:14px;line-height:1.45;margin:0 0 8px}
   .card ul{font-size:12px}.card li{padding:4px 0}
   .sb-row a{flex:0 0 138px}.sb-row span{font-size:11px}
 }
 /* phones: hero stats sit under the photo, not over it */
-@media (max-width:960px){
-  .band{aspect-ratio:auto;background:#0f1a14}
-  .band>img,.band>picture>img{aspect-ratio:4/3;height:auto;object-position:70% 50%}
-  .band::after{display:none}
-  .bstats{position:relative;width:auto;padding:18px 18px 20px;gap:16px 18px}
-}
 
 /* films: never wider than their box, poster until they play */
 .film video,.cambox video{background:#cfd3d0}
 
 /* product pages: the back of the camera */
 .ports{display:grid;grid-template-columns:1.15fr 1fr;gap:34px;align-items:center}
-.ports .pimg{border-radius:var(--r-lg);overflow:hidden;background:#d9d8d4}.ports .pimg img{width:100%;height:auto;display:block}
 .ports h2{font-size:clamp(30px,3.4vw,46px);margin:12px 0 10px}.ports p{margin:0 0 18px}
-.plist{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
-.plist li{display:grid;grid-template-columns:170px 1fr;gap:16px;padding:13px 0;border-bottom:1px solid var(--line)}
-.plist b{font:500 12.5px var(--mono);color:var(--ink);letter-spacing:.02em}
-.plist span{font-size:14.5px;color:var(--ink-2)}.plist em{display:block;font-style:normal;font-weight:600;color:var(--ink);margin-bottom:2px}
-@media (max-width:900px){.ports{grid-template-columns:1fr;gap:20px}.plist li{grid-template-columns:1fr;gap:4px}}
+@media (max-width:900px){.ports{grid-template-columns:1fr;gap:20px}}
 
 /* team: animated role icons */
 .person{display:flex;flex-direction:column}
@@ -454,7 +409,6 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
 @keyframes grow{0%{stroke-dashoffset:30}35%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
 @keyframes leaf{0%,20%{transform:scale(0)}45%,85%{transform:scale(1)}100%{transform:scale(1);opacity:0}}
 /* scroll: a reading-progress line, reveals that stagger within a group, anchors that clear the sticky nav */
-html{scroll-behavior:smooth}
 [id]{scroll-margin-top:84px}
 .sprog{position:fixed;top:0;left:0;right:0;height:2px;z-index:60;pointer-events:none}
 .sprog i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#2f6f4e,#9fd3b3);transform:scaleX(var(--p,0));transform-origin:0 50%}
@@ -462,7 +416,7 @@ html{scroll-behavior:smooth}
 .reveal{transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:var(--d,0s)}
 .skip{position:absolute;left:12px;top:-60px;z-index:70;background:var(--forest);color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none}
 .skip:focus{top:12px}
-.band>img,.band>picture>img,.hero .pic img{will-change:transform}
+.hero .pic img{will-change:transform}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.person .ico *{animation:none!important}}
 
 .hp{position:absolute;left:-10000px;width:1px;height:1px;opacity:0}
@@ -490,22 +444,7 @@ html{scroll-behavior:smooth}
 .nav .signin{font-size:14.5px;color:var(--ink-2);text-decoration:none;padding:8px 12px;border-radius:999px;margin-left:auto}
 .nav .signin:hover{background:var(--sage-2);color:var(--ink)}
 .nav .signin+.cta{margin-left:6px}
-.auth{padding:54px 0 90px}
-.authgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
-.authside h1{font-size:clamp(40px,5vw,66px);margin:14px 0 14px}.authside h1 em{font-style:italic;color:var(--forest)}
-.authlist{list-style:none;padding:0;margin:18px 0 24px;display:grid;gap:8px}
-.authlist li{padding-left:22px;position:relative}.authlist li::before{content:'';position:absolute;left:0;top:.55em;width:10px;height:10px;border-radius:3px;background:var(--forest)}
-.authshot{width:100%;border-radius:var(--r-lg);border:1px solid var(--line);box-shadow:0 30px 60px -36px rgba(19,32,26,.45)}
-.authcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:30px;display:grid;gap:14px;box-shadow:0 30px 60px -40px rgba(19,32,26,.4)}
-.authcard h2{font-size:34px;margin:0}.authcard .sub{margin:-6px 0 4px;color:var(--mute)}
-.authcard label{display:grid;gap:6px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
-.authcard input[type=email],.authcard input[type=password]{font:400 16px var(--sans);padding:12px 14px;border-radius:12px;border:1px solid var(--line-2);background:var(--bg);color:var(--ink)}
-.authcard .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px}
-.authcard .chk{display:flex;align-items:center;gap:8px;font:400 13.5px var(--sans);letter-spacing:0;text-transform:none;color:var(--ink-2)}
-.authcard .row a{color:var(--forest)}
-.authcard .or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px}.authcard .or::before,.authcard .or::after{content:'';flex:1;height:1px;background:var(--line)}
-.device{text-decoration:none}
-@media (max-width:960px){.authgrid{grid-template-columns:1fr}.authshot{display:none}.nav .signin{display:none}}
+@media (max-width:960px){.nav .signin{display:none}}
 
 /* phone menu: group names are labels, items are spaced, the list scrolls and never overlaps */
 @media (max-width:960px){
@@ -539,8 +478,21 @@ html{scroll-behavior:smooth}
   .sb-row span b{font-size:15px;line-height:1.1}
 }
 /* desktop teardown: cards only as tall as their content, so the model gets the room above them */
-@media (min-width:761px){.track{align-items:flex-end}.card{padding:18px 22px}.card h3{font-size:26px;margin:4px 0 6px}.card p{margin:0 0 10px}.card ul{gap:2px}.card li{padding:5px 0 1px}}
-.prog span{white-space:nowrap}
+@media (min-width:1024px),(min-width:761px) and (orientation:landscape){.card{padding:18px 22px}.card h3{font-size:26px;margin:4px 0 6px}.card p{margin:0 0 10px}.card ul{gap:2px}.card li{padding:5px 0 1px}}
+
+/* teardown, tablet + desktop: model centred on the left, card centred on the right, step rail centred at the bottom.
+   The card keeps its rise-in / lift-away motion, offset from a vertically centred rest position. */
+@media (min-width:1024px),(min-width:761px) and (orientation:landscape){
+  .td{--td-r:max(84px,calc((100vw - 1640px) / 2));--td-w:min(420px,32vw);padding-top:0}   /* 84px keeps the card clear of the side product arrow */
+  .td .track{left:auto;right:var(--td-r);top:50%;bottom:auto;width:var(--td-w)}
+  .td .pin .viewer{top:150px;bottom:50px;left:0;right:calc(var(--td-r) + var(--td-w));-webkit-mask-image:none;mask-image:none}
+  .td .card{top:0;bottom:auto;transform:translateY(calc(-50% + 48px))}
+  .td .card.past{transform:translateY(calc(-50% - 48px))}
+  .td .card.on{transform:translateY(-50%)}
+  .td .top{top:140px}   /* desktop: heading sits a little lower, clear of the nav */
+  .td .prog{position:absolute;left:50%;top:calc(100vh - 140px - 44px);transform:translateX(-50%)}
+}
+@media (min-width:1024px) and (prefers-reduced-motion:reduce),(min-width:761px) and (orientation:landscape) and (prefers-reduced-motion:reduce){.td .card,.td .card.past{transform:translateY(-50%)}}
 /* phones: gallery photos stacked at their own 16:10 shape, never stretched or overlapping */
 @media (max-width:960px){.gallery,.gallery .col{display:grid;grid-template-columns:1fr;gap:12px}.gallery img{height:auto;aspect-ratio:16/10}}
 .fly .fcam{transition:top .4s var(--ease)}
@@ -549,7 +501,6 @@ html{scroll-behavior:smooth}
 .sh{position:relative;height:300vh;background:#0b0f0c}
 .sh-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .sh-sky{position:absolute;inset:0;background:linear-gradient(180deg,#26344f 0%,#5d5a73 26%,#c47c5e 48%,#eaa36e 58%,#f1c792 68%,#e6b185 100%)}
-.sh-night{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#0d2219,#040a07 70%);opacity:0}
 .sh-gl{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1s var(--ease)}
 .sh-ready .sh-gl{opacity:1}
 .sh-stage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:52%;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(4,8,6,.55));z-index:1}
@@ -566,22 +517,17 @@ html{scroll-behavior:smooth}
 .sh-hint{position:absolute;left:50%;bottom:28px;z-index:2;transform:translateX(-50%);font:500 10.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.8)}
 .sh-hint::after{content:'';display:block;width:1px;height:34px;margin:10px auto 0;background:linear-gradient(#fff,transparent);animation:shdrip 1.8s infinite}
 @keyframes shdrip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-.sh-static .sh-line:first-of-type{opacity:1}.sh-static .sh-t span{opacity:1}
 /* the page rises out of the hero on a rounded paper panel with a small tab */
 .sh-after{position:relative;z-index:3;margin-top:-8vh;background:var(--bg);border-radius:28px 28px 0 0;padding-top:72px}
 .sh-after::before{content:'';position:absolute;left:50%;top:-20px;width:220px;height:22px;margin-left:-110px;background:var(--bg);border-radius:16px 16px 0 0}
-.shstats{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:44px;padding-top:22px;border-top:1px solid var(--line)}
-.shstats b{display:block;font:400 26px var(--serif);color:var(--ink)}.shstats span{font-size:13px;color:var(--mute)}
 @media (max-width:900px){
   .sh{height:280vh}
   .sh-line,.sh-line.sh-r{left:20px;right:20px;bottom:14vh;text-align:left}
   .sh-t{font-size:34px}.sh-s{letter-spacing:.08em}
   .sh-hud{right:16px;top:84px}
-  .shstats{grid-template-columns:1fr 1fr}
 }
 @media (prefers-reduced-motion:reduce){.sh{height:auto}.sh-stage{position:relative;height:88svh}.sh-line:first-of-type{opacity:1}.sh-t span{opacity:1}}
 /* Lenis (home): it owns the easing, so native smooth scrolling steps aside */
-html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-stopped{overflow:hidden}
 
 /* after the hero: light carries the answer (spectrum waves, a lens that cycles the bands, the readings rail) */
 .lc{padding-bottom:40px;text-align:left}
@@ -622,7 +568,7 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 .sh-stage .sh-sky{background:linear-gradient(180deg,#e9d2b6 0%,#efc596 48%,#a88a58 60%,#5b5a33 100%)}
 
 /* ---------- editorial top bar (site-wide): wordmark left, spaced uppercase links centred, black pill, a rule below ---------- */
-.nav{background:rgba(246,248,246,.9);border-bottom:1px solid var(--ink)}
+.nav{background:rgba(246,248,246,.95);border-bottom:1px solid var(--ink)}
 .nav.scrolled{border-color:var(--ink)}
 .nav .cta,.nav .btn.p.cta{background:#14130f;border-color:#14130f;color:#fff;border-radius:999px}
 @media (hover:hover){.nav .cta:hover{background:#2a2925}}
@@ -686,8 +632,6 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
   .brand{min-height:44px}
   .swatches button{position:relative}
   .swatches button::after{content:'';position:absolute;inset:-9px;border-radius:50%}
-  .authcard .row a{padding:11px 0}
-  .authcard .chk input{width:20px;height:20px}
 }
 
 /* ---------- In the field: the dashboard on an iPad Pro, landscape ---------- */
@@ -717,24 +661,22 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 }
 
 /* ---------- price on request: every camera is quoted by email ---------- */
-.quote{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 16px;margin-top:16px;padding:8px 18px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
-.quote-n{grid-column:1/-1}
-.quote-v,.quote-a{white-space:nowrap}
-.quote-t{display:flex;align-items:baseline;gap:10px}
-.quote-k{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
-.quote-v{font:400 21px var(--serif);color:var(--ink)}
-.quote-n{font-size:13px;color:var(--mute)}
-.quote-a{grid-column:2;grid-row:1;display:inline-flex;align-items:center;gap:8px;min-height:44px;font:500 14.5px var(--sans);color:var(--forest);text-decoration:none}
-.quote-a .a{transition:transform .3s var(--ease)}
-@media (hover:hover){.quote-a:hover{color:var(--forest-2)}.quote-a:hover .a{transform:translateX(3px)}}
+/* product hero: B2B quote card, pricing line on the left, one clear action on the right */
+.quote{display:flex;align-items:center;justify-content:space-between;gap:14px 24px;margin-top:16px;padding:16px 18px 16px 22px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.quote-b{display:grid;gap:3px;min-width:0}
+.quote-k{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--forest)}
+.quote-v{font:400 clamp(20px,1.7vw,24px)/1.15 var(--serif);color:var(--ink)}
+.quote-n{font-size:13px;line-height:1.45;color:var(--mute)}
+.quote-n a{color:var(--ink-2);text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:3px}
+.quote-n a:hover{text-decoration-color:currentColor}
+.quote-a{flex:none;white-space:nowrap}
 .mprice{margin-top:10px;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
 .minis-q{display:flex;align-items:center;justify-content:space-between;gap:14px 24px;flex-wrap:wrap;margin-top:22px;padding:18px 22px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
 .minis-q p{margin:0;max-width:560px}
 @media (max-width:520px){
-  .quote{padding:6px 16px 12px}
+  .quote{flex-direction:column;align-items:stretch;padding:16px}.quote-a{width:100%}
   .minis-q{padding:16px}.minis-q .btn{width:100%}
 }
-@media (max-width:400px){.quote{grid-template-columns:1fr;padding:13px 16px 4px}.quote-a{grid-column:1;grid-row:3}}
 
 /* ---------- phones and tablets: the story is centred under the aircraft, in step with the film ---------- */
 @media (max-width:900px){
@@ -775,10 +717,10 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 }
 
 /* ---------- narrow phones (down to 320 px): nothing may force the page wider than the screen ---------- */
-.form input,.form textarea,.form select,.authcard input[type=email],.authcard input[type=password]{width:100%;min-width:0;max-width:100%}
-.form label,.authcard label{min-width:0;grid-template-columns:minmax(0,1fr)}
-.form,.authcard,.contact>*,.authgrid>*{min-width:0}
-@media (max-width:960px){.hero .grid,.bands,.systems,.dgrid,.team,.contact,.phero .grid,.cambox,.pgroup,.authgrid{grid-template-columns:minmax(0,1fr)}}
+.form input,.form textarea,.form select{width:100%;min-width:0;max-width:100%}
+.form label{min-width:0;grid-template-columns:minmax(0,1fr)}
+.form,.contact>*{min-width:0}
+@media (max-width:960px){.hero .grid,.bands,.systems,.dgrid,.team,.contact,.phero .grid,.cambox,.pgroup{grid-template-columns:minmax(0,1fr)}}
 /* the market explorer on phones: a square pane, so the caption never reaches the tags at the top */
 @media (max-width:560px){.xpanes{aspect-ratio:1/1}.xcap{left:18px;right:18px;bottom:18px}}
 @media (max-width:360px){.xcap .txt{font-size:15px}.xin{width:19%}}
@@ -788,9 +730,163 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 /* partner emblems: the institutions' marks without their wordmarks, small and level */
 .plogo{display:flex;align-items:center;gap:10px;height:40px;margin-bottom:16px}
 .plogo img{height:40px;width:auto}
-.pmono{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--sage-2);color:var(--forest);font:500 15px/1 var(--serif);font-style:normal;letter-spacing:.02em}
 .partner.real{justify-content:flex-start}.partner.real span:last-child{margin-top:4px}
 .trust b{display:inline-flex;align-items:center;gap:8px}
 .trust b img{height:20px;width:auto;filter:grayscale(1);opacity:.7;transition:filter .3s,opacity .3s}
 @media (hover:hover){.trust b:hover img{filter:none;opacity:1}}
-@media (max-width:600px){.plogo{height:34px;margin-bottom:12px}.plogo img{height:34px}.pmono{width:34px;height:34px;font-size:13px}}
+@media (max-width:600px){.plogo{height:34px;margin-bottom:12px}.plogo img{height:34px}}
+
+/* field + crop demo: "At a glance" as a 2 x 2 KPI grid that fills the card beside the RGB / NDVI comparison */
+.inds{justify-content:flex-start}
+.inds>.lab{min-height:38px;display:flex;align-items:center}   /* level with the RGB / NDVI header row */
+.inds>.note{margin:0}
+.ind{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:12px;flex:1}
+.ind li{display:flex;flex-direction:column;justify-content:space-between;gap:18px;min-width:0;padding:clamp(14px,1.4vw,20px);border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+.ind li.alert{background:#fdf3f1;border-color:#f3d5cf}
+.ind .kh{display:flex;align-items:center;gap:10px;min-width:0}
+.ind .kh>span:last-child{font:500 10.5px/1.35 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.ind .ic{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--sage-2);color:var(--forest)}
+.ind .ic.warn{background:#fbe5e1;color:#b3261e}
+.ind svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ind b{font:400 clamp(28px,2.6vw,42px)/1 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.ind li.alert b{color:#9b2a1e}
+@media (max-width:960px){.ind{grid-auto-rows:auto}.ind li{gap:14px}}
+@media (max-width:400px){.ind{gap:8px}.ind li{padding:12px}.ind .kh{gap:8px}.ind .ic{width:28px;height:28px;border-radius:8px}.ind svg{width:15px;height:15px}.ind b{font-size:26px}}
+
+/* field: the one way into the dashboard, under the comparison */
+.field-cta{display:flex;justify-content:center;margin-top:28px}
+.field .ipad{cursor:default}
+
+/* home hero: a short "Made in India" line takes the partner row's place on phones */
+.madein{display:none;align-items:center;gap:10px;margin:28px 0 0;padding-top:18px;border-top:1px solid var(--line);font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.madein i{width:18px;height:12px;border-radius:2px;background:linear-gradient(180deg,#ff9933 0 33.3%,#fff 33.3% 66.6%,#138808 66.6%);box-shadow:0 0 0 1px var(--line-2)}
+
+/* home on phones: trimmed to the essentials; the detail lives on the solution and product pages */
+@media (max-width:760px){
+  .home .trust,.home .lc-tele{display:none}
+  .home .madein{display:flex}
+  .home #systems .head p{display:none}
+  .home .minis{grid-template-columns:1fr 1fr;gap:10px}
+  .home .mini .bd{padding:12px 12px 14px}.home .mini h3{font-size:21px;margin:0}.home .mini h3 span:not(.demo-tag){display:block;font-size:.62em}.home .mini h3 .demo-tag{margin:4px 0 0}
+  .home .mini p,.home .mini .mprice{display:none}
+  .home .mini .kv2{gap:10px;margin-top:8px;padding-top:8px;flex-wrap:wrap}.home .mini .kv2 b{font-size:11px}
+  .home .systems .kv{display:none}
+  .home .partners,.home .pgroup .partners{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .home .partner{padding:12px 10px;align-items:center;text-align:center}
+  .home .partner b{font-size:14px;line-height:1.2}
+  .home .partner>span:not(.plogo){display:none}
+  .home .partner .plogo{height:30px;margin-bottom:8px;justify-content:center}.home .partner .plogo img{height:30px}
+}
+
+/* units keep their case inside uppercase labels (µm must not become "MM") */
+.unit{text-transform:none}
+
+/* ---------- UX pass (2026-11-23): same look; clearer, more accessible ---------- */
+/* text for screen readers only (the typed hero lines keep their full sentence here) */
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* email addresses are links, styled as the text they replace */
+a.mail{color:inherit;text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:3px}
+@media (hover:hover){a.mail:hover{text-decoration-color:currentColor}}
+/* readings rail rows are buttons: a visible keyboard focus */
+.lc-tele div:focus-visible{outline:2px solid var(--forest);outline-offset:-2px;border-radius:4px}
+/* home FAQ: one question per row, the answer opens in place */
+.faq{border-top:1px solid var(--line-2)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:24px;padding:20px 4px;
+  font:400 clamp(20px,1.9vw,24px)/1.25 var(--serif);color:var(--ink);border-radius:4px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line-2);
+  font:500 16px/1 var(--mono);color:var(--ink-2);transition:transform .3s var(--ease),background-color .25s,color .25s}
+.faq details[open] summary::after{content:'\2212';background:var(--forest);border-color:var(--forest);color:#fff}
+@media (hover:hover){.faq summary:hover::after{border-color:var(--ink-2)}}
+.faq summary:focus-visible{outline:2px solid var(--forest);outline-offset:-2px}
+.faq details p{margin:0;padding:2px 56px 22px 4px;max-width:720px}
+@media (max-width:600px){.faq summary{padding:16px 2px;font-size:19px}.faq details p{padding:0 8px 18px 2px}}
+/* desktop dropdown closed with Escape stays closed until focus or the pointer leaves it */
+@media (min-width:961px){.nav li.dd.shut .menu{opacity:0;visibility:hidden;transform:translateY(-4px)}}
+/* phone menu: the button shows a close mark while the menu is open */
+@media (max-width:960px){.nav.open .burger{font-size:0}.nav.open .burger::before{content:'\2715';font-size:17px;line-height:1}}
+
+/* ---------- QA fixes (2026-11-23): found by desktop + phone testing ---------- */
+/* home explorer: the picture column may shrink; its 4:3 box was forcing the page wider than 961-1031 px screens */
+.explorer{grid-template-columns:minmax(260px,.8fr) minmax(0,1.7fr)}
+.xpanes{min-width:0;width:100%;align-self:start}   /* width from the column, height from 4:3 (stretching it made it wider) */
+@media (max-width:960px){.explorer{grid-template-columns:minmax(0,1fr)}}
+/* home hero, tablets and phones: the story lines are centred on the screen, in line with the HUD */
+@media (max-width:900px){.sh-line,.sh-line.sh-r{max-width:none}}
+@media (min-width:701px) and (max-width:900px){.sh-card{right:auto;max-width:420px}}
+/* reduced motion without the script: the first story line stands (the sky, poster and canvas come before it) */
+@media (prefers-reduced-motion:reduce){.sh-gl+.sh-line{opacity:1}}
+/* home explorer inset keeps room for its "Visible" label on the narrowest phones */
+@media (max-width:360px){.xin{width:24%}}
+/* contact form: a little more room for the fields on narrow phones */
+@media (max-width:400px){.form{padding:18px}}
+/* email links: a 44 px touch target without moving the text */
+@media (pointer:coarse){a.mail{display:inline-block;padding:12px 0;margin:-12px 0}}
+/* keyboard focus never lands on content that is still fading in */
+.js .reveal:focus-within{opacity:1;transform:none}
+/* phone menu: "Request a pilot" and "Sign in" (added by site.js) close the list; the page behind holds still */
+.nav ul li.m-acts{display:none}
+@media (max-width:960px){
+  html.menu-open,html.menu-open body{overflow:hidden}
+  .nav.open ul li.m-acts{display:grid;gap:10px;margin-top:14px;padding-top:16px;border-top:1px solid var(--line)}
+  .nav.open ul li.m-acts a.btn{display:flex;justify-content:center;align-items:center;min-height:48px;margin:0;padding:0 20px;border-radius:999px;font:500 15px var(--sans)}
+  .nav.open ul li.m-acts a.btn:not(.p){background:var(--surface);color:var(--ink);border:1px solid var(--line-2)}
+}
+/* compare slider: the knob and its focus ring stay whole at either end; labels that cannot fit show as dots */
+.cmpimg .handle{left:clamp(17px,var(--x,50%),calc(100% - 17px))}
+.cmpimg .handle:focus-visible{outline:none}
+.cmpimg .handle:focus-visible span{outline:2px solid var(--forest);outline-offset:2px}
+.cmpimg .pin.dot b{display:none}
+@media (max-width:560px){.cmpimg .pin b{font-size:10px;padding:4px 7px}}
+/* touch: segmented controls and flight-demo controls reach 44 px */
+@media (pointer:coarse){
+  .tog button,.fly .fctl button{box-sizing:border-box;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .fly .fctl input{height:44px}
+}
+/* six-step sequences: two even rows of three on tablets instead of five plus a lonely one */
+@media (min-width:600px) and (max-width:1100px){.steps:has(>.step:nth-child(6)){grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* product teardown: no section padding or anchor offset, so "See inside" lands pinned with the first card in view */
+section.td{padding:0;scroll-margin-top:0}
+/* product switcher: keep the page gutters so the arrows never touch the screen edge */
+.sysbar .wrap{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+/* portrait tablets: the teardown stacks like phones (model above, one card below), with tablet-sized gutters */
+@media (min-width:761px) and (max-width:1023px) and (orientation:portrait){
+  .td .pin{height:100svh}
+  .td .top{top:86px}
+  .td .pin .viewer{top:140px;bottom:auto;height:auto}
+  .td .track{left:50%;right:auto;bottom:28px;width:min(640px,calc(100vw - 80px));transform:translateX(-50%)}
+  .td .card{background:#fff}
+}
+/* "On the aircraft": the key figures line up across the two cards */
+.sys .body{flex:1}.sys .body .kv{margin-top:auto}
+
+/* ---------- polish (2026-11-23) ---------- */
+/* text wraps without a single word stranded on the last line */
+p,li,dd,.step p{text-wrap:pretty}
+.stats b,.ind b,.fly dd,.sh-s,.xcap .txt{text-wrap:balance}
+/* contact form: the two optional fields say so (the rest are required) */
+.form .opt{text-transform:none;letter-spacing:0;font:400 12px var(--sans);color:var(--mute);margin-left:4px}
+/* nav dropdowns: descriptions sit tight under their titles */
+.nav .menu span{display:block;line-height:1.35;margin-top:2px}
+/* construction: one card, two cameras, two links */
+.cambox .gos{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:4px}
+.cambox .gos .go{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:var(--forest);font-weight:500;text-decoration:none}
+@media (hover:hover){.cambox .gos .go:hover .a{transform:translateX(3px)}}
+.cambox .gos .go .a{transition:transform .3s var(--ease)}
+/* home explorer on phones and tablets: every tab one line high, the same height */
+@media (max-width:960px){.xt em{white-space:nowrap}}
+/* the light-axis labels stay on one line on the narrowest phones */
+@media (max-width:360px){.lc-axis{font-size:9.5px;letter-spacing:.02em}.lc-axis span{white-space:nowrap}}
+/* product switcher on tablets: one-line labels, trimmed if they must be */
+@media (min-width:761px) and (max-width:960px){.sb-row span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}}
+/* product pages on phones and tablets: the photo and actions come right after the introduction, the specs after them */
+@media (max-width:960px){
+  .phero:has(.pside) .grid{display:flex;flex-direction:column;align-items:stretch;gap:0}
+  .phero:has(.pside) .grid>div:first-child{display:contents}
+  .phero:has(.pside) .grid>div:first-child>p{margin:0 0 20px}
+  .phero:has(.pside) .pside{order:1;display:flex;flex-direction:column}
+  .phero:has(.pside) .pside .stage{order:-1;margin-top:0}
+  .phero:has(.pside) .pside .ctas{margin-top:18px}
+  .phero:has(.pside) .pspecs{order:2;margin-top:24px}
+}

@@ -1,5 +1,5 @@
-// Aviac website: nav, reveals, the spectral chart, the sample field (RGB / NDVI), colourway swatches, and the teardown
-// side-scroll on product pages. No library: the teardown reads scroll position and drives the 3D viewer directly.
+// Aviac website: nav, reveals, the spectral chart, the sample field (RGB / NDVI), colourway swatches, and the pinned
+// teardown on product pages. No library: the teardown reads scroll position and drives the 3D viewer directly.
 document.documentElement.classList.add('js');
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
@@ -7,75 +7,142 @@ const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 // nav
 const nav = $('.nav');
 addEventListener('scroll', () => nav?.classList.toggle('scrolled', scrollY > 10), {passive: true});
-$('.burger')?.addEventListener('click', () => nav.classList.toggle('open'));
-$$('.nav ul a').forEach((l) => l.addEventListener('click', () => nav.classList.remove('open')));   // close after choosing
+// phone menu: the button says whether the menu is open, and Escape closes it and returns focus to the button
+const burger = $('.burger'), menuList = $('.nav ul');
+const setMenu = (open) => {
+  nav?.classList.toggle('open', open);
+  document.documentElement.classList.toggle('menu-open', open);   // the page behind the open menu holds still
+  burger?.setAttribute('aria-expanded', String(open));
+  burger?.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+};
+if (burger && menuList) {
+  menuList.id ||= 'site-menu';
+  burger.setAttribute('aria-controls', menuList.id);
+  // the bar's "Request a pilot" and "Sign in" are hidden on small screens, so the menu carries them as its last items
+  const acts = [$('.nav .cta'), $('.nav .signin')].filter(Boolean);
+  if (acts.length) {
+    const li = document.createElement('li');
+    li.className = 'm-acts';
+    acts.forEach((a) => { const c = a.cloneNode(true); c.classList.remove('cta', 'signin'); c.classList.add('btn'); li.append(c); });
+    li.firstElementChild?.classList.add('p');
+    menuList.append(li);
+  }
+  setMenu(false);
+  burger.addEventListener('click', () => {
+    const open = !nav.classList.contains('open');
+    setMenu(open);
+    if (open) $('a', menuList)?.focus({preventScroll: true});   // keyboard users start inside the menu
+  });
+  nav.addEventListener('focusout', (e) => {                     // tabbing out of the nav closes the menu
+    if (nav.classList.contains('open') && e.relatedTarget && !nav.contains(e.relatedTarget)) setMenu(false);
+  });
+}
+$$('.nav ul a').forEach((l) => l.addEventListener('click', () => setMenu(false)));   // close after choosing
+addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (nav?.classList.contains('open')) { setMenu(false); burger?.focus(); return; }
+  const dd = document.activeElement?.closest?.('.nav li.dd');                         // desktop dropdown: Escape closes it,
+  if (dd) { dd.classList.add('shut'); $('a', dd).focus(); }                            // focus stays on its top link
+});
+$$('.nav li.dd').forEach((dd) => {
+  const reopen = () => dd.classList.remove('shut');
+  dd.addEventListener('mouseleave', reopen);
+  dd.addEventListener('focusout', (e) => { if (!dd.contains(e.relatedTarget)) reopen(); });
+});
 
 // reveals (content stays visible without JS)
 const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && e.target.classList.add('in')), {threshold: 0.12});
 $$('.reveal').forEach((el) => io.observe(el));
 
-// ---------- why beyond visible light: reflectance of healthy vs stressed leaves, with the Aviac MS bands
-function spectrum(cv) {
-  const d = Math.min(2, devicePixelRatio || 1), r = cv.getBoundingClientRect();
-  cv.width = r.width * d; cv.height = r.height * d;
-  const g = cv.getContext('2d'), W = cv.width, H = cv.height, P = 30 * d;
-  const X = (nm) => P + ((nm - 400) / 550) * (W - 2 * P), Y = (v) => H - P - v * (H - 2 * P);
-  const leaf = (nm, s) => {             // a textbook-shaped curve: green bump, red trough, red-edge rise, NIR plateau
-    const green = 0.11 * Math.exp(-(((nm - 550) / 35) ** 2));
-    const edge = 1 / (1 + Math.exp(-(nm - (705 - 12 * s)) / 14));
-    return 0.04 + green * (1 + s) + edge * (0.52 - 0.26 * s);
-  };
-  const bands = [[475, '#3a6fd8', 'B'], [560, '#2fa14b', 'G'], [668, '#d8382c', 'R'], [723, '#a3151f', 'RE'], [840, '#6b1036', 'NIR'], [890, '#43103f', 'NIR+']];
-  g.font = `${11 * d}px JetBrains Mono, monospace`;
-  for (const [nm, c, n] of bands) {
-    g.fillStyle = c + '22'; g.fillRect(X(nm - 12), P, X(nm + 12) - X(nm - 12), H - 2 * P);
-    g.fillStyle = c; g.fillText(n, X(nm) - g.measureText(n).width / 2, P - 8 * d);
-  }
-  for (const [s, c, w] of [[0, '#16683a', 2.6], [1, '#c4862f', 2.2]]) {
-    g.strokeStyle = c; g.lineWidth = w * d; g.beginPath();
-    for (let nm = 400; nm <= 950; nm += 4) { const x = X(nm), y = Y(leaf(nm, s)); nm === 400 ? g.moveTo(x, y) : g.lineTo(x, y); }
-    g.stroke();
-  }
-  g.fillStyle = '#7c8a82';
-  for (const nm of [400, 500, 600, 700, 800, 900]) g.fillText(nm, X(nm) - 10 * d, H - 8 * d);
-}
-$$('canvas[data-spectrum]').forEach(spectrum);
-
 // ---------- RGB / NDVI compare: drag the divider, or use the toggle
+// Pin labels sit on the revealed (right) side of the divider: each label tries the right of its dot, then the left,
+// and keeps whichever fits inside the revealed area without covering another label or dot; if neither does, only
+// the dot shows until there is room (a wider screen, or the divider moved further left).
+const placePins = (box, cur) => {
+  const W = box.clientWidth, H = box.clientHeight, minX = cur * W + 4, GAP = 16, placed = [];
+  const pins = $$('.pin', box).filter((p) => p.classList.contains('on'));
+  const dots = pins.map((p) => ({x: parseFloat(p.style.left) / 100 * W, y: parseFloat(p.style.top) / 100 * H}));
+  const hits = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
+  pins.forEach((p, i) => {
+    const b = $('b', p); if (!b) return;
+    p.classList.remove('dot');
+    const w = b.offsetWidth, h = b.offsetHeight, {x, y} = dots[i];
+    const box2 = (left) => ({l: left ? x - GAP - w : x + GAP, r: left ? x - GAP : x + GAP + w, t: y - h / 2, b: y + h / 2});
+    const others = dots.filter((_, j) => j !== i).map((d) => ({l: d.x - 11, r: d.x + 11, t: d.y - 11, b: d.y + 11}));
+    const ok = (r) => r.l >= minX && r.r <= W - 4 && r.t >= 4 && r.b <= H - 4 && ![...placed, ...others].some((o) => hits(r, o));
+    const pref = p.dataset.side || (p.classList.contains('lft') ? 'l' : 'r');
+    p.dataset.side = pref;
+    const order = pref === 'l' ? [true, false] : [false, true];
+    const fit = order.find((left) => ok(box2(left)));
+    if (fit === undefined) { p.classList.add('dot'); return; }
+    p.classList.toggle('lft', fit);
+    placed.push(box2(fit));
+  });
+};
 $$('.cmpimg').forEach((box) => {
-  const card = box.closest('.sample'), h = $('.handle', box);
+  const card = box.closest('.sample'), h = $('.handle', box), togs = $$('.tog button', card);
   let cur = 0.5;
+  togs.forEach((b) => b.setAttribute('type', 'button'));
   const set = (k, anim) => {
     cur = clamp(k, 0, 1);
     box.classList.toggle('dragging', !anim);
     box.style.setProperty('--x', `${cur * 100}%`);
     h.setAttribute('aria-valuenow', Math.round(cur * 100));
-    box.classList.toggle('show-flag', cur < 0.6);
+    h.setAttribute('aria-valuetext', `${Math.round((1 - cur) * 100)}% ${togs.find((b) => +b.dataset.at === 1)?.textContent.trim() || 'overlay'}`);
     $$('.pin', box).forEach((p) => p.classList.toggle('on', parseFloat(p.style.left) > cur * 100 + 1));
-    $$('.tog button', card).forEach((b) => b.classList.toggle('on', (+b.dataset.at === 1) === (cur < 0.5)));
+    placePins(box, cur);
+    togs.forEach((b) => {                                    // a view button is "on" only when that view fills the frame
+      const on = +b.dataset.at === 1 ? cur <= 0.02 : cur >= 0.98;
+      b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on));
+    });
   };
   const at = (e) => { const r = box.getBoundingClientRect(); return (e.clientX - r.left) / r.width; };
-  let down = false;
-  box.addEventListener('pointerdown', (e) => { down = true; box.setPointerCapture(e.pointerId); set(at(e)); });
-  box.addEventListener('pointermove', (e) => down && set(at(e)));
-  box.addEventListener('pointerup', () => (down = false));
-  h.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') set(cur - 0.05, true); if (e.key === 'ArrowRight') set(cur + 0.05, true); });
-  $$('.tog button', card).forEach((b) => b.addEventListener('click', () => set(+b.dataset.at === 1 ? 0 : 1, true)));
+  // mouse and pen drag at once; touch waits until the finger clearly moves sideways, so a vertical swipe stays a page scroll
+  let down = false, touch = null;
+  const release = () => { down = false; touch = null; };
+  box.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch') { touch = {x: e.clientX, y: e.clientY, id: e.pointerId}; return; }
+    down = true; box.setPointerCapture(e.pointerId); set(at(e));
+  });
+  box.addEventListener('pointermove', (e) => {
+    if (touch && !down) {
+      const dx = e.clientX - touch.x, dy = e.clientY - touch.y;
+      if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { down = true; box.setPointerCapture(touch.id); }
+      else return;
+    }
+    if (down) set(at(e));
+  });
+  box.addEventListener('pointerup', (e) => { if (touch && !down && e.pointerType === 'touch') set(at(e), true); release(); });   // a tap moves the divider there
+  box.addEventListener('pointercancel', release);
+  box.addEventListener('lostpointercapture', release);
+  h.addEventListener('keydown', (e) => {
+    const to = {ArrowLeft: cur - 0.05, ArrowDown: cur - 0.05, ArrowRight: cur + 0.05, ArrowUp: cur + 0.05, Home: 0, End: 1}[e.key];
+    if (to === undefined) return;
+    e.preventDefault(); set(to, true);
+  });
+  togs.forEach((b) => b.addEventListener('click', () => set(+b.dataset.at === 1 ? 0 : 1, true)));
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => placePins(box, cur), 120); });
+  document.fonts?.ready.then(() => placePins(box, cur));
   set(0.5, true);
 });
 
 // ---------- colourway swatches on product pages
 $$('.swatches').forEach((sw) => {
   const target = $(sw.dataset.for);
+  let req = 0;                                                       // only the latest pick may swap the photo in
+  const mark = (b) => $$('button', sw).forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+  mark($('button.on', sw));
   $$('button', sw).forEach((b) => b.addEventListener('click', () => {
-    $$('button', sw).forEach((x) => x.classList.toggle('on', x === b));
+    const mine = ++req;
+    mark(b);
     $('span', sw).textContent = b.title;
     if (target.tagName === 'IMG' && b.dataset.img) {               // studio photo: load the new one, then cross-fade
       const base = b.dataset.img, n = new Image(), pic = target.parentElement.tagName === 'PICTURE' ? $('source', target.parentElement) : null;
       const ext = /\.webp(\?|$)/.test(target.currentSrc || '') ? 'webp' : 'jpg';          // preload whichever format this browser shows
       n.sizes = target.sizes; n.srcset = `${base}_800.${ext} 800w, ${base}.${ext} 1600w`; n.src = `${base}.${ext}`;
       target.classList.add('swap');
-      (n.decode ? n.decode() : Promise.resolve()).catch(() => {}).then(() => {
+      n.decode().catch(() => {}).then(() => {
+        if (mine !== req) return;                                  // a newer pick is on its way; let it win
         if (pic) pic.srcset = `${base}_800.webp 800w, ${base}.webp 1600w`;
         target.srcset = `${base}_800.jpg 800w, ${base}.jpg 1600w`; target.src = base + '.jpg';
         target.alt = target.alt.replace(/ in \w+$/, ' in ' + b.dataset.finish);
@@ -86,13 +153,16 @@ $$('.swatches').forEach((sw) => {
   }));
 });
 
-// ---------- teardown: vertical scroll -> horizontal track; each stage separates the parts and isolates one group
+// ---------- teardown: a pinned stage; scrolling down steps through the parts. One card shows at a time and the cards
+// move vertically (the next rises in from below, the last lifts away), with a vertical progress rail beside the model
 const td = $('.td');
+// phones and portrait tablets stack the model above one card; wider screens put them side by side (matches site.css)
+const stackedTD = () => matchMedia('(max-width:760px), (max-width:1023px) and (orientation:portrait)').matches;
 if (td) {
-  const track = $('.track', td), cards = $$('.card', td), bars = $$('.prog i', td), label = $('.prog span', td), vid = $('.viewer', td).id;
+  const cards = $$('.card', td), bars = $$('.prog i', td), label = $('.prog span', td), stage = $('.viewer', td), vid = stage.id;
   const stages = cards.map((c) => c.dataset.group || null);
   const views = cards.map((c) => (c.dataset.view || '0.6,0.2,3.2').split(',').map(Number));
-  const mobile = () => false;                           // one behaviour everywhere: scrolling drives the stages
+  const holdD = Math.max(...views.slice(1, -1).map((v) => v[2]));   // the widest exploded framing on this page
   let last = -1, applied = -1, appliedTo = null;
   const apply = (i) => {
     const v = window.Aviac?.viewers?.[vid];
@@ -102,54 +172,53 @@ if (td) {
     const end = i === cards.length - 1;
     v.explode(i === 0 || end ? 0 : 1);
     const [az, el, d] = views[i];
-    v.view(az, el, d);
+    const hold = !stackedTD() && !(i === 0 || end);   // desktop: every exploded step at one distance and a capped turn, so the model holds its size and place
+    const fit = Math.max(1, 1.95 / (stage.clientWidth / Math.max(1, stage.clientHeight)));   // a narrower stage pulls the camera back so the exploded stack still fits
+    v.view(hold ? Math.min(az, 0.75) : az, el, hold ? holdD * fit : d);
     v.focus(i === 0 || end ? null : stages[i]);
   };
+  const span = () => Math.max(1, td.offsetHeight - innerHeight);
   const tick = () => {
-    if (mobile()) return;
-    const r = td.getBoundingClientRect(), span = td.offsetHeight - innerHeight;
-    const p = clamp(-r.top / span, 0, 1);
-    const maxShift = track.scrollWidth - innerWidth + 80;
-    track.style.transform = `translateX(${-p * Math.max(0, maxShift)}px)`;
+    const p = clamp(-td.getBoundingClientRect().top / span(), 0, 1);
     const i = clamp(Math.round(p * (cards.length - 1)), 0, cards.length - 1);
     if (i !== last) {
       last = i;
-      cards.forEach((c, j) => c.classList.toggle('on', j === i));
+      cards.forEach((c, j) => { c.classList.toggle('on', j === i); c.classList.toggle('past', j < i); });
       bars.forEach((b, j) => b.classList.toggle('on', j <= i));
-      label.textContent = `${String(i + 1)} / ${cards.length}`;
+      label.textContent = `${i + 1} / ${cards.length}`;
       layout();
     }
     apply(i);
   };
-  // desktop: the model's stage ends above the cards, whatever height the cards take on this screen
-  const stage = $('.viewer', td);
+  // desktop: the model sits left of the card, placed by site.css; phones: the stage ends just above the card on show
   const layout = () => {
-    if (innerWidth > 760) { stage.style.bottom = Math.max(...cards.map((c) => c.offsetHeight)) + 56 + 16 + 'px'; stage.style.height = ''; }
-    else { stage.style.bottom = cards[Math.max(0, last)].offsetHeight + 16 + 12 + 'px'; stage.style.height = 'auto'; }   // phones: just above the card on show
+    if (!stackedTD()) { stage.style.bottom = ''; stage.style.height = ''; return; }
+    // phones: the model ends above the card, but always keeps at least 34% of the screen; a long card on a short
+    // screen overlaps the model's faded lower edge instead of squeezing it away
+    const minModel = innerHeight * 0.34, top = stage.offsetTop || 118;
+    const below = Math.min(cards[Math.max(0, last)].offsetHeight + 16 + 12, innerHeight - top - minModel);
+    stage.style.bottom = Math.max(0, below) + 'px'; stage.style.height = 'auto';
   };
   layout();
-  document.fonts?.ready.then(layout);
-  addEventListener('resize', layout);
-  addEventListener('scroll', tick, {passive: true});
-  addEventListener('resize', () => { applied = -1; tick(); });   // a new size re-frames the model
+  document.fonts.ready.then(layout);
+  let queued = false;
+  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; tick(); }); } }, {passive: true});
+  addEventListener('resize', () => { layout(); applied = -1; tick(); });   // a new size re-lays the stage and re-frames the model
   const pick = setInterval(() => { tick(); if (appliedTo) clearInterval(pick); }, 400);   // picks up the viewer once it has loaded
-  // mobile: swipe the cards, the visible one drives the model
-  const tio = new IntersectionObserver((es) => es.forEach((e) => {
-    if (!mobile() || !e.isIntersecting) return;
-    const i = cards.indexOf(e.target);
-    cards.forEach((c, j) => c.classList.toggle('on', j === i));
-    bars.forEach((b, j) => b.classList.toggle('on', j <= i));
-    label.textContent = `${i + 1} / ${cards.length}`;
-    apply(i);
-  }), {root: track, threshold: 0.6});
-  cards.forEach((c) => tio.observe(c));
-  // keyboard: arrows step through the stages when the teardown is in view
+  // keyboard: up/down and left/right arrows step through the stages while the teardown is pinned
   addEventListener('keydown', (e) => {
-    if (mobile() || !['ArrowRight', 'ArrowLeft'].includes(e.key)) return;
+    const step = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1}[e.key];
+    if (!step || e.target.closest?.('input,textarea,select')) return;
     const r = td.getBoundingClientRect();
-    if (r.top > 0 || r.bottom < innerHeight) return;
-    const span = td.offsetHeight - innerHeight, step = span / (cards.length - 1);
-    scrollTo({top: scrollY + (e.key === 'ArrowRight' ? step : -step), behavior: 'smooth'});
+    if (r.top > 0 || r.bottom < innerHeight) return;                // not pinned: arrows do what they normally do
+    const next = Math.max(0, last) + step;
+    const sideways = e.key === 'ArrowLeft' || e.key === 'ArrowRight';
+    if (next < 0 || next >= cards.length) {                         // past either end: up/down scroll the page as usual;
+      if (sideways) e.preventDefault();                             // left/right do nothing (never switch product mid-teardown)
+      return;
+    }
+    const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scrollTo({top: r.top + scrollY + (next / (cards.length - 1)) * span() + 1, behavior: smooth ? 'smooth' : 'auto'});
     e.preventDefault();
   });
 }
@@ -160,9 +229,14 @@ $$('form[data-mailto]').forEach((f) => f.addEventListener('submit', async (e) =>
   e.preventDefault();
   const v = (n) => f.elements[n]?.value?.trim() || '';
   if (v('_honey')) return;                                  // bots fill the hidden field
+  // "required" lets a field of only spaces through; ask for real text, beside the field, in the browser's own bubble
+  for (const [n, say] of [['name', 'Please add your name.'], ['message', 'Please tell us a little about the job.']]) {
+    const el = f.elements[n];
+    if (el && !v(n)) { el.setCustomValidity(say); el.reportValidity(); el.addEventListener('input', () => el.setCustomValidity(''), {once: true}); return; }
+  }
   const msg = $('.sent', f), btn = $('button[type=submit]', f);
   const subject = (/quote/i.test(v('interest')) ? 'Quote request: ' : 'Pilot request: ') + (v('org') || v('name'));
-  btn.disabled = true; btn.style.opacity = 0.6;
+  btn.disabled = true;                                      // .btn[disabled] in site.css greys it out
   try {
     const r = await fetch(`https://formsubmit.co/ajax/${f.dataset.mailto}`, {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json'},
       body: JSON.stringify({_subject: subject, _template: 'table', name: v('name'), email: v('email'), company: v('org'), size: v('acres'), interested_in: v('interest'), message: v('message')})});
@@ -171,23 +245,82 @@ $$('form[data-mailto]').forEach((f) => f.addEventListener('submit', async (e) =>
     msg.textContent = `Thank you, ${v('name').split(' ')[0] || 'we have it'}. Your request is with us at ${f.dataset.mailto}; we will reply within two working days.`;
     f.reset();
   } catch (err) {
-    const body = `${v('message')}\n\n${v('name')} · ${v('org')}\n${v('email')}\nSize: ${v('acres')}\nInterested in: ${v('interest')}`;
+    const who = [v('name'), v('org')].filter(Boolean).join(' · ');
+    const body = `${v('message')}\n\n${who}\n${v('email')}\nSize: ${v('acres') || '-'}\nInterested in: ${v('interest')}`;
     location.href = `mailto:${f.dataset.mailto}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     msg.textContent = `Your mail app should open with the request ready. If it does not, write to ${f.dataset.mailto}.`;
   }
-  msg.hidden = false; btn.disabled = false; btn.style.opacity = '';
+  msg.hidden = false; btn.disabled = false;
 }));
 
-// ---------- home: solutions explorer, auto-advancing until someone picks a market
+// ---------- home: solutions explorer, auto-advancing until someone picks a market.
+// It holds still while the pointer or keyboard focus is on it, and never advances for people who ask for less motion.
+// Only the shown pane can be tabbed to; the hidden ones are inert. Tabs follow the ARIA tabs pattern (arrows, Home, End).
 $$('.explorer').forEach((ex) => {
   const tabs = $$('.xt', ex), panes = $$('.xp', ex), bar = $('.xbar i', ex);
-  let i = 0, t0 = performance.now(), auto = true, seen = false;
-  const go = (k) => { i = k; tabs.forEach((t, j) => { t.classList.toggle('on', j === k); t.setAttribute('aria-selected', j === k); }); panes.forEach((p, j) => p.classList.toggle('on', j === k)); t0 = performance.now(); };
-  tabs.forEach((t, k) => { t.addEventListener('click', () => { auto = false; go(k); bar.style.width = '0'; }); t.addEventListener('mouseenter', () => { if (matchMedia('(hover:hover)').matches) { auto = false; go(k); bar.style.width = '0'; } }); });
+  const DWELL_MS = 6000;
+  let i = 0, t0 = performance.now(), seen = false, held = false;
+  let auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const go = (k) => {
+    i = k;
+    tabs.forEach((t, j) => { t.classList.toggle('on', j === k); t.setAttribute('aria-selected', String(j === k)); t.tabIndex = j === k ? 0 : -1; });
+    panes.forEach((p, j) => { p.classList.toggle('on', j === k); p.inert = j !== k; });
+    t0 = performance.now();
+    // phones/tablets: the tabs are one sideways-scrolling row; bring the chosen one into view (row only, never the page)
+    const row = tabs[k].parentElement;
+    if (row.scrollWidth > row.clientWidth + 1) {
+      const left = tabs[k].offsetLeft - row.offsetLeft - 20;
+      row.scrollTo({left: Math.max(0, left), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+    }
+  };
+  const pick = (k) => { auto = false; go(k); if (bar) bar.style.width = '0'; };   // a visitor's choice stops the auto-advance
+  tabs.forEach((t, k) => {
+    t.addEventListener('click', () => pick(k));
+    t.addEventListener('mouseenter', () => matchMedia('(hover:hover)').matches && pick(k));
+    t.addEventListener('keydown', (e) => {
+      const n = tabs.length;
+      const to = {ArrowDown: k + 1, ArrowRight: k + 1, ArrowUp: k - 1, ArrowLeft: k - 1, Home: 0, End: n - 1}[e.key];
+      if (to === undefined) return;
+      e.preventDefault();
+      const next = (to + n) % n;
+      pick(next); tabs[next].focus();
+    });
+  });
+  const hold = (v) => { held = v; t0 = performance.now(); if (bar && v) bar.style.width = '0'; };
+  ex.addEventListener('pointerenter', () => hold(true));
+  ex.addEventListener('pointerleave', () => hold(false));
+  ex.addEventListener('focusin', () => hold(true));
+  ex.addEventListener('focusout', (e) => { if (!ex.contains(e.relatedTarget)) hold(false); });
   new IntersectionObserver((es) => { seen = es[0].isIntersecting; t0 = performance.now(); }).observe(ex);
-  const tick = (now) => { if (auto && seen) { const k = (now - t0) / 6000; bar.style.width = `${Math.min(1, k) * 100}%`; if (k >= 1) go((i + 1) % panes.length); } requestAnimationFrame(tick); };
-  requestAnimationFrame(tick);
+  const tick = (now) => {
+    if (auto && seen && !held) {
+      const k = (now - t0) / DWELL_MS;
+      if (bar) bar.style.width = `${Math.min(1, k) * 100}%`;
+      if (k >= 1) go((i + 1) % panes.length);
+    }
+    if (auto) requestAnimationFrame(tick);
+  };
+  go(0);
+  if (auto) requestAnimationFrame(tick);
 });
+
+// ---------- home: the readings rail rows act as buttons for keyboards and screen readers, and say which one is shown
+$$('.lc-tele [role=button]').forEach((row) => {
+  const sync = () => row.setAttribute('aria-pressed', String(row.classList.contains('on')));
+  sync();
+  new MutationObserver(sync).observe(row, {attributes: true, attributeFilter: ['class']});
+  row.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); row.click(); } });
+});
+
+// ---------- home: "Request a pilot" on a solution or product page arrives as ?for=<page>; pre-select that job in the form
+{
+  const key = new URLSearchParams(location.search).get('for');
+  const select = $('#f-int');
+  if (key && select && /^[a-z-]{2,40}$/.test(key)) {
+    const match = [...select.options].find((o) => (o.dataset.for || '').split(' ').includes(key));
+    if (match) select.value = match.value;
+  }
+}
 
 // ---------- films: the small file on phones, loaded when near the screen, paused when off it
 $$('video[data-src]').forEach((v) => {
@@ -204,11 +337,11 @@ $$('video[data-src]').forEach((v) => {
 (() => {
   const bar = $('.sprog');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  $$('.systems,.minis,.segs,.steps,.people,.partners,.stats,.facts,.bstats,.dgrid').forEach((g) => [...g.children].forEach((c, i) => {
+  $$('.systems,.minis,.steps,.people,.partners,.stats,.dgrid').forEach((g) => [...g.children].forEach((c, i) => {
     c.style.setProperty('--d', `${Math.min(i, 6) * 0.08}s`);
     if (!c.classList.contains('reveal') && !g.classList.contains('reveal')) { c.classList.add('reveal'); io.observe(c); }
   }));
-  const par = reduce ? [] : $$('.band>img,.hero .pic img,.phero .pic img');
+  const par = reduce ? [] : $$('.hero .pic img,.phero .pic img');
   let ticking = false;
   const onScroll = () => {
     if (ticking) return; ticking = true;
@@ -249,14 +382,14 @@ $$('video[data-src]').forEach((v) => {
     ms: {win: [[455, 910, 'MS · six bands']], filters: MSB, zoom: [430, 940], stress: true},
     duos: {win: [[400, 1000, 'Duos · Mira220']], qe: true},
     th: {win: [[400, 940, 'NIR module · 400–940 nm']], qe: true, lwir: [8000, 14000]},
-    sw: {win: [[900, 1700, 'SWIRL · InGaAs 900–1700 nm']], mica: true},
+    sw: {win: [[400, 1700, 'SWIRL · IMX992 400–1700 nm']], mica: true},
     construction: {win: [[400, 700, 'Colour map'], [700, 1000, 'Duos NIR']], qe: true},
   };
   const WIN = '#2f6f4e';
   function draw(cv) {
     const key = cv.dataset.band, C = CFG[key];
     const d = Math.min(2, devicePixelRatio || 1), cssW = cv.getBoundingClientRect().width, small = cssW < 560;
-    const cssH = (C.zoom ? (small ? 470 : 470) : (small ? 300 : 330));
+    const cssH = C.zoom ? 470 : (small ? 300 : 330);
     cv.style.height = cssH + 'px'; cv.width = cssW * d; cv.height = cssH * d;
     const g = cv.getContext('2d'), Wd = cv.width;
     const fs = (small ? 9.5 : 11) * d, font = (w = 500) => `${w} ${fs}px Inter, system-ui, sans-serif`;
@@ -277,9 +410,11 @@ $$('video[data-src]').forEach((v) => {
       const yt = ymax > 0.5 ? [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6] : [0, 0.25, 0.5, 0.75, 1];
       if (!opt.lwir) for (const v of yt) { if (v > ymax) continue; g.beginPath(); g.moveTo(x0, Y(v)); g.lineTo(x1, Y(v)); g.stroke(); if (opt.yaxis) text(v.toFixed(1), x0 - 6 * d, Y(v) + 3.5 * d, '#6b7a72', 'right'); }
       g.strokeStyle = '#2b3a33'; g.beginPath(); g.moveTo(x0, top); g.lineTo(x0, bot); g.lineTo(x1, bot); g.stroke();
-      const step = opt.lwir ? 2000 : (b - a > 1500 ? (small ? 500 : 250) : 100);
+      // tick step from the plot's real width, so labels never run together on narrow screens
+      const step = opt.lwir ? 2000 : (b - a > 1500 ? [250, 500, 1000] : [100, 250, 500]).find((s) => X(a + s) - X(a) >= 46 * d) || 1000;
       for (let nm = Math.ceil(a / step) * step; nm <= b; nm += step) { const x = X(nm); g.fillStyle = '#2b3a33'; g.fillRect(x, bot, d, 4 * d);
-        text(opt.lwir ? String(nm / 1000) : String(nm), x, bot + 15 * d, '#3b4a43', 'center'); }
+        const lab = opt.lwir ? String(nm / 1000) : String(nm); g.font = font();
+        text(lab, Math.min(x, Wd - g.measureText(lab).width / 2 - 2 * d), bot + 15 * d, '#3b4a43', 'center'); }   // keep the last tick inside the canvas
       // the camera's window(s)
       let lastEnd = -1e9, row = 0;
       if (!opt.lwir) for (const [wa, wb, n] of C.win) {
@@ -291,6 +426,7 @@ $$('video[data-src]').forEach((v) => {
       } else { const l = X(C.lwir[0]), r = X(C.lwir[1]); g.fillStyle = 'rgba(194,65,12,.18)'; g.fillRect(l, top, r - l, bot - top); g.fillStyle = '#c2410c'; g.fillRect(l, top, r - l, 3 * d);
         text(small ? '8–14 µm' : 'Thermal · 8–14 µm', (l + r) / 2, top + 30 * d, '#c2410c', 'center', 600); }
       // MS filters
+      g.save(); g.beginPath(); g.rect(x0, top, x1 - x0, bot - top); g.clip();   // filter shapes stay inside the plot box
       if (C.filters && !opt.lwir) for (const [c0, fw, col, n] of C.filters) {
         if (c0 < a || c0 > b) continue;
         g.beginPath(); g.moveTo(X(c0 - 2 * fw), bot);
@@ -298,6 +434,7 @@ $$('video[data-src]').forEach((v) => {
         g.lineTo(X(c0 + 2 * fw), bot); g.closePath(); g.fillStyle = col + (opt.zoom ? '3a' : '60'); g.fill();
         if (opt.zoom) { g.strokeStyle = col; g.lineWidth = 1.4 * d; g.stroke(); }
       }
+      g.restore();
       if (opt.zoom && C.filters) {                       // peak labels, staggered so neighbours never collide
         C.filters.forEach(([c0, , col, n], i) => { const yy = top + (i % 2 ? 28 : 14) * d; text(`${c0}`, X(c0), yy, col, 'center', 600); });
       }
@@ -305,7 +442,7 @@ $$('video[data-src]').forEach((v) => {
       let lastLab = -1e9;
       if (!opt.lwir && !opt.zoom) for (const [nm, n] of [[700, 'red edge'], [1450, 'water'], [1940, 'water'], [2200, 'Al-OH']]) {
         if (nm < a || nm > b) continue; const x = X(nm); g.strokeStyle = '#b9c3bd'; g.setLineDash([2 * d, 3 * d]); g.beginPath(); g.moveTo(x, top + 36 * d); g.lineTo(x, bot); g.stroke(); g.setLineDash([]);
-        g.font = font(); const tw = g.measureText(n).width; if (x + 3 * d > lastLab + 6 * d && x + 3 * d + tw < x1) { text(n, x + 3 * d, top + (46 + (C.win.length > 1 ? 10 : 0)) * d, '#8a979e', 'left', 500); lastLab = x + 3 * d + tw; }
+        g.font = font(); const tw = g.measureText(n).width; if (x + 3 * d > lastLab + 6 * d && x + 3 * d + tw < x1 - (C.qe ? 34 * d : 0)) { text(n, x + 3 * d, top + (46 + (C.win.length > 1 ? 10 : 0)) * d, '#8a979e', 'left', 500); lastLab = x + 3 * d + tw; }
       }
       // reference spectra
       if (!opt.lwir) {
@@ -338,12 +475,13 @@ $$('video[data-src]').forEach((v) => {
       g.strokeRect(X(za), top, X(zb) - X(za), split - 34 * d - top); g.setLineDash([]);
       g.beginPath(); g.moveTo(X(za), split - 34 * d); g.lineTo(L, split + 8 * d); g.moveTo(X(zb), split - 34 * d); g.lineTo(Wd - Rr, split + 8 * d); g.stroke();
       plot(L, Wd - Rr, split + 10 * d, H - 34 * d, za, zb, 0.7, {zoom: true, yaxis: true});
-      text('Zoom: the six MS filters over a healthy and a stressed leaf', (L + Wd - Rr) / 2, H - 6 * d, '#3b4a43', 'center');
+      const cap = 'Zoom: the six MS filters over a healthy and a stressed leaf'; g.font = font();
+      text(g.measureText(cap).width < Wd - L - Rr ? cap : 'Zoom: the six MS filters', (L + Wd - Rr) / 2, H - 6 * d, '#3b4a43', 'center');
     } else if (C.lwir) {
       const lw = Math.min(small ? 80 * d : 200 * d, Wd * 0.24), gap = (C.qe ? (small ? 40 : 52) : (small ? 16 : 26)) * d, x1 = Wd - (small ? 8 : 14) * d - lw - gap;
       plot(L, x1, top, H - 34 * d, 0, 2500, 0.7, {yaxis: true});
       plot(x1 + gap, Wd - (small ? 8 : 14) * d, top, H - 34 * d, 7000, 15000, 0.7, {lwir: true});
-      g.strokeStyle = '#2b3a33'; g.lineWidth = 1.4 * d; for (const dx of [-3, 3]) { g.beginPath(); g.moveTo(x1 + gap / 2 + dx * d - 4 * d, H - 28 * d); g.lineTo(x1 + gap / 2 + dx * d + 4 * d, H - 40 * d); g.stroke(); }
+      g.strokeStyle = '#2b3a33'; g.lineWidth = 1.4 * d; for (const dx of [-3, 3]) { g.beginPath(); g.moveTo(x1 + gap * 0.7 + dx * d - 4 * d, H - 28 * d); g.lineTo(x1 + gap * 0.7 + dx * d + 4 * d, H - 40 * d); g.stroke(); }
       text('Wavelength (nm · µm)', (L + Wd) / 2, H - 6 * d, '#3b4a43', 'center');
     } else {
       plot(L, Wd - Rr, top, H - 34 * d, 0, 2500, 0.7, {yaxis: true});
@@ -362,7 +500,7 @@ $$('video[data-src]').forEach((v) => {
   }
   const all = $$('canvas[data-band]');
   const run = () => all.forEach(draw);
-  (document.fonts?.ready || Promise.resolve()).then(run); run();
+  document.fonts.ready.then(run); run();
   let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(run, 150); });
 })();
 
@@ -377,7 +515,7 @@ $$('video[data-src]').forEach((v) => {
       if (e.key === 'ArrowRight') location.href = next.href;
     });
     let x0 = null, y0 = 0;
-    addEventListener('touchstart', (e) => { x0 = e.target.closest('.viewer,.cmpimg,.fly,.td,.sb-row,.gallery') ? null : e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
+    addEventListener('touchstart', (e) => { x0 = e.target.closest('.viewer,.cmpimg,.fly,.td,.sb-row,.gallery,.stage') ? null : e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
     addEventListener('touchend', (e) => {
       if (x0 === null) return;
       const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
@@ -385,16 +523,4 @@ $$('video[data-src]').forEach((v) => {
       location.href = dx > 0 ? prev.href : next.href;
     });
   }
-}
-
-// ---------- dashboard sign-in: accounts are opening to pilot partners first; nothing is sent or stored from this form
-{
-  const f = $('#signin');
-  if (f) f.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const m = $('.authmsg', f);
-    m.textContent = 'Dashboard accounts are opening to pilot partners first. Request access and we will set yours up.';
-    m.hidden = false;
-    $('#s-pass', f).value = '';
-  });
 }

@@ -178,7 +178,7 @@ async function mount(el) {
   camera.position.copy(home);
   controls.target.set(0, 0, 0);
 
-  const fit = () => Math.max(1, Math.pow(1 / Math.max(0.2, camera.aspect), 0.9)) * (innerWidth < 760 ? 1.3 : 1);     // narrow screens: step back
+  const fit = () => Math.max(1, Math.pow(1 / Math.max(0.2, camera.aspect), 0.9)) * (innerWidth < 760 ? 1.3 : Math.min(1.3, Math.max(1, 1.45 / camera.aspect)) * (+el.dataset.dz || 1));     // narrow screens: step back
   let k = 0, kT = 0, focus = null;
   const look = new THREE.Vector3(), lookT = new THREE.Vector3(), camT = home.clone();
   // drawing on demand: the loop runs while something moves (the teardown easing, a part fading, the camera gliding or
@@ -191,7 +191,7 @@ async function mount(el) {
     focus(g, at) {
       if (g === focus && !at) return;
       focus = g;
-      if (g) {
+      if (g && !(innerWidth > 760 && el.dataset.hold)) {
         const b = new THREE.Box3();
         for (const r of parts) if (r.p.g === g) b.expandByObject(r.mesh);
         b.getCenter(lookT);
@@ -210,7 +210,10 @@ async function mount(el) {
 
   const resize = () => {
     const w = el.clientWidth, h = el.clientHeight;
-    renderer.setSize(w, h); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); wake();
+    renderer.setSize(w, h); camera.aspect = w / Math.max(1, h);
+    // wide screens: the model can sit off-centre (data-dx, data-dy) beside the vertical teardown's text
+    if (innerWidth >= 760 && +el.dataset.dx) camera.setViewOffset(w, h, -w * el.dataset.dx, h * (+el.dataset.dy || 0), w, h); else camera.clearViewOffset();
+    camera.updateProjectionMatrix(); wake();
   };
   new ResizeObserver(resize).observe(el);
   resize();

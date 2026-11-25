@@ -4,7 +4,6 @@
 // themselves, MS's six bands lighting up, the share of the field surveyed, labels on the four findings (positions exported from
 // Blender per frame) and the finding card.
 // After the hero, "Light carries the answer": spectrum waves and a lens over the farm.
-import Lenis from 'lenis';
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -13,16 +12,14 @@ const hero = $('.sh');
 let droneAt = null;                                          // the aircraft on screen (stage coords), for the data packets
 const R = hero?.dataset.root ?? '';
 const IMG = R + 'assets/img/demo/';
-const CAPTURE = location.search.includes('capture');
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// light easing: the film follows the hand closely (0.1 is Lenis's own default; heavier felt rubbery)
-if (!CAPTURE && !REDUCE) { const lenis = new Lenis({lerp: 0.1, smoothWheel: true, anchors: true}); const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf); }
 if (hero) film();
 lightSection();
 
 function typer(el) {
-  const text = el.textContent; el.textContent = ''; el.setAttribute('aria-label', text);
+  const text = el.textContent; el.textContent = '';
+  el.append(Object.assign(document.createElement('span'), {className: 'sr', textContent: text}));   // read once, whole, by screen readers
   const spans = [...text].map((ch) => { const s = document.createElement('span'); s.textContent = ch; s.setAttribute('aria-hidden', 'true'); el.appendChild(s); return s; });
   let last = -2;
   return (q) => {
@@ -96,7 +93,7 @@ function film() {
   if (document.fonts) document.fonts.ready.then(measure);
   const cover = (im) => { const s = Math.max(W / im.width, H / im.height), w = im.width * s, h = im.height * s; return {x: (W - w) / 2, y: (H - h) / 2, w, h}; };
   const nearest = (i) => { for (let d = 0; d < N; d++) { if (frames[i - d]) return i - d; if (frames[i + d]) return i + d; } return -1; };
-  const prog = () => { const r = hero.getBoundingClientRect(); return clamp(-r.top / (hero.offsetHeight - innerHeight)); };
+  const prog = () => { const r = hero.getBoundingClientRect(); return REDUCE || hero.offsetHeight <= innerHeight ? 0 : clamp(-r.top / (hero.offsetHeight - innerHeight)); };
   let pS = 0, lastDrawn = -1, cov = null;
 
   function draw(force) {
@@ -231,8 +228,8 @@ function lightSection() {
   show(0);
   let tx = 0.5, ty = 0.5, x = 0.5, y = 0.5, user = -1e9, vis = false;
   const t0 = performance.now(); let lastCycle = performance.now();
-  rows.forEach((r, j) => r.addEventListener('click', () => { show(j); user = performance.now() + 6000; }));
-  box.addEventListener('pointermove', (e) => { const r = box.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width; ty = (e.clientY - r.top) / r.height; user = performance.now(); });
+  rows.forEach((r, j) => r.addEventListener('click', () => { show(j); user = Infinity; }));        // a chosen reading stays chosen
+  box.addEventListener('pointermove', (e) => { const r = box.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width; ty = (e.clientY - r.top) / r.height; user = Math.max(user, performance.now()); });
   new IntersectionObserver(([e]) => { vis = e.isIntersecting; if (vis) requestAnimationFrame(tick); }).observe(box);
   function tick(now) {
     if (!vis) return;

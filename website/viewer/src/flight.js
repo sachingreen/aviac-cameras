@@ -14,7 +14,7 @@ const CAMS = {
   MS: {name: 'MS · IMX565 colour', px: 2.74e-6, f: 0.016, n: 4128},
   Duos: {name: 'Duos · Mira220 stereo', px: 2.79e-6, f: 0.004, n: 1600},
   TH: {name: 'TH · 1 MP thermal + NIR', px: 12e-6, f: 0.019, n: 1280},
-  SW: {name: 'SWIRL · InGaAs SWIR', px: 5e-6, f: 0.025, n: 640},
+  SW: {name: 'SWIRL · IMX992 SWIR', px: 3.45e-6, f: 0.025, n: 2560},
 };
 
 const SCENES = {
@@ -28,7 +28,7 @@ const SCENES = {
     finds: [[29.7, 25.2, 'Hot cell'], [61.6, 52.7, 'Substring warm'], [81.2, 34.2, 'Module warm'], [47.8, 79.3, 'Half table warm'], [56.2, 14.2, 'Soiling']],
     findWord: 'Hotspot candidates', title: 'Array inspection · TH thermal'},
   industrial: {ground: 'swir_visible', layer: 'swir_swir', layerName: 'SWIR', W: 160, alt: 50, alts: [30, 80], speed: 5, side: 0.3, cam: 'SW', drone: 'quad', tint: 0x2b2d31,
-    bands: [['SWIR 0.9–1.7 µm', '#3a6ea5']], finds: [[70.0, 43.3, 'Ponding'], [26.2, 38.3, 'Wet insulation'], [53.8, 89.0, 'Pipe leak']],
+    bands: [['SWIR 400–1700 nm', '#3a6ea5']], finds: [[70.0, 43.3, 'Ponding'], [26.2, 38.3, 'Wet insulation'], [53.8, 89.0, 'Pipe leak']],
     findWord: 'Moisture findings', title: 'Roof inspection · SW short-wave infrared'},
   construction: {ground: 'site_w3', layer: 'site_w11', layerName: 'Week 11', W: 220, alt: 60, alts: [40, 90], speed: 10, side: 0.7, cam: 'MS', drone: 'vtol',
     bands: [['Colour map', '#2f6f4e'], ['Stereo surface', '#6b7c72']], finds: [[48.5, 47.5, '+9 floors of frame'], [57.0, 46.0, 'Rebar placed'], [37.5, 50.5, 'Crane climbed'], [39.0, 37.5, 'Stockpile down']],
@@ -339,9 +339,10 @@ function mount(el) {
 
   // controls
   el.querySelector('[data-a="play"]').addEventListener('click', (e) => { playing = !playing; e.currentTarget.textContent = playing ? '❚❚' : '▶'; e.currentTarget.setAttribute('aria-label', playing ? 'Pause' : 'Play'); });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches && playing) el.querySelector('[data-a="play"]').click();   // reduced motion: start paused
   const markView = () => el.querySelectorAll('[data-v]').forEach((x) => { x.classList.toggle('on', x.dataset.v === view); x.setAttribute('aria-pressed', String(x.dataset.v === view)); });
   el.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { view = b.dataset.v; auto = false; markView(); }));
-  el.querySelector('input[type=range]').addEventListener('change', (e) => { alt = +e.target.value; replan(); });
+  el.querySelector('input[type=range]').addEventListener('input', (e) => { alt = +e.target.value; cancelAnimationFrame(el._hq); el._hq = requestAnimationFrame(() => replan()); });
   let drag = null, yaw = 0, pitch = 0;
   cv.addEventListener('pointerdown', (e) => { drag = [e.clientX, e.clientY, yaw, pitch]; auto = false; cv.setPointerCapture(e.pointerId); });
   cv.addEventListener('pointermove', (e) => { if (!drag) return; yaw = drag[2] - (e.clientX - drag[0]) * 0.006; pitch = Math.max(-0.5, Math.min(0.6, drag[3] + (e.clientY - drag[1]) * 0.004)); });
@@ -367,7 +368,7 @@ function mount(el) {
     if (fT && now - fT < 120) { fSum += now - fT; fN++; }
     fT = now;
     if (fN >= 60) { const avg = fSum / fN; fSum = fN = 0; if (avg > 25 && dpr > 1) { dpr = Math.max(1, dpr - 0.25); renderer.setPixelRatio(dpr); resize(); } }
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
     const o = plan.o;
     const tx = view === 'survey' ? Math.max(1, plan.timex / 3) : plan.timex;
     if (playing) { simT += dt * tx / plan.timex; dist += S.speed * tx * dt; if (dist >= plan.len) { replan(); } }

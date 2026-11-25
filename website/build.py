@@ -17,6 +17,7 @@ SRC, OUT = os.path.join(HERE, "src"), os.path.join(HERE, "public")
 sys.path.insert(0, os.path.join(REPO, "toolkit", "brand"))
 from logo import svg_mark, svg_wordmark, GREEN, IVORY
 
+DASH = "https://devterrain.aviac.in/"     # the Aviac dashboard (sign in)
 NAV = [("solutions", "Solutions", "#solutions", [("crop", "Crop monitoring", "solutions/crop-monitoring/", "Multispectral · stress before it shows"),
                                                   ("spraying", "Spraying", "solutions/spraying/", "Stereo · coverage on every pass"),
                                                   ("solar", "Solar inspection", "solutions/solar/", "Thermal · hotspots to repairs"),
@@ -24,8 +25,8 @@ NAV = [("solutions", "Solutions", "#solutions", [("crop", "Crop monitoring", "so
                                                   ("construction", "Construction monitoring", "solutions/construction/", "Weekly maps · progress and volumes")]),
        ("systems", "Sensors", "#systems", [("ms", "MS", "product/multispectral/", "Agri Spectral · six bands"), ("duos", "Duos", "product/duos/", "Stereo · spray drones"),
                                            ("th", "TH", "product/thermal/", "Thermal + NIR · demo"), ("sw", "SWIRL", "product/swir/", "SWIR · demo")]),
-       ("field", "Software", "#field", [("dashboard", "Dashboard", "dashboard/", "Maps, findings, alerts and reports"),
-                                        ("infield", "In the field", "#field", "Same field in RGB and NDVI")]),
+       ("field", "Software", "#field", [("dashboard", "Dashboard", DASH, "Maps, findings, alerts and reports"),
+                                        ("infield", "In the field", "#field", "Every flight, in the dashboard")]),
        ("research", "Partners", "#research", None), ("company", "Company", "#company", None)]
 
 
@@ -56,10 +57,10 @@ def switcher(on, R):
     prv, nxt = SYSTEMS_ORDER[(i - 1) % 4], SYSTEMS_ORDER[(i + 1) % 4]
     row = "".join(f'<a href="{R}{h}"{" class=on aria-current=page" if k == on else ""}><img src="{R}assets/img/t/s/{img}" alt="" width="54" height="38" decoding="async"><span><b>{n}</b>{sub}</span></a>'
                   for k, n, sub, h, img in SYSTEMS_ORDER)
-    return (f'<div class="sysbar"><div class="wrap"><a class="sb-arrow" href="{R}{prv[3]}" aria-label="Previous system: {prv[1]}">&larr;</a>'
-            f'<nav class="sb-row" aria-label="Systems">{row}</nav><a class="sb-arrow" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}">&rarr;</a></div></div>'
+    return (f'<nav class="sysbar" aria-label="Cameras"><div class="wrap"><a class="sb-arrow" href="{R}{prv[3]}" aria-label="Previous system: {prv[1]}">&larr;</a>'
+            f'<div class="sb-row">{row}</div><a class="sb-arrow" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}">&rarr;</a></div>'
             f'<a class="sb-edge l" href="{R}{prv[3]}" aria-label="Previous system: {prv[1]}"><span>&larr;</span><b>{prv[1]}</b></a>'
-            f'<a class="sb-edge r" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}"><b>{nxt[1]}</b><span>&rarr;</span></a>')
+            f'<a class="sb-edge r" href="{R}{nxt[3]}" aria-label="Next system: {nxt[1]}"><b>{nxt[1]}</b><span>&rarr;</span></a></nav>')
 
 
 SITE = os.environ.get("SITE", "https://aviac.in")   # set SITE to your own domain when you move hosts
@@ -70,7 +71,7 @@ DESC = {"": "Aviac builds drone cameras with edge AI: multispectral crop monitor
         "solutions/industrial/": "SWIR industrial inspection: wet insulation, ponding and leaks read dark in short-wave infrared.",
         "solutions/construction/": "Construction monitoring from the air: the same flight every week, progress and volumes measured.",
         "product/multispectral/": "Aviac MS Agri Spectral: Sony IMX565 plus three Mira220 sensors, six bands, edge AI on board.",
-        "product/duos/": "Aviac Duos: two global-shutter Mira220 sensors on a 26 mm baseline, 28 g, for spray drones.",
+        "product/duos/": "Aviac Duos: two global-shutter Mira220 sensors on a 26 mm baseline, 128 g, for spray drones.",
         "product/thermal/": "Aviac TH: 1 MP thermal core and a Mira220 NIR module (400 to 940 nm) in one head.",
         "product/swir/": "Aviac SWIRL: InGaAs short-wave infrared box camera with a fixed-focus C-mount lens.",
         "dashboard/": "Sign in to the Aviac dashboard: maps, findings and reports from every flight."}
@@ -99,23 +100,25 @@ def render(text, R, rel=""):
 
     def nav(m):
         on = m.group(1)
+        slug = rel.rstrip("/").split("/")[-1] if rel.startswith(("product/", "solutions/")) else ""
+        forq = f"?for={slug}" if slug else ""                # the contact form opens with this camera or market chosen
         home = "" if on == "home" else R
         items = ""
         for k, t, h, sub in NAV:
             on_ = k == on or (sub and any(sk == on for sk, *_ in sub))
             if sub:
-                links = "".join(f'<a href="{R}{sh}"{" class=on" if sk == on else ""}><b>{st}</b><span>{sd}</span></a>' for sk, st, sh, sd in sub)
+                links = "".join(f'<a href="{sh if sh.startswith("http") else R + sh}"{" class=on" if sk == on else ""}><b>{st}</b><span>{sd}</span></a>' for sk, st, sh, sd in sub)
                 items += (f'<li class="dd"><a href="{home}{h}"{" class=on" if on_ else ""} aria-haspopup="true">{t} <span class="car">&#9662;</span></a>'
                           f'<div class="menu">{links}</div></li>')
             else:
                 items += f'<li><a href="{home}{h}">{t}</a></li>'
         return (f'<a class="skip" href="#main">Skip to content</a><div class="sprog" aria-hidden="true"><i></i></div><nav class="nav"><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="">'
                 f'<span class="wm">Aviac</span></a><ul>{items}</ul>'
-                f'<a class="signin" href="{R}dashboard/">Sign in</a><a class="btn p cta" href="{home}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>' + switcher(on, R))
+                f'<a class="signin" href="{DASH}">Sign in</a><a class="btn p cta" href="{home}{forq}#contact">Request a pilot</a><button class="burger" aria-label="Menu">&#9776;</button></div></nav>' + switcher(on, R))
 
     foot = (f'<footer><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="" style="height:22px">'
             f'<span class="wm" style="font-size:19px">Aviac</span></a>'
-            f'<span>info@aviac.in</span><span>&copy; Aviac Technologies 2024&ndash;26. Specifications are design figures.</span></div></footer>')
+            f'<a class="mail" href="mailto:info@aviac.in">info@aviac.in</a><span>&copy; Aviac Technologies 2024&ndash;26. Specifications are design figures.</span></div></footer>')
     text = re.sub(r"\{\{HEAD ([^}]*)\}\}", head, text)
     text = re.sub(r"\{\{NAV (\w+)\}\}", nav, text)
     text = text.replace("{{FOOT}}", foot).replace("{{R}}", R)
@@ -182,7 +185,7 @@ for dp, _, fs in os.walk(SRC):
             shutil.copy(src, dst)
 shutil.copy(os.path.join(HERE, "vercel.json"), os.path.join(OUT, "vercel.json"))
 open(os.path.join(OUT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    + "".join(f"  <url><loc>{SITE}/{k}</loc></url>\n" for k in DESC) + "</urlset>\n")
+    + "".join(f"  <url><loc>{SITE}/{k}</loc></url>\n" for k in DESC if k != "dashboard/") + "</urlset>\n")
 open(os.path.join(OUT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 total = sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fs in os.walk(OUT) for f in fs)
 print(f"website/public: {total / 1e6:.1f} MB")
