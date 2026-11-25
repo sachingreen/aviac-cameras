@@ -118,7 +118,7 @@ def render(text, R, rel=""):
 
     foot = (f'<footer><div class="wrap"><a class="brand" href="{R or './'}" aria-label="Aviac, home"><img class="m" src="{R}img/mark.svg" alt="" style="height:22px">'
             f'<span class="wm" style="font-size:19px">Aviac</span></a>'
-            f'<a class="mail" href="mailto:info@aviac.in">info@aviac.in</a><span>&copy; Aviac Technologies 2024&ndash;26. Specifications are design figures.</span></div></footer>')
+            f'<a class="mail" href="mailto:info@aviac.in">info@aviac.in</a><span>&copy; Aviac Technologies 2024&ndash;26. Specifications are design figures; field imagery, readings and flight demos are illustrative.</span></div></footer>')
     text = re.sub(r"\{\{HEAD ([^}]*)\}\}", head, text)
     text = re.sub(r"\{\{NAV (\w+)\}\}", nav, text)
     text = text.replace("{{FOOT}}", foot).replace("{{R}}", R)

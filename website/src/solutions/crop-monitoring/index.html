@@ -5,10 +5,9 @@
 <main id="main">
 <header class="phero"><div class="wrap"><div class="grid">
   <div class="reveal">
-    <div class="lab g">Agriculture · multispectral</div>
-    <h1 style="margin:14px 0 16px;font-size:clamp(42px,5.2vw,72px)">See crop stress <em>before it shows.</em></h1>
+    <h1 style="margin:14px 0 16px;font-size:clamp(42px,5.2vw,72px)">See crop stress before it shows.</h1>
     <p style="font-size:18px;max-width:540px">MS flies the field in six bands and flags stress in the red edge and near infrared days before it shows in colour. Scout the patch, not the whole farm.</p>
-    <div class="ctas" style="margin-top:22px"><a class="btn p" href="#fly">See the demo <span class="a">&darr;</span></a> <a class="btn" href="{{R}}?for=crop-monitoring#contact">Request a pilot</a></div>
+    <div class="ctas" style="margin-top:22px"><a class="btn p" href="#fly">See the demo</a> <a class="btn" href="{{R}}?for=crop-monitoring#contact">Request a pilot</a></div>
   </div>
   <div class="pic reveal" style="border-radius:var(--r-lg);overflow:hidden"><img src="{{R}}assets/img/ms_titanium_hero_green.jpg" alt="MS Agri Spectral camera" style="width:100%;display:block"></div>
 </div></div></header>
@@ -16,17 +15,15 @@
 <section id="fly" style="padding-top:30px"><div class="wrap">
   <div class="head reveal"><h2>Watch it fly.</h2><p>MS rides fixed and nadir under the Aviac VTOL and flies a lawnmower survey. The NDVI map builds behind the footprint, and stressed zones are pinned as they pass under the camera.</p></div>
   <div class="fly reveal" data-scene="crop"></div>
-  <p class="note" style="margin-top:10px">Live simulation. Drag to look around; change the height to see the ground detail and swath change. Time runs faster than real flight.</p>
 </div></section>
 
 <section id="demo" style="padding-top:30px"><div class="wrap">
   <div class="dgrid">
     <div class="sample reveal">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="lab">Same field, two views · drag to compare</div><div class="tog"><button data-at="0">RGB</button><button data-at="1" class="on">NDVI</button></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="lab hint">Drag to compare</div><div class="tog"><button data-at="0">RGB</button><button data-at="1" class="on">NDVI</button></div></div>
       <div class="cmpimg"><img src="{{R}}assets/img/demo/field_rgb.jpg" alt="Aerial view of crop fields in colour" width="1600" height="1200"><div class="ndvi"><img src="{{R}}assets/img/demo/field_ndvi.jpg" alt="The same fields as an NDVI map with two stressed patches" width="1600" height="1200"></div>
         <div class="handle" role="slider" aria-label="Compare RGB and NDVI" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0"><span></span></div>
         <span class="tag l">RGB</span><span class="tag r">NDVI</span><span class="pin lft" style="left:81.3%;top:33.0%"><i style="background:#d7301f"></i><b>Stress · 0.21 ac</b></span><span class="pin" style="left:33.7%;top:85.9%"><i style="background:#d7301f"></i><b>Stress · 0.08 ac</b></span></div>
-      <p class="note">Illustrative imagery generated for this demo, not a capture.</p>
     </div>
     <div class="sample inds reveal">
       <div class="lab">At a glance</div>
@@ -36,7 +33,6 @@
         <li><span class="kh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/></svg></span><span>Bands per pixel</span></span><b>6</b></li>
         <li><span class="kh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg></span><span>Processed in flight</span></span><b>On board</b></li>
       </ul>
-      <p class="note">Figures for the sample field shown.</p>
     </div>
   </div>
 </div></section>
@@ -44,7 +40,6 @@
 <section style="padding-top:20px"><div class="wrap">
   <div class="bands">
     <div class="reveal">
-      <div class="lab">Why six bands</div>
       <h2 style="font-size:clamp(32px,4vw,52px);margin:14px 0 18px">A stressed crop looks healthy until it is too late.</h2>
       <div class="pts">
         <div><b>Stress starts in the red edge.</b><p>Chlorophyll loss shifts reflectance between 700 and 740 nm days before leaves change colour.</p></div>
@@ -67,12 +62,12 @@
 
 <section style="padding-top:10px"><div class="wrap">
   <a class="cambox reveal" href="{{R}}product/multispectral/" style="text-decoration:none;color:inherit"><img src="{{R}}assets/img/t/ms_titanium_hero_light.jpg" loading="lazy" alt="MS">
-    <div class="body"><div class="lab g">The camera</div><h3 style="font-size:40px;margin:10px 0 8px">MS <span style="color:var(--mute);font-size:.55em">Agri Spectral</span></h3><p>Sony IMX565 colour plus three Mira220 sensors for red edge and near infrared, fixed nadir under the wing.</p><span class="go" style="color:var(--forest);font-weight:500">See the camera <span class="a">&rarr;</span></span></div></a>
+    <div class="body"><h3 style="font-size:40px;margin:10px 0 8px">MS <span style="color:var(--mute);font-size:.55em">Agri Spectral</span></h3><p>Sony IMX565 colour plus three Mira220 sensors for red edge and near infrared, fixed nadir under the wing.</p><span class="go" style="color:var(--forest);font-weight:500">See the camera</span></div></a>
 </div></section>
 
 <section id="contact-cta" style="background:var(--bg-2)"><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap">
-  <div class="reveal"><div class="lab">Pilots</div><h2 style="font-size:clamp(32px,4vw,52px);margin:12px 0 0">Try it on your farm.</h2></div>
-  <a class="btn p reveal" href="{{R}}?for=crop-monitoring#contact">Request a pilot <span class="a">&rarr;</span></a>
+  <div class="reveal"><h2 style="font-size:clamp(32px,4vw,52px);margin:12px 0 0">Try it on your farm.</h2></div>
+  <a class="btn p reveal" href="{{R}}?for=crop-monitoring#contact">Request a pilot</a>
 </div></section>
 
 </main>

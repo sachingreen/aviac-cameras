@@ -6,9 +6,9 @@
 <header class="phero"><div class="wrap"><div class="grid">
   <div class="reveal">
     <div class="lab g">Solar · thermal<span class="demo-tag">DEMO</span></div>
-    <h1 style="margin:14px 0 16px;font-size:clamp(42px,5.2vw,72px)">Find the hot cell. <em>Close the repair.</em></h1>
+    <h1 style="margin:14px 0 16px;font-size:clamp(42px,5.2vw,72px)">Find the hot cell. Close the repair.</h1>
     <p style="font-size:18px;max-width:540px">TH flies the array with a 1 MP thermal module and a NIR module side by side. Hotspot candidates become reviewed findings, repair jobs and a report the site owner signs off.</p>
-    <div class="ctas" style="margin-top:22px"><a class="btn p" href="#fly">See the demo <span class="a">&darr;</span></a> <a class="btn" href="{{R}}?for=solar#contact">Request a pilot</a></div>
+    <div class="ctas" style="margin-top:22px"><a class="btn p" href="#fly">See the demo</a> <a class="btn" href="{{R}}?for=solar#contact">Request a pilot</a></div>
   </div>
   <div class="pic reveal" style="border-radius:var(--r-lg);overflow:hidden"><img src="{{R}}assets/img/th_field_hero_green.jpg" alt="Aviac TH thermal camera" style="width:100%;display:block"></div>
 </div></div></header>
@@ -16,26 +16,24 @@
 <section id="fly" style="padding-top:30px"><div class="wrap">
   <div class="head reveal"><h2>Watch it fly.</h2><p>TH flies the rows at 30 m with thermal and colour side by side. Hotspot candidates are pinned as the footprint passes over them, ready for review.</p></div>
   <div class="fly reveal" data-scene="solar"></div>
-  <p class="note" style="margin-top:10px">Live simulation. Drag to look around; change the height to see the ground detail and swath change. Time runs faster than real flight.</p>
 </div></section>
 
 <section id="demo" style="padding-top:30px"><div class="wrap">
   <div class="dgrid">
     <div class="sample reveal">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="lab">One array, two views · drag to compare</div><div class="tog"><button data-at="0">RGB</button><button data-at="1" class="on">THERMAL</button></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="lab hint">Drag to compare</div><div class="tog"><button data-at="0">RGB</button><button data-at="1" class="on">THERMAL</button></div></div>
       <div class="cmpimg"><img src="{{R}}assets/img/demo/solar_rgb.jpg" alt="Solar array from above in colour" width="1600" height="1200"><div class="ndvi"><img src="{{R}}assets/img/demo/solar_thermal.jpg" alt="The same array in thermal with hotspot candidates" width="1600" height="1200"></div>
         <div class="handle" role="slider" aria-label="Compare RGB and THERMAL" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0"><span></span></div>
         <span class="tag l">RGB</span><span class="tag r">THERMAL</span><span class="pin" style="left:29.7%;top:25.2%"><i style="background:#ffe680"></i><b>Hotspot candidate · one cell</b></span><span class="pin" style="left:61.6%;top:52.7%"><i style="background:#f0a020"></i><b>Substring warm</b></span><span class="pin lft" style="left:81.2%;top:34.2%"><i style="background:#f0a020"></i><b>Module warm</b></span><span class="pin" style="left:47.8%;top:79.3%"><i style="background:#f0a020"></i><b>Half a table warm</b></span><span class="pin lft" style="left:56.2%;top:14.2%"><i style="background:#c8a080"></i><b>Soiling</b></span></div>
-      <p class="note">Illustrative imagery. Thermal colours here are relative, not radiometric temperatures; findings are candidates until reviewed.</p>
     </div>
     <div class="sample reveal" style="justify-content:space-between">
-      <div><div class="lab">What the thermal view shows</div><h2 style="font-size:28px;margin:10px 0 8px">Five candidates in one pass.</h2><p style="margin:0">A hot cell, a warm substring, a warm module, half a table running warm and a soiled row. Each one is a candidate until a qualified reviewer confirms it.</p></div>
+      <div><h2 style="font-size:28px;margin:10px 0 8px">Five candidates in one pass.</h2><p style="margin:0">A hot cell, a warm substring, a warm module, half a table running warm and a soiled row. Each one is a candidate until a qualified reviewer confirms it.</p></div>
       <div class="stats"><div><b>5</b><span>Candidates flagged</span></div><div><b>1 MP</b><span>Thermal, plus NIR</span></div><div><b>1</b><span>Repair job per finding</span></div><div><b>Versioned</b><span>Customer reports</span></div></div>
     </div>
   </div>
 </div></section>
 
-<section class="specsec"><div class="wrap"><div class="specwrap reveal"><div class="spechead"><div><div class="lab g">Spectrum · 0 to 2500 nm</div><h2>Where TH sees.</h2></div><p>A NIR module from 400 to 940 nm, and a thermal core far beyond: long-wave infrared, 8 to 14 µm, where heat itself glows.</p></div><canvas data-band="th" role="img" aria-label="The NIR module at 400 to 940 nm on a 0 to 2500 nm scale, with an extension showing the thermal band at 8 to 14 micrometres"></canvas><div class="speclegend" data-legend="th"></div></div></div></section>
+<section class="specsec"><div class="wrap"><div class="specwrap reveal"><div class="spechead"><div><h2>Where TH sees.</h2></div><p>A NIR module from 400 to 940 nm, and a thermal core far beyond: long-wave infrared, 8 to 14 µm, where heat itself glows.</p></div><canvas data-band="th" role="img" aria-label="The NIR module at 400 to 940 nm on a 0 to 2500 nm scale, with an extension showing the thermal band at 8 to 14 micrometres"></canvas><div class="speclegend" data-legend="th"></div></div></div></section>
 
 <section style="padding-top:20px"><div class="wrap">
   <div class="head reveal"><h2>From flight to customer acceptance.</h2><p>One connected service cycle for solar installers and O&amp;M teams, in a workspace now in development (working name: Solar Service Hub). Drone evidence is one input; reviewed findings drive the repair work.</p></div>
@@ -52,12 +50,12 @@
 
 <section style="padding-top:10px"><div class="wrap">
   <a class="cambox reveal" href="{{R}}product/thermal/" style="text-decoration:none;color:inherit"><img src="{{R}}assets/img/t/th_field_hero_light.jpg" loading="lazy" alt="TH">
-    <div class="body"><div class="lab g">The camera</div><h3 style="font-size:40px;margin:10px 0 8px">TH <span style="color:var(--mute);font-size:.55em">Thermal</span><span class="demo-tag">DEMO</span></h3><p>Two modules in one head: a 1 MP thermal core behind a germanium lens, and a Mira220 NIR camera seeing 400 to 940 nm.</p><span class="go" style="color:var(--forest);font-weight:500">See the camera <span class="a">&rarr;</span></span></div></a>
+    <div class="body"><h3 style="font-size:40px;margin:10px 0 8px">TH <span style="color:var(--mute);font-size:.55em">Thermal</span><span class="demo-tag">DEMO</span></h3><p>Two modules in one head: a 1 MP thermal core behind a germanium lens, and a Mira220 NIR camera seeing 400 to 940 nm.</p><span class="go" style="color:var(--forest);font-weight:500">See the camera</span></div></a>
 </div></section>
 
 <section id="contact-cta" style="background:var(--bg-2)"><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap">
-  <div class="reveal"><div class="lab">Pilots</div><h2 style="font-size:clamp(32px,4vw,52px);margin:12px 0 0">Try it on your site.</h2></div>
-  <a class="btn p reveal" href="{{R}}?for=solar#contact">Request a pilot <span class="a">&rarr;</span></a>
+  <div class="reveal"><h2 style="font-size:clamp(32px,4vw,52px);margin:12px 0 0">Try it on your site.</h2></div>
+  <a class="btn p reveal" href="{{R}}?for=solar#contact">Request a pilot</a>
 </div></section>
 
 </main>
