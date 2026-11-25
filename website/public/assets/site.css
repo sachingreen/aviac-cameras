@@ -935,3 +935,4 @@ h3,h4{letter-spacing:-.02em}
 /* Sign in: a light secondary control, smaller than Request a pilot */
 .nav .signin{min-height:38px;padding:0 16px;font:500 14.5px var(--sans);border-width:1px;border-color:rgba(19,32,26,.16)}
 .nav .btn.p.cta{min-height:42px;padding:0 20px;font-size:14.5px}
+.nav .signin{min-height:32px;padding:0 13px;font:500 13.5px var(--sans)}
