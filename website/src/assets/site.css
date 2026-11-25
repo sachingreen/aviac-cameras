@@ -937,3 +937,5 @@ h3,h4{letter-spacing:-.02em}
 .nav .btn.p.cta{min-height:42px;padding:0 20px;font-size:14.5px}
 .nav .signin{min-height:32px;padding:0 13px;font:500 13.5px var(--sans)}
 @media (max-width:960px){.nav .wrap>.signin{display:none}}   /* phones and tablets: Sign in lives in the menu */
+.nav .wrap>.signin{min-height:28px;height:28px;padding:0 12px;font-size:13px}
+@media (max-width:960px){.nav .wrap>.signin{display:none}}
