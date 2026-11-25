@@ -919,3 +919,13 @@ a.mini,a.sys{transition:transform .35s var(--ease),box-shadow .35s var(--ease),b
 /* text inside cards reads at body size, in the ink */
 .mini p,.partner span:last-child,.sys .body p,.card p,.sample p,.minis-q p{font-size:16px;line-height:1.55;color:var(--ink-2)}
 .lc-h .sp{background:linear-gradient(90deg,#5d8fd6,#2d9a5a 30%,#d0a12b 52%,#d0582f 72%,#9a4bc0);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- type: Bricolage Grotesque for headlines, Manrope for text ---------- */
+:root{--serif:'Bricolage Grotesque',system-ui,sans-serif;--sans:'Manrope',system-ui,sans-serif}
+h1,h2,h3,h4,.lc-h,.sh-t,.phero h1{font-weight:500;letter-spacing:-.035em}
+h3,h4{letter-spacing:-.02em}
+.brand .wm{font-weight:500;letter-spacing:-.02em}
+/* Sign in reads as a real control beside Request a pilot */
+.nav .signin{font:600 15px var(--sans);letter-spacing:0;color:var(--ink);padding:10px 16px;border:1px solid rgba(19,32,26,.14);border-radius:999px}
+@media (hover:hover){.nav .signin:hover{background:var(--sage-2);border-color:rgba(19,32,26,.24)}}
+.nav .signin+.cta{margin-left:10px}
