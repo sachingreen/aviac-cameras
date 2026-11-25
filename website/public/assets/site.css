@@ -929,3 +929,6 @@ h3,h4{letter-spacing:-.02em}
 .nav .signin{font:600 15px var(--sans);letter-spacing:0;color:var(--ink);padding:10px 16px;border:1px solid rgba(19,32,26,.14);border-radius:999px}
 @media (hover:hover){.nav .signin:hover{background:var(--sage-2);border-color:rgba(19,32,26,.24)}}
 .nav .signin+.cta{margin-left:10px}
+/* Sign in: the same size as Request a pilot, outlined instead of filled */
+.nav .signin{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 24px;font:600 15.5px var(--sans);border-width:1.5px;border-color:rgba(19,32,26,.22)}
+.nav .btn.p.cta{min-height:46px;padding:0 24px;font-size:15.5px}
