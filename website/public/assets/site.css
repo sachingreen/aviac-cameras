@@ -890,3 +890,8 @@ p,li,dd,.step p{text-wrap:pretty}
   .phero:has(.pside) .pside .ctas{margin-top:18px}
   .phero:has(.pside) .pspecs{order:2;margin-top:24px}
 }
+/* Safari: the market pane's pictures are all absolutely placed, so its height must not hang on aspect-ratio alone
+   (iOS drew it zero tall). An in-flow spacer gives it the same 4:3 (1:1 on phones) in every browser. */
+.xpanes{aspect-ratio:auto;height:auto}
+.xpanes::before{content:'';display:block;padding-top:75%}
+@media (max-width:560px){.xpanes::before{padding-top:100%}}
